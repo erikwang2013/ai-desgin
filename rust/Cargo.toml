@@ -1,5 +1,5 @@
 [workspace]
-members = ["core", "plugins/figma", "plugins/blender", "plugins/autocad"]
+members = ["core", "plugins/figma", "plugins/blender", "plugins/autocad", "plugins/photoshop"]
 resolver = "2"
 
 [workspace.package]
