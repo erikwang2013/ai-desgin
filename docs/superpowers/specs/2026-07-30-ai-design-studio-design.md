@@ -12,11 +12,12 @@
 | 决策项 | 选择 | 说明 |
 |--------|------|------|
 | 桌面框架 | Flutter | 跨 Win/Mac，一致的 UI 体验 |
+| 插件实现语言 | Rust | 系统级 API 调用、原生 IPC、独立进程隔离 |
 | Claude Code 集成 | 内置 CLI 调用 | 通过子进程调用 Claude Code，由其编排设计流程 |
 | 任务类型 | 控制设计软件 | AI 编写控制脚本，驱动设计软件自动执行操作 |
 | 目标用户 | 所有人群 | 既支持自然语言简单交互，也支持专业高级控制 |
 | 覆盖策略 | 六个领域同时推进 | 通过插件化架构实现并行开发 |
-| 架构模式 | 插件化架构 | 每个设计软件独立插件，共享核心层 |
+| 架构模式 | 插件化架构 | Dart 接口定义 + Rust crate 实现，flutter_rust_bridge 桥接 |
 
 ## 三、整体架构
 
@@ -38,9 +39,9 @@
 │  ┌────────────────┐  ┌────────────┐  ┌───────────────────┐  │
 │  │ TaskOrchestra- │  │ CCProcess  │  │ ModelRouter       │  │
 │  │ tor            │  │ Manager    │  │                   │  │
-│  │ 任务拆解/排队   │  │ CLI子进程  │  │ deepseek→创意     │  │
-│  │ 上下文管理      │  │ 生命周期    │  │ claude→逻辑      │  │
-│  │ 会话持久化      │  │ stdio通信  │  │ gemini→视觉      │  │
+│  │ 任务拆解/排队   │  │ CLI子进程  │  │ 按任务类型自动    │  │
+│  │ 上下文管理      │  │ 生命周期    │  │ 选择最优模型      │  │
+│  │ 会话持久化      │  │ stdio通信  │  │                   │  │
 │  └────────────────┘  └────────────┘  └───────────────────┘  │
 │                                                              │
 │  ┌──────────────────────────────────────────────────────┐    │
@@ -48,18 +49,22 @@
 │  │  发现 → 加载 → 校验 → 注册 → 生命周期管理              │    │
 │  └──────────────────────────────────────────────────────┘    │
 └──────────────┬───────────────────────────────────────────────┘
-               │  Plugin SDK (Dart interface)
+               │  flutter_rust_bridge / dart:ffi
                ▼
 ┌──────────────────────────────────────────────────────────────┐
-│                    插件层 (独立包)                             │
+│                    插件层 (Rust crates)                       │
 │                                                              │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌────────────┐  │
 │  │ Figma    │  │ Blender  │  │ AutoCAD  │  │ Photoshop  │  │
-│  │ 插件     │  │ 插件     │  │ 插件     │  │ 插件       │  │
+│  │ crate    │  │ crate    │  │ crate    │  │ crate      │  │
 │  │          │  │          │  │          │  │            │  │
 │  │ REST API │  │ Python   │  │ AutoLISP │  │ ExtendScript│  │
-│  │ + 插件API│  │ bpy API  │  │ + .NET   │  │ + UXP     │  │
+│  │ + 浏览器 │  │ bpy 注入 │  │ + .NET   │  │ + COM/     │  │
+│  │ 自动化   │  │          │  │ interop  │  │ AppleScript│  │
 │  └──────────┘  └──────────┘  └──────────┘  └────────────┘  │
+│                                                              │
+│  Rust 选型理由：系统级 API、原生 IPC、独立进程隔离、         │
+│  .dll/.dylib 产物，flutter_rust_bridge 自动生成 FFI 绑定    │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -76,7 +81,7 @@
                               生成的脚本 ← PluginManager
                                           │
                                           ▼
-                              插件执行 → 设计软件操作
+                     Rust crate 执行 → 设计软件操作
                                           │
                                           ▼
                               结果/截图 ← 用户确认
@@ -86,51 +91,73 @@
 
 - **上下文管理**：每个设计会话维护独立的上下文窗口，包含当前软件状态、最近操作历史、用户偏好
 - **通信方式**：核心层和 Claude Code 之间用 JSON 格式的 stdio 管道通信
-- **插件隔离**：插件在独立进程中运行（特别是 Python 脚本插件），主进程只负责任务调度
+- **Dart ↔ Rust 桥接**：通过 flutter_rust_bridge 自动生成 FFI 绑定，Dart 调用 Rust 如同调用本地方法
+- **插件隔离**：每个 Rust crate 在独立进程中运行，主进程只负责任务调度
 
 ## 四、插件 SDK 接口设计
 
-每个设计软件插件需要实现的核心接口：
+插件采用 **Dart 定义接口 + Rust 实现** 的分层模式。Dart 侧通过 flutter_rust_bridge 调用 Rust 原生代码。
+
+**Dart 侧 — 接口定义（供 UI 和核心层使用）**：
 
 ```dart
-/// 插件必须实现的核心接口
 abstract class DesignPlugin {
-  /// 插件元信息
-  String get id;            // 唯一标识，如 "com.aidesign.figma"
-  String get name;          // 显示名称，如 "Figma"
+  String get id;
+  String get name;
   String get version;
-  DesignCategory get category;  // Web / Ad / Industrial / 3D / Arch / Interior
-  String get scriptLanguage;    // 脚本语言：python / javascript / lisp / applescript
-
-  /// 生命周期
+  DesignCategory get category;
   Future<bool> initialize(PluginContext ctx);
   Future<void> dispose();
-
-  /// 连接管理
-  Future<ConnectionStatus> checkConnection();    // 检测软件是否运行
-  Future<bool> connect(ConnectionConfig config);  // 建立连接
-
-  /// 能力声明 — 告诉 AI 这个软件能做什么
+  Future<ConnectionStatus> checkConnection();
+  Future<bool> connect(ConnectionConfig config);
   SoftwareCapabilities get capabilities;
-
-  /// 核心执行
   Future<ScriptResult> execute(String script, {ProgressCallback? onProgress});
-  Future<ScriptResult> preview(String script);  // dry-run，不实际执行
-
-  /// 状态获取
-  Future<SoftwareState> getCurrentState();  // 当前文档状态快照，用于上下文
+  Future<ScriptResult> preview(String script);
+  Future<SoftwareState> getCurrentState();
 }
 ```
 
-**插件的三个核心职责**：
+**Rust 侧 — 实际执行（每个设计软件一个 crate）**：
 
-1. **能力声明** (`capabilities`) — 告诉 Claude Code 这个软件支持什么操作。AI 根据能力声明来生成有效的控制脚本
-2. **脚本执行** (`execute`) — 把 AI 生成的脚本注入到目标软件中运行
-3. **状态同步** (`getCurrentState`) — 返回当前文档的快照（选中对象、图层列表等），让 AI 知道当前上下文
+```rust
+pub trait DesignPlugin: Send + Sync {
+    fn id(&self) -> &str;
+    fn name(&self) -> &str;
+    fn initialize(&mut self, ctx: &PluginContext) -> Result<bool>;
+    fn check_connection(&self) -> Result<ConnectionStatus>;
+    fn capabilities(&self) -> &SoftwareCapabilities;
 
-**插件发现机制**：应用启动 → 扫描插件目录 → 读取 plugin.yaml → 动态加载 → 注入 PluginManager
+    /// 执行脚本 — 系统级操作就发生在这里
+    fn execute(&self, script: &str, on_progress: Option<Box<dyn Fn(f64)>>) -> Result<ScriptResult>;
+    fn preview(&self, script: &str) -> Result<ScriptResult>;
+    fn get_current_state(&self) -> Result<SoftwareState>;
+}
 
-每个插件是一个独立的 Dart 包，放在 `plugins/` 目录下，包含 `plugin.yaml` 声明文件和实现代码。
+// 每个软件是独立的 crate
+// crates/figma_plugin/   → REST API + 浏览器自动化
+// crates/blender_plugin/ → Python bpy 脚本注入
+// crates/autocad_plugin/ → AutoLISP + .NET interop
+// crates/ps_plugin/      → ExtendScript + COM(Win) / AppleScript(Mac)
+```
+
+**Rust 插件层的优势**：
+
+| 能力 | Rust 实现方式 |
+|------|-------------|
+| 系统 API 调用 | FFI 直调 Win32 COM / macOS NSAppleScript |
+| 进程管理 | `std::process::Command` 启动/监控设计软件 |
+| 脚本注入 | 原生管道通信、AppleEvent、OLE Automation |
+| 编译产物 | 各 crate 编译为 .dll / .dylib，打包到应用内 |
+| 崩溃隔离 | 每个插件在独立隔离进程运行 |
+| 跨平台 | `#[cfg(target_os)]` 条件编译，同一 crate 适配 Win/Mac |
+
+**通信链路**：
+
+```
+Dart UI → flutter_rust_bridge → Rust crate → 设计软件
+```
+
+flutter_rust_bridge 自动从 Rust 代码生成 Dart 绑定，Dart 调用 Rust 方法就像调用普通 Dart 对象。
 
 ## 五、Claude Code 进程管理
 
@@ -196,7 +223,7 @@ abstract class DesignPlugin {
 
 ## 八、任务编排器（TaskOrchestrator）
 
-- 接收用户输入 → 构建上下文包（软件状态 + 能力声明 + 会话历史 + 用户偏好）→ 提交给 CCProcessManager → Claude Code 生成脚本 → PluginManager 执行 → 收集结果 → 更新会话上下文 → 返回用户
+- 接收用户输入 → 构建上下文包（软件状态 + 能力声明 + 会话历史 + 用户偏好）→ 提交给 CCProcessManager → Claude Code 生成脚本 → PluginManager → Rust crate 执行 → 收集结果 → 更新会话上下文 → 返回用户
 - 支持最多 3 个并发任务，超出排队
 - 支持任务链：A 的输出作为 B 的输入
 - 每个任务有独立 `taskId`，可取消、可重试
