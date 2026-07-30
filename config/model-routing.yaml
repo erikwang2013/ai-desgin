@@ -1,0 +1,12 @@
+default: claude-sonnet-4-6
+
+routes:
+  - domains: [web, ad]
+    complexity: creative
+    model: claude-opus-4-7
+
+  - domains: [industrial, threeD, arch, interior]
+    model: claude-opus-4-7
+
+  - complexity: simple
+    model: claude-haiku-4-5
