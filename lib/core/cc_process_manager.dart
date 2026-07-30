@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:uuid/uuid.dart';
 import '../models/software_capabilities.dart';
+import 'cc_runner.dart';
 
 const _uuid = Uuid();
 
@@ -80,6 +81,45 @@ class CCProcessManager {
 
   String serializeRequest(Map<String, dynamic> request) {
     return '${jsonEncode(request)}\n';
+  }
+
+  /// Execute a task by actually calling Claude Code CLI
+  Future<Map<String, dynamic>> executeWithClaude({
+    required String sessionId,
+    required String task,
+    required String model,
+  }) async {
+    final session = _sessions[sessionId];
+    if (session == null) {
+      return {'error': 'Session not found: $sessionId'};
+    }
+
+    final runner = CCRunner();
+    final result = await runner.execute(
+      task: task,
+      software: session.software,
+      capabilities: session.capabilities.toJson(),
+      state: session.state.toJson(),
+      model: model,
+      sessionId: sessionId,
+    );
+
+    session.lastActivity = DateTime.now();
+
+    if (result.success) {
+      return {
+        'success': true,
+        'script': result.script,
+        'scriptLanguage': result.scriptLanguage,
+        'explanation': result.explanation,
+        'modelUsed': result.modelUsed ?? model,
+      };
+    } else {
+      return {
+        'success': false,
+        'error': result.error,
+      };
+    }
   }
 
   void _evictIdleSessions() {
