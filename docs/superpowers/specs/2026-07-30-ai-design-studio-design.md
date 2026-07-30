@@ -1,7 +1,7 @@
 # AI Design Studio — 设计规格文档
 
-> 状态：已确认（所有设计章节已完成讨论并通过）
-> 日期：2026-07-30
+> 状态：已确认并持续迭代（3D 打印插件已扩展至 17 个软件）
+> 日期：2026-07-30 · 更新：2026-07-31
 
 ## 一、项目概述
 
@@ -250,3 +250,36 @@ class Session {
 - 用户可预览脚本后再执行（preview 模式）
 - 敏感操作（删除、覆盖文件）需要用户二次确认
 - API key 存储在系统本地加密存储（macOS Keychain / Windows Credential Manager）
+
+## 十一、3D 打印扩展（2026-07-31 更新）
+
+### 新增插件
+
+在原有 4 个设计软件插件基础上，扩展至 17 个软件，覆盖完整的 3D 打印工作流：
+
+**CAD 建模**：Fusion 360、SolidWorks、FreeCAD、OpenSCAD、Rhino、Blender、AutoCAD
+**Web/AI**：Tinkercad、Meshy
+**FDM 切片**：Cura、PrusaSlicer、OrcaSlicer、Simplify3D
+**树脂切片**：ChiTuBox、Lychee Slicer
+
+### 控制方式分类
+
+| 方式 | 软件 |
+|------|------|
+| Python API | Fusion 360、FreeCAD、Rhino、Blender |
+| CLI | Cura、PrusaSlicer、OrcaSlicer、Simplify3D、ChiTuBox、Lychee |
+| REST API | Figma、Tinkercad、Meshy |
+| VBA/COM | SolidWorks |
+| SCAD 脚本 | OpenSCAD |
+| AutoLISP | AutoCAD |
+| ExtendScript | Photoshop |
+
+### 典型 3D 打印工作流
+
+```
+用户: "把这个 STL 模型用 PrusaSlicer 切片，层高 0.2mm，填充 20%"
+  ↓
+Claude Code → 选择 Sonnet → 生成 PrusaSlicer CLI 命令
+  ↓
+Rust 插件写配置 → 调用 prusa-slicer CLI → 生成 GCode → 返回结果
+```

@@ -113,11 +113,24 @@ ai-desgin/
 │   └── ui/                                # UI pages
 ├── rust/
 │   ├── core/                              # Shared traits + types
-│   └── plugins/                           # Software plugins
+│   └── plugins/                           # 17 software plugins
 │       ├── figma/                         # Figma (REST API)
+│       ├── photoshop/                     # Photoshop (ExtendScript)
 │       ├── blender/                       # Blender (Python)
+│       ├── fusion360/                     # Fusion 360 (Python)
+│       ├── solidworks/                    # SolidWorks (VBA/COM)
+│       ├── freecad/                       # FreeCAD (Python)
+│       ├── openscad/                      # OpenSCAD (SCAD)
+│       ├── rhino/                         # Rhino (Python)
 │       ├── autocad/                       # AutoCAD (AutoLISP)
-│       └── photoshop/                     # Photoshop (ExtendScript)
+│       ├── tinkercad/                     # Tinkercad (REST)
+│       ├── meshy/                         # Meshy (AI REST)
+│       ├── cura/                          # Cura (CLI)
+│       ├── prusaslicer/                   # PrusaSlicer (CLI)
+│       ├── orcaslicer/                    # OrcaSlicer (CLI)
+│       ├── simplify3d/                    # Simplify3D (CLI)
+│       ├── chitubox/                      # ChiTuBox (CLI)
+│       └── lychee/                        # Lychee (CLI)
 ├── config/model-routing.yaml
 ├── scripts/                               # Build + release scripts
 ├── test/                                  # 49 Dart tests
@@ -200,18 +213,76 @@ Set up API endpoints and keys in Settings → Model Configuration. Customize rou
 
 Browse available plugins in Settings → Plugin Marketplace. One-click install. New software entries appear in the Software Panel immediately.
 
+## Features
+
+### Graphic & UI Design
+
+Automate Figma and Photoshop operations. AI can create canvases, add layers, apply styles, export assets, and convert designs directly to HTML/CSS code.
+
+### 3D Modeling & CAD
+
+Covering parametric modeling, polygonal modeling, and NURBS surface modeling. AI can auto-create parts, assemblies, generate technical drawings, and export STL/STEP formats for 3D printing.
+
+### 3D Print Slicing
+
+Full support for FDM and resin printing workflows. AI automatically configures layer height, infill density, and support structures based on model complexity, generating GCode or CTB slice files in one click.
+
+### AI Model Generation
+
+Text-to-3D and image-to-3D generation via Meshy API, with automatic polygon optimization, texture generation, and multi-format export.
+
 ## Supported Software
+
+### Graphic Design (4)
 
 | Software | Control Method | Platform | Status |
 |----------|---------------|----------|--------|
-| Figma | REST API | Web/macOS/Win | ✅ Supported |
-| Blender | Python bpy | macOS/Win/Linux | ✅ Supported |
-| AutoCAD | AutoLISP | macOS/Win | ✅ Supported |
-| Photoshop | ExtendScript | macOS/Win | ✅ Supported |
-| Sketch | AppleScript | macOS | ⏳ Planned |
-| Revit | .NET API | Win | ⏳ Planned |
-| SketchUp | Ruby API | macOS/Win | ⏳ Planned |
-| Illustrator | ExtendScript | macOS/Win | ⏳ Planned |
+| Figma | REST API | Web/macOS/Win | ✅ |
+| Photoshop | ExtendScript + COM/AppleScript | macOS/Win | ✅ |
+| Sketch | AppleScript | macOS | ⏳ |
+| Illustrator | ExtendScript | macOS/Win | ⏳ |
+
+### CAD Modeling (7)
+
+| Software | Control Method | Platform | Status |
+|----------|---------------|----------|--------|
+| Fusion 360 | Python API | macOS/Win | ✅ |
+| SolidWorks | VBA/COM | Win | ✅ |
+| FreeCAD | Python API | macOS/Win/Linux | ✅ |
+| OpenSCAD | SCAD Script | macOS/Win/Linux | ✅ |
+| Rhino | Python/RhinoScript | macOS/Win | ✅ |
+| Blender | Python bpy | macOS/Win/Linux | ✅ |
+| AutoCAD | AutoLISP | macOS/Win | ✅ |
+
+### FDM Slicers (4)
+
+| Software | Control Method | Platform | Status |
+|----------|---------------|----------|--------|
+| UltiMaker Cura | CuraEngine CLI | macOS/Win/Linux | ✅ |
+| PrusaSlicer | CLI | macOS/Win/Linux | ✅ |
+| OrcaSlicer | CLI | macOS/Win/Linux | ✅ |
+| Simplify3D | CLI | macOS/Win | ✅ |
+
+### Resin Slicers (2)
+
+| Software | Control Method | Platform | Status |
+|----------|---------------|----------|--------|
+| ChiTuBox | CLI | macOS/Win | ✅ |
+| Lychee Slicer | CLI | macOS/Win/Linux | ✅ |
+
+### Web / AI (2)
+
+| Software | Control Method | Platform | Status |
+|----------|---------------|----------|--------|
+| Tinkercad | REST API | Web | ✅ |
+| Meshy | REST API (AI Generation) | Web | ✅ |
+
+### Planned
+
+| Software | Control Method | Platform |
+|----------|---------------|----------|
+| Revit | .NET API | Win |
+| SketchUp | Ruby API | macOS/Win |
 
 ## Developer Guide
 
@@ -245,6 +316,8 @@ routes:
 | Variable | Description |
 |----------|-------------|
 | `FIGMA_ACCESS_TOKEN` | Figma Personal Access Token |
+| `MESHY_API_KEY` | Meshy AI 3D generation API key |
+| `TINKERCAD_ACCESS_TOKEN` | Tinkercad API access token |
 
 ## License
 

@@ -131,9 +131,22 @@ ai-desgin/
 │   │       └── ipc.rs                     # 进程隔离工具
 │   └── plugins/
 │       ├── figma/                         # Figma 插件 (REST API)
+│       ├── photoshop/                     # Photoshop 插件 (ExtendScript)
 │       ├── blender/                       # Blender 插件 (Python)
+│       ├── fusion360/                     # Fusion 360 插件 (Python)
+│       ├── solidworks/                    # SolidWorks 插件 (VBA/COM)
+│       ├── freecad/                       # FreeCAD 插件 (Python)
+│       ├── openscad/                      # OpenSCAD 插件 (SCAD)
+│       ├── rhino/                         # Rhino 插件 (Python)
 │       ├── autocad/                       # AutoCAD 插件 (AutoLISP)
-│       └── photoshop/                     # Photoshop 插件 (ExtendScript)
+│       ├── tinkercad/                     # Tinkercad 插件 (REST)
+│       ├── meshy/                         # Meshy 插件 (AI REST)
+│       ├── cura/                          # Cura 插件 (CLI)
+│       ├── prusaslicer/                   # PrusaSlicer 插件 (CLI)
+│       ├── orcaslicer/                    # OrcaSlicer 插件 (CLI)
+│       ├── simplify3d/                    # Simplify3D 插件 (CLI)
+│       ├── chitubox/                      # ChiTuBox 插件 (CLI)
+│       └── lychee/                        # Lychee 插件 (CLI)
 ├── config/
 │   └── model-routing.yaml                 # 模型路由配置
 ├── scripts/
@@ -228,18 +241,76 @@ AI 生成脚本后会展示预览，确认无误后点击执行。执行结果�
 
 「设置 → 插件市场」中浏览可用插件，一键安装。安装后即可在软件控制台中看到新的软件入口。
 
+## 功能说明
+
+### 平面与 UI 设计
+
+支持 Figma 和 Photoshop 的自动化操作。AI 可以创建画布、添加图层、设置样式、导出切图，将设计稿直接转为 HTML/CSS 代码。
+
+### 3D 建模与 CAD
+
+覆盖主流参数化建模、多边形建模和 NURBS 曲面建模软件。AI 可自动创建零件、装配体、生成工程图、导出 STL/STEP 等格式用于 3D 打印。
+
+### 3D 打印切片
+
+完整支持 FDM 和树脂打印流程。AI 可根据模型复杂度自动设置层高、填充密度、支撑结构，一键生成 GCode 或 CTB 切片文件。
+
+### AI 模型生成
+
+通过 Meshy API 实现文字/图片到 3D 模型的 AI 生成，自动优化面数、生成纹理、导出多格式。
+
 ## 已支持的软件
+
+### 平面设计（4 个）
 
 | 软件 | 控制方式 | 平台 | 状态 |
 |------|---------|------|------|
-| Figma | REST API | Web/macOS/Win | ✅ 已支持 |
-| Blender | Python bpy | macOS/Win/Linux | ✅ 已支持 |
-| AutoCAD | AutoLISP | macOS/Win | ✅ 已支持 |
-| Photoshop | ExtendScript | macOS/Win | ✅ 已支持 |
-| Sketch | AppleScript | macOS | ⏳ 计划中 |
-| Revit | .NET API | Win | ⏳ 计划中 |
-| SketchUp | Ruby API | macOS/Win | ⏳ 计划中 |
-| Illustrator | ExtendScript | macOS/Win | ⏳ 计划中 |
+| Figma | REST API + 浏览器自动化 | Web/macOS/Win | ✅ |
+| Photoshop | ExtendScript + COM/AppleScript | macOS/Win | ✅ |
+| Sketch | AppleScript | macOS | ⏳ |
+| Illustrator | ExtendScript | macOS/Win | ⏳ |
+
+### CAD 建模（7 个）
+
+| 软件 | 控制方式 | 平台 | 状态 |
+|------|---------|------|------|
+| Fusion 360 | Python API | macOS/Win | ✅ |
+| SolidWorks | VBA/COM | Win | ✅ |
+| FreeCAD | Python API | macOS/Win/Linux | ✅ |
+| OpenSCAD | SCAD 脚本 | macOS/Win/Linux | ✅ |
+| Rhino | Python/RhinoScript | macOS/Win | ✅ |
+| Blender | Python bpy | macOS/Win/Linux | ✅ |
+| AutoCAD | AutoLISP | macOS/Win | ✅ |
+
+### FDM 切片器（4 个）
+
+| 软件 | 控制方式 | 平台 | 状态 |
+|------|---------|------|------|
+| UltiMaker Cura | CuraEngine CLI | macOS/Win/Linux | ✅ |
+| PrusaSlicer | CLI | macOS/Win/Linux | ✅ |
+| OrcaSlicer | CLI | macOS/Win/Linux | ✅ |
+| Simplify3D | CLI | macOS/Win | ✅ |
+
+### 树脂切片器（2 个）
+
+| 软件 | 控制方式 | 平台 | 状态 |
+|------|---------|------|------|
+| ChiTuBox | CLI | macOS/Win | ✅ |
+| Lychee Slicer | CLI | macOS/Win/Linux | ✅ |
+
+### Web / AI（2 个）
+
+| 软件 | 控制方式 | 平台 | 状态 |
+|------|---------|------|------|
+| Tinkercad | REST API | Web | ✅ |
+| Meshy | REST API（AI 生成） | Web | ✅ |
+
+### 计划中
+
+| 软件 | 控制方式 | 平台 |
+|------|---------|------|
+| Revit | .NET API | Win |
+| SketchUp | Ruby API | macOS/Win |
 
 ## 开发指南
 
@@ -273,6 +344,8 @@ routes:
 | 变量 | 说明 |
 |------|------|
 | `FIGMA_ACCESS_TOKEN` | Figma Personal Access Token |
+| `MESHY_API_KEY` | Meshy AI 3D 模型生成 API 密钥 |
+| `TINKERCAD_ACCESS_TOKEN` | Tinkercad API 访问令牌 |
 
 ## 许可证
 
