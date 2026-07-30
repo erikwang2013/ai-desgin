@@ -11,6 +11,12 @@ pub struct FreeCADPlugin {
     capabilities: SoftwareCapabilities,
 }
 
+impl Default for FreeCADPlugin {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl FreeCADPlugin {
     pub fn new() -> Self {
         Self {

@@ -102,12 +102,7 @@ class SessionStore {
       whereArgs: [softwareName],
       orderBy: 'created_at DESC',
     );
-    return rows.map((r) => Session(
-      id: r['id'] as String,
-      domain: DesignCategory.values.firstWhere((d) => d.name == r['domain']),
-      softwareName: r['software_name'] as String,
-      createdAt: DateTime.parse(r['created_at'] as String),
-    )).toList();
+    return _deserializeSessionRows(rows);
   }
 
   Future<List<Session>> search(String query) async {
@@ -116,6 +111,10 @@ class SessionStore {
       INNER JOIN task_records t ON t.session_id = s.id
       WHERE t.task LIKE ? ORDER BY s.created_at DESC
     ''', ['%$query%']);
+    return _deserializeSessionRows(rows);
+  }
+
+  List<Session> _deserializeSessionRows(List<Map<String, dynamic>> rows) {
     return rows.map((r) => Session(
       id: r['id'] as String,
       domain: DesignCategory.values.firstWhere((d) => d.name == r['domain']),

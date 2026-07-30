@@ -11,6 +11,12 @@ pub struct SolidWorksPlugin {
     capabilities: SoftwareCapabilities,
 }
 
+impl Default for SolidWorksPlugin {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SolidWorksPlugin {
     pub fn new() -> Self {
         Self {

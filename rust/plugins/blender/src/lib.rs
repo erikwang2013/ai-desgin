@@ -12,6 +12,12 @@ pub struct BlenderPlugin {
     capabilities: SoftwareCapabilities,
 }
 
+impl Default for BlenderPlugin {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl BlenderPlugin {
     pub fn new() -> Self {
         Self {
@@ -67,11 +73,19 @@ impl BlenderPlugin {
             "blender",
         ];
         #[cfg(target_os = "linux")]
-        let candidates = vec!["blender", "/usr/bin/blender", "/snap/bin/blender"];
+        let candidates = vec!["/usr/bin/blender", "/snap/bin/blender", "/usr/local/bin/blender"];
 
         for path in &candidates {
             if std::path::Path::new(path).exists() {
                 return Some(path.to_string());
+            }
+        }
+        if let Ok(output) = std::process::Command::new("which").arg("blender").output() {
+            if output.status.success() {
+                let path = String::from_utf8_lossy(&output.stdout).trim().to_string();
+                if !path.is_empty() && std::path::Path::new(&path).exists() {
+                    return Some(path);
+                }
             }
         }
         None

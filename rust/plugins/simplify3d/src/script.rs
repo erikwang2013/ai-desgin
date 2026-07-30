@@ -147,7 +147,7 @@ pub fn run_simplify3d_slice(s3d_path: &str, command_json: &str) -> Result<Script
             cli_args.push(factory_path.clone());
 
             // Modern Simplify3D versions support --output
-            if std::path::Path::new(output_path).parent().map_or(true, |p| p.exists()) {
+            if std::path::Path::new(output_path).parent().is_none_or(|p| p.exists()) {
                 cli_args.push("--output".to_string());
                 cli_args.push(output_path.to_string());
             }

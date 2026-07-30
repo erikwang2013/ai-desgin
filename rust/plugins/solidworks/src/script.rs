@@ -14,7 +14,7 @@ pub fn run_solidworks_script(solidworks_path: &str, script: &str) -> Result<Scri
     #[cfg(not(target_os = "windows"))]
     {
         let _ = (solidworks_path, script);
-        return Err("SolidWorks is only available on Windows".into());
+        Err("SolidWorks is only available on Windows".into())
     }
 
     #[cfg(target_os = "windows")]

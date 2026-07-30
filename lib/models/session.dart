@@ -42,6 +42,7 @@ class Session {
     required String script,
     required String scriptLanguage,
     required String modelUsed,
+    TaskStatus status = TaskStatus.completed,
   }) {
     final record = TaskRecord(
       sessionId: id,
@@ -49,7 +50,7 @@ class Session {
       script: script,
       scriptLanguage: scriptLanguage,
       modelUsed: modelUsed,
-      status: TaskStatus.completed,
+      status: status,
     );
     history.add(record);
     return record;

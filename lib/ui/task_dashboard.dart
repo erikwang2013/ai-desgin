@@ -24,10 +24,10 @@ class TaskDashboard extends StatefulWidget {
   const TaskDashboard({super.key, this.initialTasks});
 
   @override
-  State<TaskDashboard> createState() => _TaskDashboardState();
+  State<TaskDashboard> createState() => TaskDashboardState();
 }
 
-class _TaskDashboardState extends State<TaskDashboard> {
+class TaskDashboardState extends State<TaskDashboard> {
   final List<TaskItem> _tasks = [];
   String _filter = '全部';
 

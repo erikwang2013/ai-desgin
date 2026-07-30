@@ -4,7 +4,7 @@ version = 4
 
 [[package]]
 name = "ai_design_core"
-version = "1.0.3"
+version = "1.0.4"
 dependencies = [
  "log",
  "serde",
@@ -20,7 +20,7 @@ checksum = "1505bd5d3d116872e7271a6d4e16d81d0c8570876c8de68093a09ac269d8aac0"
 
 [[package]]
 name = "autocad_plugin"
-version = "1.0.3"
+version = "1.0.4"
 dependencies = [
  "ai_design_core",
  "serde",
@@ -42,7 +42,7 @@ checksum = "b588b76d00fde79687d7646a9b5bdf3cc0f655e0bbd080335a95d7e96f3587da"
 
 [[package]]
 name = "blender_plugin"
-version = "1.0.3"
+version = "1.0.4"
 dependencies = [
  "ai_design_core",
  "serde",
@@ -103,7 +103,7 @@ dependencies = [
 
 [[package]]
 name = "chitubox_plugin"
-version = "1.0.3"
+version = "1.0.4"
 dependencies = [
  "ai_design_core",
  "serde",
@@ -148,7 +148,7 @@ dependencies = [
 
 [[package]]
 name = "cura_plugin"
-version = "1.0.3"
+version = "1.0.4"
 dependencies = [
  "ai_design_core",
  "serde",
@@ -185,7 +185,7 @@ checksum = "da7c62ceae207dd37ea5b845da6a0696c799f85e97da1ab5b7910be3c1c80223"
 
 [[package]]
 name = "figma_plugin"
-version = "1.0.3"
+version = "1.0.4"
 dependencies = [
  "ai_design_core",
  "reqwest",
@@ -212,7 +212,7 @@ dependencies = [
 
 [[package]]
 name = "freecad_plugin"
-version = "1.0.3"
+version = "1.0.4"
 dependencies = [
  "ai_design_core",
  "serde",
@@ -222,7 +222,7 @@ dependencies = [
 
 [[package]]
 name = "fusion360_plugin"
-version = "1.0.3"
+version = "1.0.4"
 dependencies = [
  "ai_design_core",
  "serde",
@@ -608,7 +608,7 @@ checksum = "112b39cec0b298b6c1999fee3e31427f74f676e4cb9879ed1a121b43661a4154"
 
 [[package]]
 name = "lychee_plugin"
-version = "1.0.3"
+version = "1.0.4"
 dependencies = [
  "ai_design_core",
  "serde",
@@ -633,7 +633,7 @@ checksum = "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98"
 
 [[package]]
 name = "meshy_plugin"
-version = "1.0.3"
+version = "1.0.4"
 dependencies = [
  "ai_design_core",
  "reqwest",
@@ -676,7 +676,7 @@ checksum = "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50"
 
 [[package]]
 name = "openscad_plugin"
-version = "1.0.3"
+version = "1.0.4"
 dependencies = [
  "ai_design_core",
  "serde",
@@ -686,7 +686,7 @@ dependencies = [
 
 [[package]]
 name = "orcaslicer_plugin"
-version = "1.0.3"
+version = "1.0.4"
 dependencies = [
  "ai_design_core",
  "serde",
@@ -725,7 +725,7 @@ checksum = "9b4f627cb1b25917193a259e49bdad08f671f8d9708acfd5fe0a8c1455d87220"
 
 [[package]]
 name = "photoshop_plugin"
-version = "1.0.3"
+version = "1.0.4"
 dependencies = [
  "ai_design_core",
  "serde",
@@ -759,7 +759,7 @@ dependencies = [
 
 [[package]]
 name = "prusaslicer_plugin"
-version = "1.0.3"
+version = "1.0.4"
 dependencies = [
  "ai_design_core",
  "serde",
@@ -919,7 +919,7 @@ dependencies = [
 
 [[package]]
 name = "rhino_plugin"
-version = "1.0.3"
+version = "1.0.4"
 dependencies = [
  "ai_design_core",
  "serde",
@@ -1095,7 +1095,7 @@ dependencies = [
 
 [[package]]
 name = "simplify3d_plugin"
-version = "1.0.3"
+version = "1.0.4"
 dependencies = [
  "ai_design_core",
  "serde",
@@ -1127,7 +1127,7 @@ dependencies = [
 
 [[package]]
 name = "solidworks_plugin"
-version = "1.0.3"
+version = "1.0.4"
 dependencies = [
  "ai_design_core",
  "serde",
@@ -1244,7 +1244,7 @@ dependencies = [
 
 [[package]]
 name = "tinkercad_plugin"
-version = "1.0.3"
+version = "1.0.4"
 dependencies = [
  "ai_design_core",
  "reqwest",

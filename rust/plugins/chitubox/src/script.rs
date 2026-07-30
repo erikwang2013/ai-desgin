@@ -110,11 +110,10 @@ fn extract_output_files(args: &[String]) -> Vec<String> {
     let mut files = vec![];
     let mut i = 0;
     while i < args.len() {
-        if args[i] == "--output" || args[i] == "-o" {
-            if i + 1 < args.len() {
+        if (args[i] == "--output" || args[i] == "-o")
+            && i + 1 < args.len() {
                 files.push(args[i + 1].clone());
             }
-        }
         i += 1;
     }
     files

@@ -68,6 +68,7 @@ class TaskOrchestrator {
 
       _getOrCreateSession(domain, softwareName).addRecord(
         task: task, script: scriptContent, scriptLanguage: plugin.scriptLanguage, modelUsed: model,
+        status: result.success ? TaskStatus.completed : TaskStatus.failed,
       );
 
       return updated;

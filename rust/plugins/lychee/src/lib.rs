@@ -11,6 +11,12 @@ pub struct LycheePlugin {
     capabilities: SoftwareCapabilities,
 }
 
+impl Default for LycheePlugin {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl LycheePlugin {
     pub fn new() -> Self {
         Self {

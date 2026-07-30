@@ -11,6 +11,12 @@ pub struct PhotoshopPlugin {
     capabilities: SoftwareCapabilities,
 }
 
+impl Default for PhotoshopPlugin {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl PhotoshopPlugin {
     pub fn new() -> Self {
         Self {

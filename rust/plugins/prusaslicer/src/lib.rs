@@ -12,6 +12,12 @@ pub struct PrusaSlicerPlugin {
     capabilities: SoftwareCapabilities,
 }
 
+impl Default for PrusaSlicerPlugin {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl PrusaSlicerPlugin {
     pub fn new() -> Self {
         Self {

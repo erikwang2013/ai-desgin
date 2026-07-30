@@ -11,6 +11,12 @@ pub struct TinkercadPlugin {
     capabilities: SoftwareCapabilities,
 }
 
+impl Default for TinkercadPlugin {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TinkercadPlugin {
     pub fn new() -> Self {
         Self {

@@ -11,6 +11,12 @@ pub struct MeshyPlugin {
     capabilities: SoftwareCapabilities,
 }
 
+impl Default for MeshyPlugin {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl MeshyPlugin {
     pub fn new() -> Self {
         Self {

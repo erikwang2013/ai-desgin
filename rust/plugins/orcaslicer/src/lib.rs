@@ -12,6 +12,12 @@ pub struct OrcaSlicerPlugin {
     capabilities: SoftwareCapabilities,
 }
 
+impl Default for OrcaSlicerPlugin {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl OrcaSlicerPlugin {
     pub fn new() -> Self {
         Self {

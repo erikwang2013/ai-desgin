@@ -12,6 +12,12 @@ pub struct FigmaPlugin {
     capabilities: SoftwareCapabilities,
 }
 
+impl Default for FigmaPlugin {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl FigmaPlugin {
     pub fn new() -> Self {
         Self {

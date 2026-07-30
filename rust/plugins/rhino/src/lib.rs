@@ -11,6 +11,12 @@ pub struct RhinoPlugin {
     capabilities: SoftwareCapabilities,
 }
 
+impl Default for RhinoPlugin {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl RhinoPlugin {
     pub fn new() -> Self {
         Self {

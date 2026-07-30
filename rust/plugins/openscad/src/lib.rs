@@ -11,6 +11,12 @@ pub struct OpenSCADPlugin {
     capabilities: SoftwareCapabilities,
 }
 
+impl Default for OpenSCADPlugin {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl OpenSCADPlugin {
     pub fn new() -> Self {
         Self {

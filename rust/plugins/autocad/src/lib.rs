@@ -9,6 +9,12 @@ pub struct AutoCADPlugin {
     capabilities: SoftwareCapabilities,
 }
 
+impl Default for AutoCADPlugin {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl AutoCADPlugin {
     pub fn new() -> Self {
         Self {

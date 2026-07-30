@@ -8,7 +8,6 @@ use serde::{Deserialize, Serialize};
 /// - Image-to-3D: convert images to 3D models
 /// - Texture generation: generate textures for existing models
 /// - Model optimization: optimize topology and reduce polygon count
-
 const MESHY_API_BASE: &str = "https://api.meshy.ai";
 
 #[derive(Debug, Serialize, Deserialize)]

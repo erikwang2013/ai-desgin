@@ -12,6 +12,12 @@ pub struct CuraPlugin {
     capabilities: SoftwareCapabilities,
 }
 
+impl Default for CuraPlugin {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl CuraPlugin {
     pub fn new() -> Self {
         Self {

@@ -11,6 +11,12 @@ pub struct Fusion360Plugin {
     capabilities: SoftwareCapabilities,
 }
 
+impl Default for Fusion360Plugin {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Fusion360Plugin {
     pub fn new() -> Self {
         Self {

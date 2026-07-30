@@ -11,6 +11,12 @@ pub struct ChiTuBoxPlugin {
     capabilities: SoftwareCapabilities,
 }
 
+impl Default for ChiTuBoxPlugin {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ChiTuBoxPlugin {
     pub fn new() -> Self {
         Self {

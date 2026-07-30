@@ -12,6 +12,12 @@ pub struct Simplify3DPlugin {
     capabilities: SoftwareCapabilities,
 }
 
+impl Default for Simplify3DPlugin {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Simplify3DPlugin {
     pub fn new() -> Self {
         Self {

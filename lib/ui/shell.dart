@@ -4,6 +4,7 @@ import '../models/session.dart';
 class AppShell extends StatefulWidget {
   final Widget child;
   final DesignCategory selectedDomain;
+  final int selectedTabIndex;
   final ValueChanged<DesignCategory>? onDomainChanged;
   final ValueChanged<int>? onTabSelected;
 
@@ -11,6 +12,7 @@ class AppShell extends StatefulWidget {
     super.key,
     required this.child,
     required this.selectedDomain,
+    this.selectedTabIndex = 0,
     this.onDomainChanged,
     this.onTabSelected,
   });
@@ -99,11 +101,12 @@ class _AppShellState extends State<AppShell> {
 
   Widget _buildNavTile(int index) {
     final (icon, label) = _tabs[index];
+    final isSelected = index == widget.selectedTabIndex;
     return ListTile(
       leading: Icon(icon, size: 20),
       title: Text(label, style: const TextStyle(fontSize: 14)),
       dense: true,
-      selected: false,
+      selected: isSelected,
       onTap: () => widget.onTabSelected?.call(index),
     );
   }
