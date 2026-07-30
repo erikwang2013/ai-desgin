@@ -1,4 +1,3 @@
-import '../plugin_sdk/design_plugin.dart';
 import 'plugin_manager.dart';
 import 'cc_process_manager.dart';
 import 'model_router.dart';
@@ -45,7 +44,7 @@ class TaskOrchestrator {
       final session = _ccManager.createSession(software: softwareName, capabilities: plugin.capabilities, state: state);
 
       // In production: build JSON-RPC request and send to Claude Code subprocess
-      final _request = _ccManager.buildRequest(sessionId: session.id, task: task, model: model);
+      _ccManager.buildRequest(sessionId: session.id, task: task, model: model);
 
       final result = await plugin.execute(task);
       _ccManager.closeSession(session.id);
