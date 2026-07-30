@@ -1,0 +1,6 @@
+[package]
+name = "ai_design_figma"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]

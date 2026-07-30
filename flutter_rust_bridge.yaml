@@ -1,0 +1,2 @@
+rust_input: rust/core/src/api.rs
+dart_output: lib/bridge
