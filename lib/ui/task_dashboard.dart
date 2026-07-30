@@ -29,6 +29,7 @@ class TaskDashboard extends StatefulWidget {
 
 class _TaskDashboardState extends State<TaskDashboard> {
   final List<TaskItem> _tasks = [];
+  String _filter = '全部';
 
   @override
   void initState() {
@@ -40,6 +41,13 @@ class _TaskDashboardState extends State<TaskDashboard> {
 
   void addTask(TaskItem task) {
     setState(() => _tasks.insert(0, task));
+  }
+
+  List<TaskItem> get _filteredTasks {
+    if (_filter == '全部') return _tasks;
+    if (_filter == '进行中') return _tasks.where((t) => t.status == 'running' || t.status == 'pending').toList();
+    if (_filter == '已完成') return _tasks.where((t) => t.status == 'completed').toList();
+    return _tasks;
   }
 
   @override
@@ -66,8 +74,8 @@ class _TaskDashboardState extends State<TaskDashboard> {
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.all(16),
-            itemCount: _tasks.length,
-            itemBuilder: (context, index) => _buildTaskCard(_tasks[index]),
+            itemCount: _filteredTasks.length,
+            itemBuilder: (context, index) => _buildTaskCard(_filteredTasks[index]),
           ),
         ),
       ],
@@ -81,11 +89,11 @@ class _TaskDashboardState extends State<TaskDashboard> {
         children: [
           const Text('任务列表', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const Spacer(),
-          _buildChip('全部', true),
+          _buildChip('全部', _filter == '全部'),
           const SizedBox(width: 8),
-          _buildChip('进行中', false),
+          _buildChip('进行中', _filter == '进行中'),
           const SizedBox(width: 8),
-          _buildChip('已完成', false),
+          _buildChip('已完成', _filter == '已完成'),
         ],
       ),
     );
@@ -95,7 +103,7 @@ class _TaskDashboardState extends State<TaskDashboard> {
     return FilterChip(
       label: Text(label, style: const TextStyle(fontSize: 12)),
       selected: selected,
-      onSelected: (_) {},
+      onSelected: (_) => setState(() => _filter = label),
       visualDensity: VisualDensity.compact,
     );
   }

@@ -1,4 +1,4 @@
-# AI Design Studio
+# AI Design
 
 > 跨平台 AI 驱动设计工具 — 封装 Claude Code，调用多模型智能控制各类设计软件
 
@@ -6,7 +6,7 @@
 
 ## 项目简介
 
-AI Design Studio 是一个支持 **Windows** 和 **macOS** 的桌面应用，通过内置 Claude Code CLI 实现 AI 驱动的多模型调度，自动生成控制脚本并操作各类设计软件。覆盖 **六大设计领域**：Web 设计、广告设计、工业设计、3D 设计、建筑设计、装修设计。
+AI Design是一个支持 **Windows** 和 **macOS** 的桌面应用，通过内置 Claude Code CLI 实现 AI 驱动的多模型调度，自动生成控制脚本并操作各类设计软件。覆盖 **六大设计领域**：Web 设计、广告设计、工业设计、3D 设计、建筑设计、装修设计。
 
 ### 核心理念
 

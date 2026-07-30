@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'models/session.dart';
 import 'ui/shell.dart';
 import 'ui/chat_view.dart';
 import 'ui/task_dashboard.dart';
@@ -30,14 +31,22 @@ class _MainShell extends StatefulWidget {
 
 class _MainShellState extends State<_MainShell> {
   int _currentTab = 0;
+  DesignCategory _currentDomain = DesignCategory.web;
+
+  void _onTabSelected(int tab) => setState(() => _currentTab = tab);
+  void _onDomainChanged(DesignCategory domain) => setState(() => _currentDomain = domain);
 
   @override
   Widget build(BuildContext context) {
     return AppShell(
+      selectedDomain: _currentDomain,
+      onDomainChanged: _onDomainChanged,
+      onTabSelected: _onTabSelected,
       child: IndexedStack(
         index: _currentTab,
         children: [
           ChatView(
+            key: ValueKey('chat_${_currentDomain.name}'),
             onSubmit: (_) async {
               await Future.delayed(const Duration(seconds: 1));
               return '任务已提交，正在通过 Claude Code 生成脚本...';

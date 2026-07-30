@@ -3,17 +3,23 @@ import '../models/session.dart';
 
 class AppShell extends StatefulWidget {
   final Widget child;
+  final DesignCategory selectedDomain;
   final ValueChanged<DesignCategory>? onDomainChanged;
+  final ValueChanged<int>? onTabSelected;
 
-  const AppShell({super.key, required this.child, this.onDomainChanged});
+  const AppShell({
+    super.key,
+    required this.child,
+    required this.selectedDomain,
+    this.onDomainChanged,
+    this.onTabSelected,
+  });
 
   @override
   State<AppShell> createState() => _AppShellState();
 }
 
 class _AppShellState extends State<AppShell> {
-  DesignCategory _selectedDomain = DesignCategory.web;
-
   static const _domains = [
     (DesignCategory.web, 'Web 设计', Icons.language),
     (DesignCategory.ad, '广告设计', Icons.campaign),
@@ -21,6 +27,12 @@ class _AppShellState extends State<AppShell> {
     (DesignCategory.threeD, '3D 设计', Icons.view_in_ar),
     (DesignCategory.arch, '建筑设计', Icons.architecture),
     (DesignCategory.interior, '装修设计', Icons.chair),
+  ];
+
+  static const _tabs = [
+    (Icons.chat, '对话'),
+    (Icons.list_alt, '任务'),
+    (Icons.extension, '插件'),
   ];
 
   @override
@@ -50,15 +62,30 @@ class _AppShellState extends State<AppShell> {
             ),
           ),
           const Divider(),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Text(
-              '设计领域',
-              style: TextStyle(fontSize: 12, color: Colors.grey),
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Text(
+                    '设计领域',
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                ),
+                ..._domains.map(_buildDomainTile),
+                const Divider(),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Text(
+                    '导航',
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                ),
+                ...List.generate(_tabs.length, _buildNavTile),
+              ],
             ),
           ),
-          ..._domains.map(_buildDomainTile),
-          const Spacer(),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.settings),
@@ -70,18 +97,26 @@ class _AppShellState extends State<AppShell> {
     );
   }
 
+  Widget _buildNavTile(int index) {
+    final (icon, label) = _tabs[index];
+    return ListTile(
+      leading: Icon(icon, size: 20),
+      title: Text(label, style: const TextStyle(fontSize: 14)),
+      dense: true,
+      selected: false,
+      onTap: () => widget.onTabSelected?.call(index),
+    );
+  }
+
   Widget _buildDomainTile((DesignCategory, String, IconData) domain) {
     final (cat, label, icon) = domain;
-    final isSelected = cat == _selectedDomain;
+    final isSelected = cat == widget.selectedDomain;
     return ListTile(
       leading: Icon(icon, size: 20),
       title: Text(label, style: const TextStyle(fontSize: 14)),
       selected: isSelected,
       dense: true,
-      onTap: () {
-        setState(() => _selectedDomain = cat);
-        widget.onDomainChanged?.call(cat);
-      },
+      onTap: () => widget.onDomainChanged?.call(cat),
     );
   }
 }

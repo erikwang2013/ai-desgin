@@ -1,6 +1,7 @@
 // lib/ui/software_panel.dart
 import 'package:flutter/material.dart';
 import '../models/session.dart';
+import 'plugin_marketplace.dart';
 
 class SoftwareInfo {
   final String id;
@@ -44,7 +45,7 @@ class SoftwarePanel extends StatelessWidget {
               TextButton.icon(
                 icon: const Icon(Icons.add, size: 18),
                 label: const Text('安装插件'),
-                onPressed: () {},
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PluginMarketplace())),
               ),
             ],
           ),

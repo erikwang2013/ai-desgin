@@ -74,8 +74,7 @@ impl BlenderPlugin {
                 return Some(path.to_string());
             }
         }
-        // Fallback: try PATH
-        Some("blender".into())
+        None
     }
 }
 

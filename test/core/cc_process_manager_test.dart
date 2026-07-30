@@ -10,15 +10,15 @@ void main() {
   });
 
   test('createSession returns session with id', () {
-    final caps = const SoftwareCapabilities(actions: [], fileFormats: []);
-    final state = const SoftwareState();
+    const caps = SoftwareCapabilities(actions: [], fileFormats: []);
+    const state = SoftwareState();
     final session = manager.createSession(software: 'figma', capabilities: caps, state: state);
     expect(session.id, isNotEmpty);
   });
 
   test('active session count does not exceed maxProcesses', () {
-    final caps = const SoftwareCapabilities(actions: [], fileFormats: []);
-    final state = const SoftwareState();
+    const caps = SoftwareCapabilities(actions: [], fileFormats: []);
+    const state = SoftwareState();
     manager.createSession(software: 'a', capabilities: caps, state: state);
     manager.createSession(software: 'b', capabilities: caps, state: state);
     manager.createSession(software: 'c', capabilities: caps, state: state);
@@ -26,8 +26,8 @@ void main() {
   });
 
   test('getSession retrieves by id', () {
-    final caps = const SoftwareCapabilities(actions: [], fileFormats: []);
-    final state = const SoftwareState();
+    const caps = SoftwareCapabilities(actions: [], fileFormats: []);
+    const state = SoftwareState();
     final session = manager.createSession(software: 'figma', capabilities: caps, state: state);
     final retrieved = manager.getSession(session.id);
     expect(retrieved, isNotNull);
@@ -35,8 +35,8 @@ void main() {
   });
 
   test('closeSession removes session', () {
-    final caps = const SoftwareCapabilities(actions: [], fileFormats: []);
-    final state = const SoftwareState();
+    const caps = SoftwareCapabilities(actions: [], fileFormats: []);
+    const state = SoftwareState();
     final session = manager.createSession(software: 'figma', capabilities: caps, state: state);
     manager.closeSession(session.id);
     expect(manager.getSession(session.id), isNull);
@@ -44,8 +44,8 @@ void main() {
   });
 
   test('buildRequest creates valid JSON-RPC request', () {
-    final caps = const SoftwareCapabilities(actions: ['export'], fileFormats: ['png']);
-    final state = const SoftwareState(activeDocument: 'test.fig');
+    const caps = SoftwareCapabilities(actions: ['export'], fileFormats: ['png']);
+    const state = SoftwareState(activeDocument: 'test.fig');
     final session = manager.createSession(software: 'figma', capabilities: caps, state: state);
     final request = manager.buildRequest(sessionId: session.id, task: 'export to PNG', model: 'claude-sonnet-4-6');
 

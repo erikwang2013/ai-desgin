@@ -1,4 +1,4 @@
-# AI Design Studio
+# AI Design
 
 > Cross-platform AI-powered design automation — Claude Code integration with multi-model orchestration for controlling design software
 
@@ -6,7 +6,7 @@
 
 ## Overview
 
-AI Design Studio is a **Windows** and **macOS** desktop application that wraps Claude Code CLI to enable AI-driven multi-model orchestration. It automatically generates and executes control scripts for various design software across **six design domains**: Web, Advertising, Industrial, 3D, Architecture, and Interior Design.
+AI Design is a **Windows** and **macOS** desktop application that wraps Claude Code CLI to enable AI-driven multi-model orchestration. It automatically generates and executes control scripts for various design software across **six design domains**: Web, Advertising, Industrial, 3D, Architecture, and Interior Design.
 
 ### Core Idea
 

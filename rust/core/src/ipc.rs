@@ -2,7 +2,7 @@ use std::process::{Command, Child, Stdio};
 use std::io::Write;
 
 pub struct IsolatedProcess {
-    child: Child,
+    child: Option<Child>,
 }
 
 impl IsolatedProcess {
@@ -14,19 +14,29 @@ impl IsolatedProcess {
             .stderr(Stdio::piped())
             .spawn()
             .map_err(|e| format!("Failed to spawn process: {}", e))?;
-        Ok(Self { child })
+        Ok(Self { child: Some(child) })
     }
 
     pub fn send_script(&mut self, script: &str) -> Result<String, String> {
-        let stdin = self.child.stdin.as_mut()
+        let mut child = self.child.take()
+            .ok_or("Process already consumed".to_string())?;
+
+        let mut stdin = child.stdin.take()
             .ok_or("Failed to open stdin".to_string())?;
         stdin.write_all(script.as_bytes())
             .map_err(|e| format!("Write error: {}", e))?;
-        Ok(String::new())
+        drop(stdin);
+
+        let output = child.wait_with_output()
+            .map_err(|e| format!("Process error: {}", e))?;
+        String::from_utf8(output.stdout)
+            .map_err(|e| format!("Invalid UTF-8 output: {}", e))
     }
 
     pub fn kill(&mut self) {
-        let _ = self.child.kill();
+        if let Some(ref mut child) = self.child {
+            let _ = child.kill();
+        }
     }
 }
 

@@ -153,6 +153,8 @@ class CCRunner {
     final caps = jsonEncode(capabilities);
     final currentState = jsonEncode(state);
 
+    final modelHint = model != null ? '\nMODEL: $model' : '';
+
     return '''
 You are controlling $software design software. Generate a script to accomplish the following task.
 
@@ -162,6 +164,7 @@ $caps
 
 CURRENT STATE:
 $currentState
+$modelHint
 
 TASK: $task
 

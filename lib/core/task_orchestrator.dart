@@ -49,11 +49,13 @@ class TaskOrchestrator {
       final result = await plugin.execute(task);
       _ccManager.closeSession(session.id);
 
+      final scriptContent = result.output ?? '';
+
       final updated = TaskRecord(
         id: record.id,
         sessionId: softwareName,
         task: task,
-        script: task,
+        script: scriptContent,
         scriptLanguage: plugin.scriptLanguage,
         modelUsed: model,
         status: result.success ? TaskStatus.completed : TaskStatus.failed,
@@ -65,7 +67,7 @@ class TaskOrchestrator {
       _tasks[record.id] = updated;
 
       _getOrCreateSession(domain, softwareName).addRecord(
-        task: task, script: task, scriptLanguage: plugin.scriptLanguage, modelUsed: model,
+        task: task, script: scriptContent, scriptLanguage: plugin.scriptLanguage, modelUsed: model,
       );
 
       return updated;
