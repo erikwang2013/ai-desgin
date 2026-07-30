@@ -102,6 +102,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "chitubox_plugin"
+version = "1.0.2"
+dependencies = [
+ "ai_design_core",
+ "serde",
+ "serde_json",
+ "tempfile",
+]
+
+[[package]]
 name = "combine"
 version = "4.6.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -134,6 +144,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8b2a41393f66f16b0823bb79094d54ac5fbd34ab292ddafb9a0456ac9f87d201"
 dependencies = [
  "libc",
+]
+
+[[package]]
+name = "cura_plugin"
+version = "1.0.2"
+dependencies = [
+ "ai_design_core",
+ "serde",
+ "serde_json",
+ "tempfile",
 ]
 
 [[package]]
@@ -188,6 +208,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cb4cb245038516f5f85277875cdaa4f7d2c9a0fa0468de06ed190163b1581fcf"
 dependencies = [
  "percent-encoding",
+]
+
+[[package]]
+name = "freecad_plugin"
+version = "1.0.2"
+dependencies = [
+ "ai_design_core",
+ "serde",
+ "serde_json",
+ "tempfile",
+]
+
+[[package]]
+name = "fusion360_plugin"
+version = "1.0.2"
+dependencies = [
+ "ai_design_core",
+ "serde",
+ "serde_json",
+ "tempfile",
 ]
 
 [[package]]
@@ -546,6 +586,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "92daf443525c4cce67b150400bc2316076100ce0b3686209eb8cf3c31612e6f0"
 
 [[package]]
+name = "lock_api"
+version = "0.4.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "224399e74b87b5f3557511d98dff8b14089b3dadafcab6bb93eab67d3aace965"
+dependencies = [
+ "scopeguard",
+]
+
+[[package]]
 name = "log"
 version = "0.4.33"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -556,6 +605,16 @@ name = "lru-slab"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "112b39cec0b298b6c1999fee3e31427f74f676e4cb9879ed1a121b43661a4154"
+
+[[package]]
+name = "lychee_plugin"
+version = "1.0.2"
+dependencies = [
+ "ai_design_core",
+ "serde",
+ "serde_json",
+ "tempfile",
+]
 
 [[package]]
 name = "malloc_buf"
@@ -571,6 +630,17 @@ name = "memchr"
 version = "2.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98"
+
+[[package]]
+name = "meshy_plugin"
+version = "1.0.2"
+dependencies = [
+ "ai_design_core",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tokio",
+]
 
 [[package]]
 name = "mio"
@@ -603,6 +673,49 @@ name = "once_cell"
 version = "1.21.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50"
+
+[[package]]
+name = "openscad_plugin"
+version = "1.0.2"
+dependencies = [
+ "ai_design_core",
+ "serde",
+ "serde_json",
+ "tempfile",
+]
+
+[[package]]
+name = "orcaslicer_plugin"
+version = "1.0.2"
+dependencies = [
+ "ai_design_core",
+ "serde",
+ "serde_json",
+ "tempfile",
+]
+
+[[package]]
+name = "parking_lot"
+version = "0.12.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "93857453250e3077bd71ff98b6a65ea6621a19bb0f559a85248955ac12c45a1a"
+dependencies = [
+ "lock_api",
+ "parking_lot_core",
+]
+
+[[package]]
+name = "parking_lot_core"
+version = "0.9.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2621685985a2ebf1c516881c026032ac7deafcda1a2c9b7850dc81e3dfcb64c1"
+dependencies = [
+ "cfg-if",
+ "libc",
+ "redox_syscall",
+ "smallvec",
+ "windows-link",
+]
 
 [[package]]
 name = "percent-encoding"
@@ -642,6 +755,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "985e7ec9bb745e6ce6535b544d84d6cd6f7ad8bd711c398938ae983b91a766d9"
 dependencies = [
  "unicode-ident",
+]
+
+[[package]]
+name = "prusaslicer_plugin"
+version = "1.0.2"
+dependencies = [
+ "ai_design_core",
+ "serde",
+ "serde_json",
+ "tempfile",
 ]
 
 [[package]]
@@ -748,6 +871,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f2ff9a1f06a88b01621b7ae906ef0211290d1c8a168a15542486a8f61c0833b9"
 
 [[package]]
+name = "redox_syscall"
+version = "0.5.18"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ed2bf2547551a7053d6fdfafda3f938979645c44812fbfcda098faae3f1a362d"
+dependencies = [
+ "bitflags",
+]
+
+[[package]]
 name = "reqwest"
 version = "0.12.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -783,6 +915,16 @@ dependencies = [
  "wasm-bindgen-futures",
  "web-sys",
  "webpki-roots",
+]
+
+[[package]]
+name = "rhino_plugin"
+version = "1.0.2"
+dependencies = [
+ "ai_design_core",
+ "serde",
+ "serde_json",
+ "tempfile",
 ]
 
 [[package]]
@@ -875,6 +1017,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "scopeguard"
+version = "1.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
+
+[[package]]
 name = "serde"
 version = "1.0.229"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -946,6 +1094,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "simplify3d_plugin"
+version = "1.0.2"
+dependencies = [
+ "ai_design_core",
+ "serde",
+ "serde_json",
+ "tempfile",
+]
+
+[[package]]
 name = "slab"
 version = "0.4.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -965,6 +1123,16 @@ checksum = "c3d1e2c7f27f8d4cb10542a02c49005dbd6e93095799d6f3be745fae9f8fedd4"
 dependencies = [
  "libc",
  "windows-sys 0.61.2",
+]
+
+[[package]]
+name = "solidworks_plugin"
+version = "1.0.2"
+dependencies = [
+ "ai_design_core",
+ "serde",
+ "serde_json",
+ "tempfile",
 ]
 
 [[package]]
@@ -1075,6 +1243,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "tinkercad_plugin"
+version = "1.0.2"
+dependencies = [
+ "ai_design_core",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
 name = "tinystr"
 version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1108,6 +1287,7 @@ dependencies = [
  "bytes",
  "libc",
  "mio",
+ "parking_lot",
  "pin-project-lite",
  "signal-hook-registry",
  "socket2",

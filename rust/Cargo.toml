@@ -1,5 +1,5 @@
 [workspace]
-members = ["core", "plugins/figma", "plugins/blender", "plugins/autocad", "plugins/photoshop"]
+members = ["core", "plugins/figma", "plugins/blender", "plugins/autocad", "plugins/photoshop", "plugins/fusion360", "plugins/solidworks", "plugins/tinkercad", "plugins/meshy", "plugins/chitubox", "plugins/lychee", "plugins/freecad", "plugins/openscad", "plugins/rhino", "plugins/cura", "plugins/prusaslicer", "plugins/orcaslicer", "plugins/simplify3d"]
 resolver = "2"
 
 [workspace.package]
