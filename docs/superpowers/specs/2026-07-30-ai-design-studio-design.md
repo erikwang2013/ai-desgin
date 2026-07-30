@@ -1,7 +1,18 @@
 # AI Design Studio — 设计规格文档
 
 > 状态：已确认并持续迭代（3D 打印插件已扩展至 17 个软件）
-> 日期：2026-07-30 · 更新：2026-07-31
+> 日期：2026-07-30 · 更新：2026-07-31（第二次更新）
+
+## 当前构建状态 (2026-07-31)
+
+| 检查项 | 状态 |
+|--------|------|
+| `flutter analyze` | No issues found |
+| `flutter test` | 49/49 passed |
+| `cargo build` | 18 crates compiled |
+| `cargo clippy` | 0 warnings |
+
+详见：[审查报告](../../review-report-2026-07-31.md) | [测试报告](../../test-report-2026-07-31.md)
 
 ## 一、项目概述
 

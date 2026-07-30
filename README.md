@@ -128,7 +128,8 @@ ai-desgin/
 │   │   └── src/
 │   │       ├── traits.rs                  # DesignPlugin Rust trait
 │   │       ├── types.rs                   # 共享类型定义
-│   │       └── ipc.rs                     # 进程隔离工具
+│   │       │   └── api.rs                  # Flutter-Rust bridge API
+│       └── ipc.rs                     # 进程隔离工具
 │   └── plugins/
 │       ├── figma/                         # Figma 插件 (REST API)
 │       ├── photoshop/                     # Photoshop 插件 (ExtendScript)
@@ -153,8 +154,10 @@ ai-desgin/
 │   ├── build.sh                           # Unix 构建脚本
 │   ├── build_windows.bat                  # Windows 构建脚本
 │   └── release.sh                         # 发布打包脚本
-├── test/                                  # Dart 测试 (49 tests)
+├── test/                                  # Dart 测试 (49 tests, 全部通过)
 ├── docs/
+│   ├── test-report-2026-07-31.md          # 测试报告
+│   ├── review-report-2026-07-31.md        # 审查报告
 │   └── superpowers/
 │       ├── specs/                         # 设计规格文档
 │       └── plans/                         # 实现计划文档
@@ -195,9 +198,21 @@ flutter run -d windows        # 或 -d macos
 ### 运行测试
 
 ```bash
-flutter test                  # 全部 Dart 测试
-cd rust && cargo build        # Rust 编译验证
+flutter test                  # 全部 Dart 测试 (49 tests, 100% 通过)
+cd rust && cargo build        # Rust 编译验证 (18 crates, 0 warnings)
+cd rust && cargo clippy       # Rust lint 检查
 ```
+
+### 代码质量
+
+| 检查项 | 状态 |
+|--------|------|
+| `flutter analyze` | No issues found |
+| `flutter test` | 49/49 passed |
+| `cargo build` | 18 crates compiled |
+| `cargo clippy` | 0 warnings |
+
+详细报告：[审查报告](docs/review-report-2026-07-31.md) | [测试报告](docs/test-report-2026-07-31.md)
 
 ## 使用教程
 

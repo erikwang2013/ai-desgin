@@ -133,8 +133,11 @@ ai-desgin/
 │       └── lychee/                        # Lychee (CLI)
 ├── config/model-routing.yaml
 ├── scripts/                               # Build + release scripts
-├── test/                                  # 49 Dart tests
-└── docs/                                  # Design specs + plans
+├── test/                                  # 49 Dart tests (all passing)
+└── docs/
+    ├── test-report-2026-07-31.md          # Test report
+    ├── review-report-2026-07-31.md        # Code review
+    └── superpowers/                       # Design specs + plans
 ```
 
 ## Quick Start
@@ -167,9 +170,21 @@ flutter run -d windows            # or -d macos
 ### Tests
 
 ```bash
-flutter test                      # All Dart tests
-cd rust && cargo build            # Rust compilation check
+flutter test                      # All Dart tests (49 tests, 100% passing)
+cd rust && cargo build            # Rust compilation (18 crates, 0 warnings)
+cd rust && cargo clippy           # Rust lint check
 ```
+
+### Code Quality
+
+| Check | Status |
+|-------|--------|
+| `flutter analyze` | No issues found |
+| `flutter test` | 49/49 passed |
+| `cargo build` | 18 crates compiled |
+| `cargo clippy` | 0 warnings |
+
+Detailed reports: [Review](docs/review-report-2026-07-31.md) | [Test](docs/test-report-2026-07-31.md)
 
 ## Usage
 
