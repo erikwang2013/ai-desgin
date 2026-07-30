@@ -1,0 +1,25 @@
+# Flutter/Dart
+/build/
+.dart_tool/
+.pub-cache/
+.pub/
+**/doc/api/
+.metadata
+*.iml
+*.class
+*.log
+
+# Project
+/.idea/
+/.vscode/
+.phpunit.result.cache
+.DS_Store
+Thumbs.db
+.phpunit.cache
+.claude
+.claude-flow
+.swarm
+.mcp.json
+ruvector.db
+.superpowers/state/target
+target
