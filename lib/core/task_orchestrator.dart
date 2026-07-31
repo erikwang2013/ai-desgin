@@ -27,6 +27,7 @@ class TaskOrchestrator {
   final ModelRouter _modelRouter;
   final CCRunner _ccRunner;
   final int maxConcurrent;
+  final int maxQueueSize;
 
   final Map<String, Session> _sessions = {};
   final Map<String, TaskRecord> _tasks = {};
@@ -39,6 +40,7 @@ class TaskOrchestrator {
     required ModelRouter modelRouter,
     CCRunner? ccRunner,
     this.maxConcurrent = 3,
+    this.maxQueueSize = 100,
   })  : _pluginManager = pluginManager,
         _ccManager = ccManager,
         _modelRouter = modelRouter,
@@ -58,6 +60,12 @@ class TaskOrchestrator {
     }
 
     if (_activeCount >= maxConcurrent) {
+      if (_taskQueue.length >= maxQueueSize) {
+        final record = TaskRecord(sessionId: softwareName, task: task,
+            status: TaskStatus.failed, error: 'Task queue full (max $maxQueueSize)');
+        _tasks[record.id] = record;
+        return record;
+      }
       final queued = _QueuedTask(domain: domain, softwareName: softwareName, task: task, overrideModel: overrideModel);
       _taskQueue.add(queued);
       final pending = TaskRecord(sessionId: softwareName, task: task, status: TaskStatus.pending);

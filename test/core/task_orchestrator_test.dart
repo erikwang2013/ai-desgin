@@ -98,4 +98,42 @@ void main() {
   test('getTask returns null for unknown id', () {
     expect(orchestrator.getTask('nonexistent'), isNull);
   });
+
+  test('queues tasks when at maxConcurrent', () async {
+    final t1 = orchestrator.submitTask(domain: DesignCategory.web, softwareName: 'echo', task: 'q1');
+    final t2 = orchestrator.submitTask(domain: DesignCategory.web, softwareName: 'echo', task: 'q2');
+    final t3 = orchestrator.submitTask(domain: DesignCategory.web, softwareName: 'echo', task: 'q3');
+    final r1 = await t1;
+    final r2 = await t2;
+    expect(r1.status, TaskStatus.completed);
+    expect(r2.status, TaskStatus.completed);
+    final r3 = await t3;
+    expect(r3.status, TaskStatus.completed);
+    expect(r3.task, 'q3');
+  });
+
+  test('rejects when queue is full', () async {
+    final tight = TaskOrchestrator(
+      pluginManager: pluginManager,
+      ccManager: ccManager,
+      modelRouter: modelRouter,
+      ccRunner: FakeCCRunner(),
+      maxConcurrent: 1,
+      maxQueueSize: 0,
+    );
+    final t1 = tight.submitTask(domain: DesignCategory.web, softwareName: 'echo', task: 'busy');
+    final t2 = await tight.submitTask(domain: DesignCategory.web, softwareName: 'echo', task: 'rejected');
+    expect(t2.status, TaskStatus.failed);
+    expect(t2.error, contains('queue full'));
+    await t1;
+    expect(tight.activeTaskCount, 0);
+  });
+
+  test('pruneTasks evicts oldest records', () async {
+    for (var i = 0; i < 5; i++) {
+      await orchestrator.submitTask(domain: DesignCategory.web, softwareName: 'echo', task: 'prune $i');
+    }
+    orchestrator.pruneTasks(keep: 3);
+    expect(orchestrator.activeTaskCount, greaterThanOrEqualTo(0));
+  });
 }
