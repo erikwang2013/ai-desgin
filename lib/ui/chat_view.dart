@@ -25,8 +25,9 @@ class _ChatViewState extends State<ChatView> {
   @override
   void initState() {
     super.initState();
-    _controller.addListener(() => setState(() {}));
   }
+
+  static const _maxMessages = 500;
 
   void _send() {
     final text = _controller.text.trim();
@@ -34,6 +35,9 @@ class _ChatViewState extends State<ChatView> {
 
     setState(() {
       _messages.add(ChatMessage(content: text));
+      while (_messages.length > _maxMessages) {
+        _messages.removeAt(0);
+      }
       _isLoading = true;
     });
     _controller.clear();
@@ -43,6 +47,13 @@ class _ChatViewState extends State<ChatView> {
         if (mounted) {
           setState(() {
             _messages.add(ChatMessage(content: response, isUser: false));
+            _isLoading = false;
+          });
+        }
+      }).catchError((error) {
+        if (mounted) {
+          setState(() {
+            _messages.add(ChatMessage(content: '❌ 错误: $error', isUser: false));
             _isLoading = false;
           });
         }
@@ -93,7 +104,6 @@ class _ChatViewState extends State<ChatView> {
   }
 
   Widget _buildInputBar() {
-    final canSend = _controller.text.trim().isNotEmpty && !_isLoading;
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Row(
@@ -113,11 +123,17 @@ class _ChatViewState extends State<ChatView> {
             ),
           ),
           const SizedBox(width: 8),
-          IconButton(
-            icon: _isLoading
-                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                : const Icon(Icons.send),
-            onPressed: canSend ? _send : null,
+          ListenableBuilder(
+            listenable: _controller,
+            builder: (context, _) {
+              final canSend = _controller.text.trim().isNotEmpty && !_isLoading;
+              return IconButton(
+                icon: _isLoading
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Icon(Icons.send),
+                onPressed: canSend ? _send : null,
+              );
+            },
           ),
         ],
       ),

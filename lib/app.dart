@@ -40,6 +40,7 @@ class _MainShellState extends State<_MainShell> {
 
   late final TaskOrchestrator _orchestrator;
   final _dashboardKey = GlobalKey<TaskDashboardState>();
+  final Map<String, bool> _connectionStatus = {};
   bool _ready = false;
 
   @override
@@ -82,12 +83,11 @@ routes:
       task: task,
     );
 
-    final status = result.status == TaskStatus.completed ? 'completed' : 'failed';
     _dashboardKey.currentState?.addTask(TaskItem(
       id: result.id,
       title: result.task,
       software: result.sessionId,
-      status: status,
+      status: result.status,
       createdAt: result.createdAt,
       modelUsed: result.modelUsed,
     ));
@@ -124,7 +124,7 @@ routes:
             onSubmit: _ready ? _onSubmit : null,
           ),
           TaskDashboard(key: _dashboardKey),
-          const SoftwarePanel(),
+          SoftwarePanel(connectionStatus: _connectionStatus),
         ],
       ),
     );

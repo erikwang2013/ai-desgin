@@ -6,6 +6,10 @@ pub fn list_plugins() -> String {
         serde_json::json!({"id": "com.aidesign.blender", "name": "Blender", "version": "1.0.3", "script_language": "python"}),
         serde_json::json!({"id": "com.aidesign.autocad", "name": "AutoCAD", "version": "1.0.3", "script_language": "lisp"}),
         serde_json::json!({"id": "com.aidesign.photoshop", "name": "Photoshop", "version": "1.0.3", "script_language": "javascript"}),
+        serde_json::json!({"id": "com.aidesign.illustrator", "name": "Illustrator", "version": "1.0.4", "script_language": "javascript"}),
+        serde_json::json!({"id": "com.aidesign.sketch", "name": "Sketch", "version": "1.0.4", "script_language": "javascript"}),
+        serde_json::json!({"id": "com.aidesign.revit", "name": "Revit", "version": "1.0.4", "script_language": "python"}),
+        serde_json::json!({"id": "com.aidesign.sketchup", "name": "SketchUp", "version": "1.0.4", "script_language": "ruby"}),
     ];
     serde_json::to_string(&plugins).unwrap_or_else(|_| "[]".into())
 }

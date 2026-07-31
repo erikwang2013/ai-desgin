@@ -1,5 +1,8 @@
+import 'package:logging/logging.dart';
 import 'package:yaml/yaml.dart';
 import '../models/session.dart';
+
+final _log = Logger('ModelRouter');
 
 enum TaskComplexity { simple, moderate, creative }
 
@@ -44,6 +47,7 @@ class ModelRouter {
           case 'interior':
             return DesignCategory.interior;
           default:
+            _log.warning('Unknown domain in config: "$d", falling back to web');
             return DesignCategory.web;
         }
       }).toList();
@@ -81,7 +85,7 @@ class ModelRouter {
   }
 
   TaskComplexity _inferComplexity(String task) {
-    final creativeKeywords = ['设计', '创意', '方案', '风格', 'layout', 'design'];
+    final creativeKeywords = ['设计', '创意', '方案', '风格', 'layout', 'design', 'create', 'creative', 'generate', '生成', '构思'];
     final simpleKeywords = [
       '改名',
       '导出',
@@ -91,6 +95,11 @@ class ModelRouter {
       'export',
       'delete',
       'list',
+      'get',
+      'view',
+      'show',
+      '查看',
+      '显示',
     ];
     for (final kw in creativeKeywords) {
       if (task.contains(kw)) return TaskComplexity.creative;

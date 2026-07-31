@@ -147,7 +147,11 @@ ai-desgin/
 │       ├── orcaslicer/                    # OrcaSlicer 插件 (CLI)
 │       ├── simplify3d/                    # Simplify3D 插件 (CLI)
 │       ├── chitubox/                      # ChiTuBox 插件 (CLI)
-│       └── lychee/                        # Lychee 插件 (CLI)
+│       ├── lychee/                        # Lychee 插件 (CLI)
+│       ├── illustrator/                   # Illustrator 插件 (ExtendScript)
+│       ├── sketch/                        # Sketch 插件 (sketchtool/js)
+│       ├── revit/                         # Revit 插件 (Dynamo/.NET)
+│       └── sketchup/                      # SketchUp 插件 (Ruby)
 ├── config/
 │   └── model-routing.yaml                 # 模型路由配置
 ├── scripts/
@@ -276,16 +280,16 @@ AI 生成脚本后会展示预览，确认无误后点击执行。执行结果�
 
 ## 已支持的软件
 
-### 平面设计（4 个）
+### 平面与 UI 设计（4 个）
 
 | 软件 | 控制方式 | 平台 | 状态 |
 |------|---------|------|------|
 | Figma | REST API + 浏览器自动化 | Web/macOS/Win | ✅ |
 | Photoshop | ExtendScript + COM/AppleScript | macOS/Win | ✅ |
-| Sketch | AppleScript | macOS | ⏳ |
-| Illustrator | ExtendScript | macOS/Win | ⏳ |
+| Sketch | sketchtool CLI + osascript | macOS | ✅ |
+| Illustrator | ExtendScript | macOS/Win | ✅ |
 
-### CAD 建模（7 个）
+### CAD 与 BIM 建模（9 个）
 
 | 软件 | 控制方式 | 平台 | 状态 |
 |------|---------|------|------|
@@ -296,6 +300,8 @@ AI 生成脚本后会展示预览，确认无误后点击执行。执行结果�
 | Rhino | Python/RhinoScript | macOS/Win | ✅ |
 | Blender | Python bpy | macOS/Win/Linux | ✅ |
 | AutoCAD | AutoLISP | macOS/Win | ✅ |
+| Revit | Dynamo / .NET API | Win | ✅ |
+| SketchUp | Ruby API | macOS/Win | ✅ |
 
 ### FDM 切片器（4 个）
 
@@ -320,12 +326,14 @@ AI 生成脚本后会展示预览，确认无误后点击执行。执行结果�
 | Tinkercad | REST API | Web | ✅ |
 | Meshy | REST API（AI 生成） | Web | ✅ |
 
-### 计划中
+### 后续计划
 
 | 软件 | 控制方式 | 平台 |
 |------|---------|------|
-| Revit | .NET API | Win |
-| SketchUp | Ruby API | macOS/Win |
+| Maya | Python API | macOS/Win/Linux |
+| 3ds Max | MAXScript | Win |
+| Cinema 4D | Python API | macOS/Win |
+| InDesign | ExtendScript | macOS/Win |
 
 ## 开发指南
 

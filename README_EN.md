@@ -130,7 +130,11 @@ ai-desgin/
 │       ├── orcaslicer/                    # OrcaSlicer (CLI)
 │       ├── simplify3d/                    # Simplify3D (CLI)
 │       ├── chitubox/                      # ChiTuBox (CLI)
-│       └── lychee/                        # Lychee (CLI)
+│       ├── lychee/                        # Lychee (CLI)
+│       ├── illustrator/                   # Illustrator (ExtendScript)
+│       ├── sketch/                        # Sketch (sketchtool/JS)
+│       ├── revit/                         # Revit (Dynamo/.NET)
+│       └── sketchup/                      # SketchUp (Ruby)
 ├── config/model-routing.yaml
 ├── scripts/                               # Build + release scripts
 ├── test/                                  # 49 Dart tests (all passing)
@@ -248,16 +252,16 @@ Text-to-3D and image-to-3D generation via Meshy API, with automatic polygon opti
 
 ## Supported Software
 
-### Graphic Design (4)
+### Graphic & UI Design (4)
 
 | Software | Control Method | Platform | Status |
 |----------|---------------|----------|--------|
 | Figma | REST API | Web/macOS/Win | ✅ |
 | Photoshop | ExtendScript + COM/AppleScript | macOS/Win | ✅ |
-| Sketch | AppleScript | macOS | ⏳ |
-| Illustrator | ExtendScript | macOS/Win | ⏳ |
+| Sketch | sketchtool CLI + osascript | macOS | ✅ |
+| Illustrator | ExtendScript | macOS/Win | ✅ |
 
-### CAD Modeling (7)
+### CAD & BIM Modeling (9)
 
 | Software | Control Method | Platform | Status |
 |----------|---------------|----------|--------|
@@ -268,6 +272,8 @@ Text-to-3D and image-to-3D generation via Meshy API, with automatic polygon opti
 | Rhino | Python/RhinoScript | macOS/Win | ✅ |
 | Blender | Python bpy | macOS/Win/Linux | ✅ |
 | AutoCAD | AutoLISP | macOS/Win | ✅ |
+| Revit | Dynamo / .NET API | Win | ✅ |
+| SketchUp | Ruby API | macOS/Win | ✅ |
 
 ### FDM Slicers (4)
 
@@ -296,8 +302,10 @@ Text-to-3D and image-to-3D generation via Meshy API, with automatic polygon opti
 
 | Software | Control Method | Platform |
 |----------|---------------|----------|
-| Revit | .NET API | Win |
-| SketchUp | Ruby API | macOS/Win |
+| Maya | Python API | macOS/Win/Linux |
+| 3ds Max | MAXScript | Win |
+| Cinema 4D | Python API | macOS/Win |
+| InDesign | ExtendScript | macOS/Win |
 
 ## Developer Guide
 

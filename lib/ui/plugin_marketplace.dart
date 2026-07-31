@@ -33,10 +33,10 @@ class _PluginMarketplaceState extends State<PluginMarketplace> {
     const PluginInfo(id: 'blender', name: 'Blender', description: '3D 建模软件插件，支持建模、渲染、导出等', icon: '🔷', category: '3D 设计', installed: true),
     const PluginInfo(id: 'autocad', name: 'AutoCAD', description: 'CAD 软件插件，支持绘图、标注、图层管理', icon: '📐', category: '建筑设计', installed: true),
     const PluginInfo(id: 'photoshop', name: 'Photoshop', description: '图像处理软件插件，支持图层、滤镜、批处理', icon: '🖼️', category: '广告设计', installed: true),
-    const PluginInfo(id: 'sketch', name: 'Sketch', description: 'macOS UI 设计工具插件', icon: '✏️', category: 'Web 设计', installed: false, version: '0.1.0'),
-    const PluginInfo(id: 'revit', name: 'Revit', description: 'BIM 建筑设计软件插件', icon: '🏗️', category: '建筑设计', installed: false, version: '0.1.0'),
-    const PluginInfo(id: 'sketchup', name: 'SketchUp', description: '3D 建模软件插件，适合建筑和室内设计', icon: '🏠', category: '装修设计', installed: false, version: '0.1.0'),
-    const PluginInfo(id: 'illustrator', name: 'Illustrator', description: '矢量图形设计软件插件', icon: '🖋️', category: '广告设计', installed: false, version: '0.1.0'),
+    const PluginInfo(id: 'sketch', name: 'Sketch', description: 'macOS UI 设计工具插件，支持画板、图层、导出', icon: '✏️', category: 'Web 设计', installed: true),
+    const PluginInfo(id: 'revit', name: 'Revit', description: 'BIM 建筑设计软件插件，支持墙体、楼板、族、参数', icon: '🏗️', category: '建筑设计', installed: true),
+    const PluginInfo(id: 'sketchup', name: 'SketchUp', description: '3D 建模软件插件，推拉、材质、场景、剖面', icon: '🏠', category: '装修设计', installed: true),
+    const PluginInfo(id: 'illustrator', name: 'Illustrator', description: '矢量图形设计软件插件，支持画板、路径、效果', icon: '🖋️', category: '广告设计', installed: true),
   ];
 
   void _toggleInstall(PluginInfo plugin) async {

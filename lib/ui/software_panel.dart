@@ -22,13 +22,19 @@ class SoftwareInfo {
 }
 
 class SoftwarePanel extends StatelessWidget {
-  const SoftwarePanel({super.key});
+  final Map<String, bool>? connectionStatus;
+
+  const SoftwarePanel({super.key, this.connectionStatus});
 
   static const List<SoftwareInfo> _defaultSoftware = [
     SoftwareInfo(id: 'figma', name: 'Figma', icon: '🎨', category: DesignCategory.web, connected: false),
-    SoftwareInfo(id: 'blender', name: 'Blender', icon: '🔷', category: DesignCategory.threeD, connected: false),
-    SoftwareInfo(id: 'autocad', name: 'AutoCAD', icon: '📐', category: DesignCategory.arch, connected: false),
+    SoftwareInfo(id: 'sketch', name: 'Sketch', icon: '✏️', category: DesignCategory.web, connected: false),
     SoftwareInfo(id: 'photoshop', name: 'Photoshop', icon: '🖼️', category: DesignCategory.ad, connected: false),
+    SoftwareInfo(id: 'illustrator', name: 'Illustrator', icon: '🖋️', category: DesignCategory.ad, connected: false),
+    SoftwareInfo(id: 'blender', name: 'Blender', icon: '🔷', category: DesignCategory.threeD, connected: false),
+    SoftwareInfo(id: 'sketchup', name: 'SketchUp', icon: '🏠', category: DesignCategory.interior, connected: false),
+    SoftwareInfo(id: 'autocad', name: 'AutoCAD', icon: '📐', category: DesignCategory.arch, connected: false),
+    SoftwareInfo(id: 'revit', name: 'Revit', icon: '🏗️', category: DesignCategory.arch, connected: false),
   ];
 
   @override
@@ -62,6 +68,7 @@ class SoftwarePanel extends StatelessWidget {
   }
 
   Widget _buildSoftwareCard(BuildContext context, SoftwareInfo software) {
+    final status = connectionStatus?[software.id];
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
@@ -85,14 +92,25 @@ class SoftwarePanel extends StatelessWidget {
                 ],
               ),
             ),
-            _buildStatusIndicator(software.connected),
+            _buildStatusIndicator(status),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildStatusIndicator(bool connected) {
+  Widget _buildStatusIndicator(bool? connected) {
+    if (connected == null) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.orange.shade50,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.orange.shade200),
+        ),
+        child: Text('检测中...', style: TextStyle(fontSize: 12, color: Colors.orange.shade700)),
+      );
+    }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(

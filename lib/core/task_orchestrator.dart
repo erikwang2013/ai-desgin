@@ -35,19 +35,26 @@ class TaskOrchestrator {
       return record;
     }
 
-    final record = TaskRecord(sessionId: softwareName, task: task, status: TaskStatus.running);
+    if (activeTaskCount >= maxConcurrent) {
+      final record = TaskRecord(sessionId: softwareName, task: task, status: TaskStatus.failed, error: 'Too many concurrent tasks (max $maxConcurrent)');
+      _tasks[record.id] = record;
+      return record;
+    }
+
+    final session = _getOrCreateSession(domain, softwareName);
+    final record = TaskRecord(sessionId: session.id, task: task, status: TaskStatus.running);
     _tasks[record.id] = record;
 
     try {
       final model = _modelRouter.route(domain: domain, task: task, overrideModel: overrideModel);
       final state = await plugin.getCurrentState();
-      final session = _ccManager.createSession(software: softwareName, capabilities: plugin.capabilities, state: state);
+      final ccSession = _ccManager.createSession(software: softwareName, capabilities: plugin.capabilities, state: state);
 
-      // In production: build JSON-RPC request and send to Claude Code subprocess
-      _ccManager.buildRequest(sessionId: session.id, task: task, model: model);
+      final request = _ccManager.buildRequest(sessionId: ccSession.id, task: task, model: model);
+      _ccManager.serializeRequest(request);
 
       final result = await plugin.execute(task);
-      _ccManager.closeSession(session.id);
+      _ccManager.closeSession(ccSession.id);
 
       final scriptContent = result.output ?? '';
 
@@ -74,7 +81,7 @@ class TaskOrchestrator {
       return updated;
     } catch (e) {
       final failed = TaskRecord(
-        id: record.id, sessionId: softwareName, task: task,
+        id: record.id, sessionId: session.id, task: task,
         status: TaskStatus.failed, error: e.toString(),
         createdAt: record.createdAt, completedAt: DateTime.now(),
       );

@@ -50,7 +50,12 @@ class SessionStore {
       'created_at': session.createdAt.toIso8601String(),
     }, conflictAlgorithm: ConflictAlgorithm.replace);
 
+    final existingRows = await _db.query('task_records',
+        columns: ['id'], where: 'session_id = ?', whereArgs: [session.id]);
+    final existingIds = existingRows.map((r) => r['id'] as String).toSet();
+
     for (final record in session.history) {
+      if (existingIds.contains(record.id)) continue;
       await _db.insert('task_records', {
         'id': record.id,
         'session_id': session.id,
@@ -109,8 +114,8 @@ class SessionStore {
     final rows = await _db.rawQuery('''
       SELECT DISTINCT s.* FROM sessions s
       INNER JOIN task_records t ON t.session_id = s.id
-      WHERE t.task LIKE ? ORDER BY s.created_at DESC
-    ''', ['%$query%']);
+      WHERE t.task LIKE ? ESCAPE '\\' ORDER BY s.created_at DESC
+    ''', ['%${_escapeLike(query)}%']);
     return _deserializeSessionRows(rows);
   }
 
@@ -120,12 +125,31 @@ class SessionStore {
       domain: DesignCategory.values.firstWhere((d) => d.name == r['domain']),
       softwareName: r['software_name'] as String,
       createdAt: DateTime.parse(r['created_at'] as String),
+      context: _parseContext(r['context_json'] as String?),
     )).toList();
+  }
+
+  SessionContext _parseContext(String? json) {
+    if (json == null) return SessionContext();
+    try {
+      final data = jsonDecode(json) as Map<String, dynamic>;
+      return SessionContext(
+        softwareState: Map<String, dynamic>.from(data['softwareState'] ?? {}),
+        userPreferences: Map<String, dynamic>.from(data['userPreferences'] ?? {}),
+        recentActions: List<String>.from(data['recentActions'] ?? []),
+      );
+    } catch (_) {
+      return SessionContext();
+    }
   }
 
   Future<void> delete(String sessionId) async {
     await _db.delete('task_records', where: 'session_id = ?', whereArgs: [sessionId]);
     await _db.delete('sessions', where: 'id = ?', whereArgs: [sessionId]);
+  }
+
+  String _escapeLike(String value) {
+    return value.replaceAll('\\', '\\\\').replaceAll('%', '\\%').replaceAll('_', '\\_');
   }
 
   TaskRecord _deserializeRecord(Map<String, dynamic> row) {

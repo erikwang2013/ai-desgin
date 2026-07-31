@@ -105,9 +105,11 @@ async fn image_to_3d(
     api_key: &str,
     script: &str,
 ) -> Result<ScriptResult, String> {
+    let (url, prompt) = parse_url_and_prompt(script);
+
     let request = MeshyTaskRequest {
-        prompt: Some(script.to_string()),
-        image_url: Some(script.to_string()),
+        prompt: Some(prompt.unwrap_or_else(|| "Generate a 3D model from the image".into())),
+        image_url: Some(url.unwrap_or_else(|| "".into())),
         model_url: None,
         target_format: Some("glb".into()),
         art_style: None,
@@ -159,10 +161,12 @@ async fn optimize_model(
     api_key: &str,
     script: &str,
 ) -> Result<ScriptResult, String> {
+    let (model_url, _) = parse_url_and_prompt(script);
+
     let request = MeshyTaskRequest {
         prompt: None,
         image_url: None,
-        model_url: Some(script.to_string()),
+        model_url: Some(model_url.unwrap_or_else(|| "".into())),
         target_format: Some("glb".into()),
         art_style: None,
         negative_prompt: None,
@@ -198,10 +202,12 @@ async fn export_model(
         "glb"
     };
 
+    let (model_url, _) = parse_url_and_prompt(script);
+
     let request = MeshyTaskRequest {
         prompt: None,
         image_url: None,
-        model_url: Some(script.to_string()),
+        model_url: Some(model_url.unwrap_or_else(|| "".into())),
         target_format: Some(format.to_string()),
         art_style: None,
         negative_prompt: None,
@@ -217,6 +223,28 @@ async fn export_model(
         .map_err(|e| format!("Meshy export request failed: {}", e))?;
 
     handle_meshy_response(resp).await
+}
+
+/// Extract URL and optional prompt from structured script text.
+/// Expects format: "url: <url> prompt: <text>" or falls back to treating entire script as prompt.
+fn parse_url_and_prompt(script: &str) -> (Option<String>, Option<String>) {
+    let mut url = None;
+    let mut prompt = None;
+
+    for line in script.lines() {
+        let trimmed = line.trim();
+        if let Some(u) = trimmed.strip_prefix("url:").or_else(|| trimmed.strip_prefix("URL:")) {
+            url = Some(u.trim().to_string());
+        } else if let Some(p) = trimmed.strip_prefix("prompt:").or_else(|| trimmed.strip_prefix("Prompt:")) {
+            prompt = Some(p.trim().to_string());
+        }
+    }
+
+    if prompt.is_none() && url.is_none() {
+        prompt = Some(script.to_string());
+    }
+
+    (url, prompt)
 }
 
 /// Handle the Meshy API response and convert to ScriptResult.

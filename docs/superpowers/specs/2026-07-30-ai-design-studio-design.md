@@ -1,7 +1,7 @@
 # AI Design Studio — 设计规格文档
 
-> 状态：已确认并持续迭代（3D 打印插件已扩展至 17 个软件）
-> 日期：2026-07-30 · 更新：2026-07-31（第二次更新）
+> 状态：已确认并持续迭代（21 个软件插件，含 CAD/BIM/切片器/AI 生成）
+> 日期：2026-07-30 · 更新：2026-07-31（第三次更新）
 
 ## 当前构建状态 (2026-07-31)
 
@@ -262,13 +262,14 @@ class Session {
 - 敏感操作（删除、覆盖文件）需要用户二次确认
 - API key 存储在系统本地加密存储（macOS Keychain / Windows Credential Manager）
 
-## 十一、3D 打印扩展（2026-07-31 更新）
+## 十一、设计软件插件扩展（2026-07-31 更新）
 
 ### 新增插件
 
-在原有 4 个设计软件插件基础上，扩展至 17 个软件，覆盖完整的 3D 打印工作流：
+在原有 4 个设计软件插件基础上，陆续扩展至 21 个软件，覆盖完整的设计与制造工作流：
 
-**CAD 建模**：Fusion 360、SolidWorks、FreeCAD、OpenSCAD、Rhino、Blender、AutoCAD
+**平面/UI 设计**：Figma、Photoshop、Illustrator、Sketch
+**CAD/BIM 建模**：Fusion 360、SolidWorks、FreeCAD、OpenSCAD、Rhino、Blender、AutoCAD、Revit、SketchUp
 **Web/AI**：Tinkercad、Meshy
 **FDM 切片**：Cura、PrusaSlicer、OrcaSlicer、Simplify3D
 **树脂切片**：ChiTuBox、Lychee Slicer
@@ -277,13 +278,16 @@ class Session {
 
 | 方式 | 软件 |
 |------|------|
-| Python API | Fusion 360、FreeCAD、Rhino、Blender |
+| Python API | Fusion 360、FreeCAD、Rhino、Blender、Revit (Dynamo) |
 | CLI | Cura、PrusaSlicer、OrcaSlicer、Simplify3D、ChiTuBox、Lychee |
 | REST API | Figma、Tinkercad、Meshy |
 | VBA/COM | SolidWorks |
 | SCAD 脚本 | OpenSCAD |
 | AutoLISP | AutoCAD |
-| ExtendScript | Photoshop |
+| ExtendScript | Photoshop、Illustrator |
+| Ruby API | SketchUp |
+| sketchtool/JS | Sketch |
+| .NET API | Revit |
 
 ### 典型 3D 打印工作流
 

@@ -1,7 +1,7 @@
 [workspace]
-members = ["core", "plugins/figma", "plugins/blender", "plugins/autocad", "plugins/photoshop", "plugins/fusion360", "plugins/solidworks", "plugins/tinkercad", "plugins/meshy", "plugins/chitubox", "plugins/lychee", "plugins/freecad", "plugins/openscad", "plugins/rhino", "plugins/cura", "plugins/prusaslicer", "plugins/orcaslicer", "plugins/simplify3d"]
+members = ["core", "plugins/figma", "plugins/blender", "plugins/autocad", "plugins/photoshop", "plugins/fusion360", "plugins/solidworks", "plugins/tinkercad", "plugins/meshy", "plugins/chitubox", "plugins/lychee", "plugins/freecad", "plugins/openscad", "plugins/rhino", "plugins/cura", "plugins/prusaslicer", "plugins/orcaslicer", "plugins/simplify3d", "plugins/illustrator", "plugins/sketch", "plugins/revit", "plugins/sketchup"]
 resolver = "2"
 
 [workspace.package]
-version = "1.0.4"
+version = "1.0.5"
 edition = "2021"

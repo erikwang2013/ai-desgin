@@ -1,11 +1,12 @@
 // lib/ui/task_dashboard.dart
 import 'package:flutter/material.dart';
+import '../models/task_record.dart';
 
 class TaskItem {
   final String id;
   final String title;
   final String software;
-  final String status; // pending, running, completed, failed
+  final TaskStatus status;
   final DateTime createdAt;
   final String? modelUsed;
 
@@ -39,14 +40,21 @@ class TaskDashboardState extends State<TaskDashboard> {
     }
   }
 
+  static const _maxTasks = 500;
+
   void addTask(TaskItem task) {
-    setState(() => _tasks.insert(0, task));
+    setState(() {
+      _tasks.insert(0, task);
+      while (_tasks.length > _maxTasks) {
+        _tasks.removeLast();
+      }
+    });
   }
 
   List<TaskItem> get _filteredTasks {
     if (_filter == '全部') return _tasks;
-    if (_filter == '进行中') return _tasks.where((t) => t.status == 'running' || t.status == 'pending').toList();
-    if (_filter == '已完成') return _tasks.where((t) => t.status == 'completed').toList();
+    if (_filter == '进行中') return _tasks.where((t) => t.status == TaskStatus.running || t.status == TaskStatus.pending).toList();
+    if (_filter == '已完成') return _tasks.where((t) => t.status == TaskStatus.completed).toList();
     return _tasks;
   }
 
@@ -110,15 +118,15 @@ class TaskDashboardState extends State<TaskDashboard> {
 
   Widget _buildTaskCard(TaskItem task) {
     final statusIcon = switch (task.status) {
-      'completed' => Icons.check_circle,
-      'failed' => Icons.error,
-      'running' => Icons.hourglass_top,
+      TaskStatus.completed => Icons.check_circle,
+      TaskStatus.failed => Icons.error,
+      TaskStatus.running => Icons.hourglass_top,
       _ => Icons.schedule,
     };
     final statusColor = switch (task.status) {
-      'completed' => Colors.green,
-      'failed' => Colors.red,
-      'running' => Colors.orange,
+      TaskStatus.completed => Colors.green,
+      TaskStatus.failed => Colors.red,
+      TaskStatus.running => Colors.orange,
       _ => Colors.grey,
     };
     final timeStr = '${task.createdAt.hour}:${task.createdAt.minute.toString().padLeft(2, '0')}';

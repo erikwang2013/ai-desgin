@@ -29,7 +29,7 @@ class CCResult {
       scriptLanguage: json['scriptLanguage'] as String?,
       explanation: json['explanation'] as String?,
       modelUsed: json['modelUsed'] as String?,
-      success: true,
+      success: json['success'] as bool? ?? true,
     );
   }
 
@@ -76,23 +76,22 @@ class CCRunner {
     try {
       final process = await Process.start(
         _cliPath,
-        [
-          '--print', // Non-interactive mode
-          '--output-format', 'json',
-        ],
+        ['--print', '--output-format', 'json'],
         environment: {
           ...Platform.environment,
           if (model != null) 'CLAUDE_DEFAULT_MODEL': model,
         },
       );
 
-      // Send the prompt
       process.stdin.write(prompt);
       await process.stdin.close();
 
-      // Collect output
-      final output = await process.stdout.transform(utf8.decoder).join();
-      final errors = await process.stderr.transform(utf8.decoder).join();
+      final results = await Future.wait([
+        process.stdout.transform(utf8.decoder).join(),
+        process.stderr.transform(utf8.decoder).join(),
+      ]);
+      final output = results[0];
+      final errors = results[1];
 
       if (errors.isNotEmpty) {
         _log.info('Claude Code stderr: $errors');
