@@ -233,8 +233,6 @@ Output your response as JSON with these fields:
         return 'Ruby (SketchUp API)';
       case 'lua':
         return 'Lua (Lightroom SDK)';
-      case 'c#':
-        return 'C# (.NET API for Revit or general)';
       default:
         return lang;
     }

@@ -65,7 +65,7 @@ class SettingsView extends StatelessWidget {
             SizedBox(height: 8),
             Text('一款 AI 驱动的设计软件自动化工具。'),
             SizedBox(height: 8),
-            Text('支持 Figma、Blender、AutoCAD、Photoshop 等主流设计软件的脚本生成与执行。'),
+            Text('覆盖 6 大设计领域、47 款主流设计软件的 AI 驱动脚本生成与执行。'),
           ],
         ),
         actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('确定'))],

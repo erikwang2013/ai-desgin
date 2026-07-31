@@ -49,6 +49,8 @@ class _MainShellState extends State<_MainShell> {
   SessionStore? _sessionStore;
   final _dashboardKey = GlobalKey<TaskDashboardState>();
   final Map<String, bool> _connectionStatus = {};
+  final Map<DesignCategory, String> _lastSoftwarePerDomain = {};
+  final Map<DesignCategory, List<SoftwareOption>> _cachedOptions = {};
   bool _ready = false;
 
   @override
@@ -103,17 +105,28 @@ class _MainShellState extends State<_MainShell> {
     }
 
     _currentSoftware = _defaultSoftwareFor(_currentDomain);
+    _lastSoftwarePerDomain[_currentDomain] = _currentSoftware;
 
     if (mounted) setState(() => _ready = true);
   }
 
   void _onTabSelected(int tab) => setState(() => _currentTab = tab);
   void _onDomainChanged(DesignCategory domain) {
+    final remembered = _lastSoftwarePerDomain[domain];
     final domainPlugins = _pluginManager.getByCategory(domain);
+    final firstId = domainPlugins.isNotEmpty ? domainPlugins.first.id : '';
+    final restored = remembered != null && domainPlugins.any((p) => p.id == remembered)
+        ? remembered
+        : firstId;
     setState(() {
       _currentDomain = domain;
-      _currentSoftware = domainPlugins.isNotEmpty ? domainPlugins.first.id : '';
+      _currentSoftware = restored;
     });
+  }
+
+  void _onSoftwareChanged(String id) {
+    _lastSoftwarePerDomain[_currentDomain] = id;
+    setState(() => _currentSoftware = id);
   }
 
   Future<String> _onSubmit(String task) async {
@@ -156,9 +169,11 @@ class _MainShellState extends State<_MainShell> {
   }
 
   List<SoftwareOption> _buildSoftwareOptions() {
-    return _pluginManager.getByCategory(_currentDomain).map((p) {
-      return SoftwareOption(id: p.id, name: p.name, icon: softwareIcons[p.id] ?? '🔌');
-    }).toList();
+    return _cachedOptions.putIfAbsent(_currentDomain, () {
+      return _pluginManager.getByCategory(_currentDomain).map((p) {
+        return SoftwareOption(id: p.id, name: p.name, icon: softwareIcons[p.id] ?? '🔌');
+      }).toList();
+    });
   }
 
   @override
@@ -176,7 +191,7 @@ class _MainShellState extends State<_MainShell> {
             onSubmit: _ready ? _onSubmit : null,
             softwareOptions: _ready ? _buildSoftwareOptions() : [],
             selectedSoftware: _currentSoftware,
-            onSoftwareChanged: (id) => setState(() => _currentSoftware = id),
+            onSoftwareChanged: _onSoftwareChanged,
           ),
           TaskDashboard(key: _dashboardKey),
           SoftwarePanel(
