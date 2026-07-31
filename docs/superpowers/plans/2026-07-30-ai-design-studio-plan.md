@@ -1,4 +1,4 @@
-# AI Design Studio — 实现计划
+# AI Design — 实现计划
 
 > **For agentic workers:** 使用 superpowers:subagent-driven-development（推荐）或 superpowers:executing-plans 逐任务实现。步骤使用 checkbox (`- [ ]`) 追踪。
 
@@ -131,7 +131,7 @@ class AiDesignApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'AI Design Studio',
+      title: 'AI Design',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
         useMaterial3: true,
@@ -1874,7 +1874,7 @@ import 'package:ai_design_studio/models/session.dart';
 void main() {
   testWidgets('Shell renders sidebar and content area', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: AppShell(child: Text('Content'))));
-    expect(find.text('AI Design Studio'), findsOneWidget);
+    expect(find.text('AI Design'), findsOneWidget);
     expect(find.text('Content'), findsOneWidget);
   });
 
@@ -1953,7 +1953,7 @@ class _AppShellState extends State<AppShell> {
         children: [
           const Padding(
             padding: EdgeInsets.all(16),
-            child: Text('AI Design Studio', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            child: Text('AI Design', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           ),
           const Divider(),
           const Padding(
@@ -2250,7 +2250,7 @@ class SettingsView extends StatelessWidget {
           ListTile(title: Text('模型配置'), subtitle: Text('管理 API endpoint 和密钥')),
           ListTile(title: Text('插件市场'), subtitle: Text('浏览和安装插件')),
           ListTile(title: Text('代理设置'), subtitle: Text('配置网络代理')),
-          ListTile(title: Text('关于'), subtitle: Text('AI Design Studio v0.1.0')),
+          ListTile(title: Text('关于'), subtitle: Text('AI Design v0.1.0')),
         ],
       ),
     );
@@ -2275,7 +2275,7 @@ class AiDesignApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'AI Design Studio',
+      title: 'AI Design',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
         useMaterial3: true,

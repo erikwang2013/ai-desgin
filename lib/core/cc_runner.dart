@@ -48,8 +48,14 @@ class CCRunner {
   /// Check if Claude Code CLI is available
   Future<bool> isAvailable() async {
     try {
-      final result = await Process.run(_cliPath, ['--version']);
+      final result = await Process.run(
+        _cliPath,
+        ['--version'],
+      ).timeout(const Duration(seconds: 10));
       return result.exitCode == 0;
+    } on TimeoutException {
+      _log.warning('Claude Code CLI version check timed out');
+      return false;
     } catch (e) {
       _log.warning('Claude Code CLI not found: $e');
       return false;
@@ -84,6 +90,7 @@ class CCRunner {
       );
 
       process.stdin.write(prompt);
+      await process.stdin.flush();
       await process.stdin.close();
 
       final results = await Future.wait([

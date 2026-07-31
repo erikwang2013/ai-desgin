@@ -118,7 +118,7 @@ class SessionStore {
       whereArgs: [softwareName],
       orderBy: 'created_at DESC',
     );
-    return _deserializeSessionRows(rows);
+    return _loadSessionRowsWithHistory(rows);
   }
 
   Future<List<Session>> search(String query) async {
@@ -127,17 +127,28 @@ class SessionStore {
       INNER JOIN task_records t ON t.session_id = s.id
       WHERE t.task LIKE ? ESCAPE '\\' ORDER BY s.created_at DESC
     ''', ['%${_escapeLike(query)}%']);
-    return _deserializeSessionRows(rows);
+    return _loadSessionRowsWithHistory(rows);
   }
 
-  List<Session> _deserializeSessionRows(List<Map<String, dynamic>> rows) {
-    return rows.map((r) => Session(
-      id: r['id'] as String,
-      domain: DesignCategory.values.firstWhere((d) => d.name == r['domain'], orElse: () => DesignCategory.web),
-      softwareName: r['software_name'] as String,
-      createdAt: DateTime.parse(r['created_at'] as String),
-      context: _parseContext(r['context_json'] as String?),
-    )).toList();
+  Future<List<Session>> _loadSessionRowsWithHistory(List<Map<String, dynamic>> rows) async {
+    final sessions = <Session>[];
+    for (final r in rows) {
+      final records = await _db.query(
+        'task_records',
+        where: 'session_id = ?',
+        whereArgs: [r['id'] as String],
+        orderBy: 'created_at ASC',
+      );
+      sessions.add(Session(
+        id: r['id'] as String,
+        domain: DesignCategory.values.firstWhere((d) => d.name == r['domain'], orElse: () => DesignCategory.web),
+        softwareName: r['software_name'] as String,
+        createdAt: DateTime.parse(r['created_at'] as String),
+        context: _parseContext(r['context_json'] as String?),
+        history: records.map(_deserializeRecord).toList(),
+      ));
+    }
+    return sessions;
   }
 
   SessionContext _parseContext(String? json) {

@@ -59,7 +59,7 @@ class _AppShellState extends State<AppShell> {
           const Padding(
             padding: EdgeInsets.all(16),
             child: Text(
-              'AI Design Studio',
+              'AI Design',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),

@@ -1,4 +1,4 @@
-# AI Design Studio — 代码审查报告 v2
+# AI Design — 代码审查报告 v2
 
 **日期**: 2026-07-31  
 **审查范围**: 全部代码库（Flutter + Rust）  

@@ -1,8 +1,8 @@
 #!/bin/bash
-# scripts/build.sh — AI Design Studio build script
+# scripts/build.sh — AI Design build script
 set -e
 
-echo "=== AI Design Studio Build ==="
+echo "=== AI Design Build ==="
 
 # Build Rust plugins
 echo "--- Building Rust plugins ---"

@@ -63,6 +63,9 @@ class ModelRouter {
         complexity = TaskComplexity.creative;
       }
 
+      if (domains == null && complexity == null) {
+        _log.warning('Model route with no domains or complexity will match all tasks. Add at least one filter.');
+      }
       _routes.add(ModelRoute(
         domains: domains,
         complexity: complexity,

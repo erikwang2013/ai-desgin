@@ -1,2 +1,2 @@
 /// Single source of truth for the application version.
-const appVersion = '1.0.9';
+const appVersion = '1.1.0';

@@ -1,6 +1,6 @@
 @echo off
-REM scripts/build_windows.bat — AI Design Studio Windows build
-echo === AI Design Studio Windows Build ===
+REM scripts/build_windows.bat — AI Design Windows build
+echo === AI Design Windows Build ===
 
 echo --- Building Rust plugins ---
 cd /d "%~dp0\..\rust"

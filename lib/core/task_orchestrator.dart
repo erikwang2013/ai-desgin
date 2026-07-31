@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:io';
 import 'plugin_manager.dart';
 import 'cc_process_manager.dart';
 import 'cc_runner.dart';
@@ -9,20 +11,24 @@ class TaskOrchestrator {
   final PluginManager _pluginManager;
   final CCProcessManager _ccManager;
   final ModelRouter _modelRouter;
+  final CCRunner _ccRunner;
   final int maxConcurrent;
 
   final Map<String, Session> _sessions = {};
   final Map<String, TaskRecord> _tasks = {};
+  final Map<String, Process> _activeProcesses = {};
   int _activeCount = 0;
 
   TaskOrchestrator({
     required PluginManager pluginManager,
     required CCProcessManager ccManager,
     required ModelRouter modelRouter,
+    CCRunner? ccRunner,
     this.maxConcurrent = 3,
   })  : _pluginManager = pluginManager,
         _ccManager = ccManager,
-        _modelRouter = modelRouter;
+        _modelRouter = modelRouter,
+        _ccRunner = ccRunner ?? CCRunner();
 
   Future<TaskRecord> submitTask({
     required DesignCategory domain,
@@ -54,8 +60,7 @@ class TaskOrchestrator {
       final ccSession = _ccManager.createSession(software: softwareName, capabilities: plugin.capabilities, state: state);
 
       String generatedScript = task;
-      final runner = CCRunner();
-      if (await runner.isAvailable()) {
+      if (await _ccRunner.isAvailable()) {
         try {
           final generated = await _ccManager.executeWithClaude(
             sessionId: ccSession.id, task: task, model: model,
@@ -112,6 +117,9 @@ class TaskOrchestrator {
   void cancelTask(String taskId) {
     final task = _tasks[taskId];
     if (task != null && task.status != TaskStatus.cancelled) {
+      final process = _activeProcesses.remove(taskId);
+      process?.kill();
+
       _tasks[taskId] = TaskRecord(
         id: task.id,
         sessionId: task.sessionId,

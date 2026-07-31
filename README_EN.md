@@ -110,6 +110,7 @@ ai-desgin/
 |   |   +-- cc_runner.dart                 # Claude Code subprocess
 |   |   +-- task_orchestrator.dart         # Task orchestration
 |   |   +-- session_store.dart             # SQLite persistence
+|   |   +-- builtin_plugins.dart             # Built-in plugin registry (single source of truth)
 |   +-- ui/                                # UI pages
 +-- rust/
 |   +-- core/                              # Shared traits + types
@@ -207,7 +208,7 @@ cd rust && cargo clippy           # Rust lint check
 | `cargo build` | 40 crates compiled |
 | `cargo clippy` | 0 warnings |
 
-Detailed reports: [Review v2](docs/review-report-2026-07-31-v2.md) | [Test](docs/test-report-2026-07-31.md)
+Detailed reports: [Review v3](docs/review-report-2026-07-31-v3.md) | [Review v2](docs/review-report-2026-07-31-v2.md) | [Test](docs/test-report-2026-07-31.md)
 
 ## Usage
 
@@ -365,8 +366,8 @@ Text-to-3D and image-to-3D generation via Meshy API, with automatic polygon opti
 2. Implement the `DesignPlugin` trait (see `rust/core/src/traits.rs`)
 3. Add the crate to workspace members in `rust/Cargo.toml`
 4. Generate Dart bindings via `flutter_rust_bridge`
-5. Register in `_builtInPlugins` in `lib/app.dart`
-6. Add entries in `lib/ui/software_panel.dart` and `lib/ui/plugin_marketplace.dart`
+5. Register in `lib/core/builtin_plugins.dart`
+6. UI panels (`SoftwarePanel` and `PluginMarketplace`) auto-detect new plugins from `PluginManager` — no manual UI changes needed
 
 See design docs: [Design Spec](docs/superpowers/specs/2026-07-30-ai-design-studio-design.md) | [Implementation Plan](docs/superpowers/plans/2026-07-30-ai-design-studio-plan.md)
 

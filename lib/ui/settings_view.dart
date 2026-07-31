@@ -21,7 +21,7 @@ class SettingsView extends StatelessWidget {
             leading: const Icon(Icons.extension),
             title: const Text('插件市场'),
             subtitle: const Text('浏览和安装插件'),
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PluginMarketplace())),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => PluginMarketplace())),
           ),
           ListTile(
             leading: const Icon(Icons.wifi),
@@ -32,7 +32,7 @@ class SettingsView extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.info_outline),
             title: const Text('关于'),
-            subtitle: const Text('AI Design Studio v$appVersion'),
+            subtitle: const Text('AI Design v$appVersion'),
             onTap: () => _showAboutDialog(context),
           ),
         ],
@@ -50,7 +50,7 @@ class SettingsView extends StatelessWidget {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('AI Design Studio'),
+        title: const Text('AI Design'),
         content: const Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,63 +1,18 @@
-// lib/ui/software_panel.dart
 import 'package:flutter/material.dart';
 import '../models/session.dart';
+import '../core/plugin_manager.dart';
+import '../core/builtin_plugins.dart';
 import 'plugin_marketplace.dart';
 
-class SoftwareInfo {
-  final String id;
-  final String name;
-  final String icon;
-  final DesignCategory category;
-  final bool connected;
-  final String? version;
-
-  const SoftwareInfo({
-    required this.id,
-    required this.name,
-    required this.icon,
-    required this.category,
-    this.connected = false,
-    this.version,
-  });
-}
-
 class SoftwarePanel extends StatelessWidget {
+  final PluginManager pluginManager;
   final Map<String, bool>? connectionStatus;
 
-  const SoftwarePanel({super.key, this.connectionStatus});
-
-  static const List<SoftwareInfo> _defaultSoftware = [
-    SoftwareInfo(id: 'figma', name: 'Figma', icon: '🎨', category: DesignCategory.web, connected: false),
-    SoftwareInfo(id: 'sketch', name: 'Sketch', icon: '✏️', category: DesignCategory.web, connected: false),
-    SoftwareInfo(id: 'photoshop', name: 'Photoshop', icon: '🖼️', category: DesignCategory.ad, connected: false),
-    SoftwareInfo(id: 'illustrator', name: 'Illustrator', icon: '🖋️', category: DesignCategory.ad, connected: false),
-    SoftwareInfo(id: 'blender', name: 'Blender', icon: '🔷', category: DesignCategory.threeD, connected: false),
-    SoftwareInfo(id: 'sketchup', name: 'SketchUp', icon: '🏠', category: DesignCategory.interior, connected: false),
-    SoftwareInfo(id: 'autocad', name: 'AutoCAD', icon: '📐', category: DesignCategory.arch, connected: false),
-    SoftwareInfo(id: 'revit', name: 'Revit', icon: '🏗️', category: DesignCategory.arch, connected: false),
-    SoftwareInfo(id: 'fusion360', name: 'Fusion 360', icon: '⚙️', category: DesignCategory.industrial, connected: false),
-    SoftwareInfo(id: 'maya', name: 'Maya', icon: '🎬', category: DesignCategory.threeD, connected: false),
-    SoftwareInfo(id: '3dsmax', name: '3ds Max', icon: '🏢', category: DesignCategory.threeD, connected: false),
-    SoftwareInfo(id: 'cinema4d', name: 'Cinema 4D', icon: '🎥', category: DesignCategory.threeD, connected: false),
-    SoftwareInfo(id: 'indesign', name: 'InDesign', icon: '📰', category: DesignCategory.ad, connected: false),
-    SoftwareInfo(id: 'zw3d', name: '中望3D', icon: '🔧', category: DesignCategory.industrial, connected: false),
-    SoftwareInfo(id: '3done', name: '3D One系列', icon: '🧒', category: DesignCategory.threeD, connected: false),
-    SoftwareInfo(id: 'voxeldance', name: 'VoxelDance Additive', icon: '🦴', category: DesignCategory.industrial, connected: false),
-    SoftwareInfo(id: 'happy3d', name: 'Happy3D', icon: '😊', category: DesignCategory.threeD, connected: false),
-    SoftwareInfo(id: 'maodou3d', name: '毛豆科技3D建模', icon: '🫘', category: DesignCategory.threeD, connected: false),
-    SoftwareInfo(id: 'makerlab', name: 'MakerLab', icon: '🧪', category: DesignCategory.industrial, connected: false),
-    SoftwareInfo(id: 'crealitycloud', name: 'Creality Cloud', icon: '☁️', category: DesignCategory.industrial, connected: false),
-    SoftwareInfo(id: 'flashprint', name: 'FlashPrint', icon: '⚡', category: DesignCategory.industrial, connected: false),
-    SoftwareInfo(id: 'flashstudio', name: 'Flash Studio', icon: '💡', category: DesignCategory.industrial, connected: false),
-    SoftwareInfo(id: 'snapmakerluban', name: 'Snapmaker Luban', icon: '🖨️', category: DesignCategory.industrial, connected: false),
-    SoftwareInfo(id: 'snapmakerorca', name: 'Snapmaker Orca', icon: '🐋', category: DesignCategory.industrial, connected: false),
-    SoftwareInfo(id: 'buildplanner', name: 'Build Planner', icon: '📋', category: DesignCategory.industrial, connected: false),
-    SoftwareInfo(id: 'flashdental', name: 'FlashDental', icon: '🦷', category: DesignCategory.industrial, connected: false),
-    SoftwareInfo(id: 'waxjetprint', name: 'WaxJetPrint', icon: '🕯️', category: DesignCategory.industrial, connected: false),
-  ];
+  const SoftwarePanel({super.key, required this.pluginManager, this.connectionStatus});
 
   @override
   Widget build(BuildContext context) {
+    final plugins = pluginManager.getAll();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -70,7 +25,7 @@ class SoftwarePanel extends StatelessWidget {
               TextButton.icon(
                 icon: const Icon(Icons.add, size: 18),
                 label: const Text('安装插件'),
-                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PluginMarketplace())),
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => PluginMarketplace(pluginManager: pluginManager))),
               ),
             ],
           ),
@@ -78,36 +33,36 @@ class SoftwarePanel extends StatelessWidget {
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: _defaultSoftware.length,
-            itemBuilder: (context, index) => _buildSoftwareCard(context, _defaultSoftware[index]),
+            itemCount: plugins.length,
+            itemBuilder: (context, index) => _buildSoftwareCard(context, plugins[index]),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildSoftwareCard(BuildContext context, SoftwareInfo software) {
-    final status = connectionStatus?[software.id];
+  Widget _buildSoftwareCard(BuildContext context, dynamic plugin) {
+    final status = connectionStatus?[plugin.id];
+    final icon = softwareIcons[plugin.id] ?? '🔌';
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            Text(software.icon, style: const TextStyle(fontSize: 32)),
+            Text(icon, style: const TextStyle(fontSize: 32)),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(software.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  Text(plugin.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 4),
                   Text(
-                    _categoryLabel(software.category),
+                    _categoryLabel(plugin.category),
                     style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                   ),
-                  if (software.version != null)
-                    Text('v${software.version}', style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
+                  Text('v${plugin.version}', style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
                 ],
               ),
             ),

@@ -6,7 +6,7 @@ import 'package:ai_design_studio/models/session.dart';
 void main() {
   testWidgets('Shell renders sidebar and content area', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: AppShell(selectedDomain: DesignCategory.web, child: Text('Content'))));
-    expect(find.text('AI Design Studio'), findsOneWidget);
+    expect(find.text('AI Design'), findsOneWidget);
     expect(find.text('Content'), findsOneWidget);
   });
 

@@ -115,6 +115,7 @@ ai-desgin/
 |   |   +-- cc_runner.dart                 # Claude Code 子进程通信
 |   |   +-- task_orchestrator.dart         # 任务编排引擎
 |   |   +-- session_store.dart             # SQLite 会话持久化
+|   |   +-- builtin_plugins.dart             # 内置插件注册表（单一数据源）
 |   +-- ui/
 |       +-- shell.dart                     # 侧边栏 + 页面布局
 |       +-- chat_view.dart                 # AI 对话面板
@@ -233,7 +234,7 @@ cd rust && cargo clippy       # Rust lint 检查
 | `cargo build` | 40 crates compiled |
 | `cargo clippy` | 0 warnings |
 
-详细报告：[审查报告 v2](docs/review-report-2026-07-31-v2.md) | [测试报告](docs/test-report-2026-07-31.md)
+详细报告：[审查报告 v3](docs/review-report-2026-07-31-v3.md) | [审查报告 v2](docs/review-report-2026-07-31-v2.md) | [测试报告](docs/test-report-2026-07-31.md)
 
 ## 使用教程
 
@@ -391,8 +392,8 @@ AI 生成脚本后会展示预览，确认无误后点击执行。执行结果�
 2. 实现 `DesignPlugin` trait（参考 `rust/core/src/traits.rs`）
 3. 在 `rust/Cargo.toml` workspace members 中添加新 crate
 4. Dart 侧通过 `flutter_rust_bridge` 生成绑定
-5. 在 `lib/app.dart` 的 `_builtInPlugins` 中注册
-6. 在 `lib/ui/software_panel.dart` 和 `lib/ui/plugin_marketplace.dart` 中添加对应条目
+5. 在 `lib/core/builtin_plugins.dart` 中注册插件
+6. 无需手动更新 UI 面板，`SoftwarePanel` 和 `PluginMarketplace` 会自动从 `PluginManager` 读取列表
 
 详见设计文档：[设计规格](docs/superpowers/specs/2026-07-30-ai-design-studio-design.md) | [实现计划](docs/superpowers/plans/2026-07-30-ai-design-studio-plan.md)
 

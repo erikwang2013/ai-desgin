@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ai_design_studio/core/task_orchestrator.dart';
 import 'package:ai_design_studio/core/plugin_manager.dart';
 import 'package:ai_design_studio/core/cc_process_manager.dart';
+import 'package:ai_design_studio/core/cc_runner.dart';
 import 'package:ai_design_studio/core/model_router.dart';
 import 'package:ai_design_studio/plugin_sdk/design_plugin.dart';
 import 'package:ai_design_studio/models/session.dart';
@@ -28,6 +29,26 @@ class EchoPlugin extends DesignPlugin {
   @override Future<SoftwareState> getCurrentState() async => const SoftwareState();
 }
 
+class FakeCCRunner extends CCRunner {
+  final bool available;
+  FakeCCRunner({this.available = false});
+
+  @override
+  Future<bool> isAvailable() async => available;
+
+  @override
+  Future<CCResult> execute({
+    required String task,
+    required String software,
+    required Map<String, dynamic> capabilities,
+    required Map<String, dynamic> state,
+    String? model,
+    String? sessionId,
+  }) async {
+    return CCResult(script: 'echo "$task"', explanation: 'fake', modelUsed: model ?? 'fake-model');
+  }
+}
+
 void main() {
   late TaskOrchestrator orchestrator;
   late PluginManager pluginManager;
@@ -41,7 +62,11 @@ void main() {
     modelRouter = ModelRouter();
     await modelRouter.loadConfigFromString('default: claude-sonnet-4-6\nroutes: []');
     orchestrator = TaskOrchestrator(
-      pluginManager: pluginManager, ccManager: ccManager, modelRouter: modelRouter, maxConcurrent: 2,
+      pluginManager: pluginManager,
+      ccManager: ccManager,
+      modelRouter: modelRouter,
+      ccRunner: FakeCCRunner(),
+      maxConcurrent: 2,
     );
   });
 
