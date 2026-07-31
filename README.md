@@ -136,26 +136,26 @@ ai-desgin/
 |       +-- photoshop/                     # Photoshop (ExtendScript)
 |       +-- illustrator/                   # Illustrator (ExtendScript)
 |       +-- indesign/                      # InDesign (ExtendScript)
-|       +-- aftereffects/                  # After Effects (ExtendScript)
-|       +-- premierepro/                   # Premiere Pro (ExtendScript)
-|       +-- xd/                            # Adobe XD (ExtendScript)
-|       +-- lightroom/                     # Lightroom (Lua)
-|       +-- animate/                       # Animate (JSFL)
-|       +-- audition/                      # Audition (ExtendScript)
-|       +-- dreamweaver/                   # Dreamweaver (ExtendScript)
-|       +-- characteranimator/             # Character Animator (ExtendScript)
-|       +-- fresco/                        # Fresco (JS)
-|       +-- dimension/                     # Dimension (ExtendScript)
-|       +-- bridge/                        # Bridge (ExtendScript)
-|       +-- acrobat/                       # Acrobat Pro (JS)
-|       +-- substancepainter/              # Substance 3D Painter (Python)
-|       +-- substancedesigner/             # Substance 3D Designer (Python)
-|       +-- substancesampler/              # Substance 3D Sampler (Python)
-|       +-- substancestager/               # Substance 3D Stager (Python)
-|       +-- substancemodeler/              # Substance 3D Modeler (Python)
-|       +-- mediaencoder/                  # Media Encoder (ExtendScript)
-|       +-- incopy/                        # InCopy (ExtendScript)
-|       +-- express/                       # Adobe Express (REST)
+|       +-- aftereffects/                  # After Effects (ExtendScript) [📋 Dart桩]
+|       +-- premierepro/                   # Premiere Pro (ExtendScript) [📋 Dart桩]
+|       +-- xd/                            # Adobe XD (ExtendScript) [📋 Dart桩]
+|       +-- lightroom/                     # Lightroom (Lua) [📋 Dart桩]
+|       +-- animate/                       # Animate (JSFL) [📋 Dart桩]
+|       +-- audition/                      # Audition (ExtendScript) [📋 Dart桩]
+|       +-- dreamweaver/                   # Dreamweaver (ExtendScript) [📋 Dart桩]
+|       +-- characteranimator/             # Character Animator (ExtendScript) [📋 Dart桩]
+|       +-- fresco/                        # Fresco (JS) [📋 Dart桩]
+|       +-- dimension/                     # Dimension (ExtendScript) [📋 Dart桩]
+|       +-- bridge/                        # Bridge (ExtendScript) [📋 Dart桩]
+|       +-- acrobat/                       # Acrobat Pro (JS) [📋 Dart桩]
+|       +-- substancepainter/              # Substance 3D Painter (Python) [📋 Dart桩]
+|       +-- substancedesigner/             # Substance 3D Designer (Python) [📋 Dart桩]
+|       +-- substancesampler/              # Substance 3D Sampler (Python) [📋 Dart桩]
+|       +-- substancestager/               # Substance 3D Stager (Python) [📋 Dart桩]
+|       +-- substancemodeler/              # Substance 3D Modeler (Python) [📋 Dart桩]
+|       +-- mediaencoder/                  # Media Encoder (ExtendScript) [📋 Dart桩]
+|       +-- incopy/                        # InCopy (ExtendScript) [📋 Dart桩]
+|       +-- express/                       # Adobe Express (REST) [📋 Dart桩]
 |       +-- sketch/                        # Sketch (sketchtool/JS)
 |       +-- blender/                       # Blender (Python)
 |       +-- maya/                          # Maya (Python)

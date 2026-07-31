@@ -43,6 +43,7 @@ class FakeCCRunner extends CCRunner {
     required Map<String, dynamic> capabilities,
     required Map<String, dynamic> state,
     String? model,
+    String? scriptLanguage,
   }) async {
     return CCResult(script: 'echo "$task"', explanation: 'fake', modelUsed: model ?? 'fake-model');
   }

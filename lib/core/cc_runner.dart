@@ -87,6 +87,7 @@ class CCRunner {
     required Map<String, dynamic> capabilities,
     required Map<String, dynamic> state,
     String? model,
+    String? scriptLanguage,
   }) async {
     final prompt = _buildPrompt(
       task: task,
@@ -94,6 +95,7 @@ class CCRunner {
       capabilities: capabilities,
       state: state,
       model: model,
+      scriptLanguage: scriptLanguage ?? 'javascript',
     );
 
     try {
@@ -168,12 +170,14 @@ class CCRunner {
     required String software,
     required Map<String, dynamic> capabilities,
     required Map<String, dynamic> state,
+    String scriptLanguage = 'javascript',
   }) {
     return _buildPrompt(
       task: task,
       software: software,
       capabilities: capabilities,
       state: state,
+      scriptLanguage: scriptLanguage,
     );
   }
 
@@ -183,11 +187,12 @@ class CCRunner {
     required Map<String, dynamic> capabilities,
     required Map<String, dynamic> state,
     String? model,
+    required String scriptLanguage,
   }) {
     final caps = jsonEncode(capabilities);
     final currentState = jsonEncode(state);
-
     final modelHint = model != null ? '\nMODEL: $model' : '';
+    final langHint = _describeLanguage(scriptLanguage);
 
     return '''
 You are controlling $software design software. Generate a script to accomplish the following task.
@@ -204,7 +209,7 @@ TASK: $task
 
 IMPORTANT RULES:
 1. Generate ONLY the script code, no explanations in the script itself
-2. Use the software's native scripting language
+2. Script language: $langHint
 3. Be precise - use exact API calls based on the capabilities listed above
 4. Include error handling in the script where appropriate
 5. The script should be self-contained and executable immediately
@@ -213,25 +218,25 @@ Output your response as JSON with these fields:
 - "script": the actual script code to execute
 - "explanation": brief explanation of what the script does (in Chinese)
 - "scriptLanguage": the scripting language used
-
-For Figma: use JavaScript (Figma Plugin API)
-For Sketch: use JavaScript (sketchtool)
-For Photoshop: use JavaScript (ExtendScript)
-For Illustrator: use JavaScript (ExtendScript)
-For InDesign: use JavaScript (ExtendScript)
-For Blender: use Python (bpy API)
-For Maya: use Python (maya.cmds / pymel)
-For 3ds Max: use MaxScript or Python (pymxs)
-For Cinema 4D: use Python (c4d module)
-For Fusion 360: use Python (fusion API)
-For AutoCAD: use AutoLISP
-For Revit: use Python (Revit API / pyRevit) or C#
-For SketchUp: use Ruby (SketchUp API)
-For Rhino: use Python (rhinoscriptsyntax)
-For FreeCAD: use Python (FreeCAD API)
-For OpenSCAD: use SCAD language
-For slicing software: use CLI commands or config files
-For general web design: use HTML/CSS/JavaScript
 ''';
+  }
+
+  String _describeLanguage(String lang) {
+    switch (lang.toLowerCase()) {
+      case 'javascript':
+        return 'JavaScript (ExtendScript for Adobe apps, Plugin API for Figma)';
+      case 'python':
+        return 'Python (bpy for Blender, maya.cmds for Maya, Fusion API, Substance API, or general Python)';
+      case 'lisp':
+        return 'AutoLISP (AutoCAD native scripting)';
+      case 'ruby':
+        return 'Ruby (SketchUp API)';
+      case 'lua':
+        return 'Lua (Lightroom SDK)';
+      case 'c#':
+        return 'C# (.NET API for Revit or general)';
+      default:
+        return lang;
+    }
   }
 }

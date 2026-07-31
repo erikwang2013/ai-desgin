@@ -8,10 +8,27 @@ class ChatMessage {
   ChatMessage({required this.content, this.isUser = true}) : timestamp = DateTime.now();
 }
 
+class SoftwareOption {
+  final String id;
+  final String name;
+  final String icon;
+
+  const SoftwareOption({required this.id, required this.name, required this.icon});
+}
+
 class ChatView extends StatefulWidget {
   final Future<String> Function(String message)? onSubmit;
+  final List<SoftwareOption> softwareOptions;
+  final String selectedSoftware;
+  final ValueChanged<String>? onSoftwareChanged;
 
-  const ChatView({super.key, this.onSubmit});
+  const ChatView({
+    super.key,
+    this.onSubmit,
+    this.softwareOptions = const [],
+    this.selectedSoftware = '',
+    this.onSoftwareChanged,
+  });
 
   @override
   State<ChatView> createState() => _ChatViewState();
@@ -83,6 +100,7 @@ class _ChatViewState extends State<ChatView> {
     return Scaffold(
       body: Column(
         children: [
+          if (widget.softwareOptions.isNotEmpty) _buildSoftwareBar(),
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
@@ -93,6 +111,47 @@ class _ChatViewState extends State<ChatView> {
           ),
           const Divider(height: 1),
           _buildInputBar(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSoftwareBar() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
+        border: const Border(bottom: BorderSide(color: Color(0xFFE0E0E0))),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.memory, size: 16, color: Colors.grey),
+          const SizedBox(width: 8),
+          const Text('目标软件:', style: TextStyle(fontSize: 13, color: Colors.grey)),
+          const SizedBox(width: 8),
+          Expanded(
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: widget.selectedSoftware.isNotEmpty &&
+                        widget.softwareOptions.any((o) => o.id == widget.selectedSoftware)
+                    ? widget.selectedSoftware
+                    : widget.softwareOptions.isNotEmpty
+                        ? widget.softwareOptions.first.id
+                        : null,
+                isDense: true,
+                style: const TextStyle(fontSize: 13, color: Colors.black87),
+                items: widget.softwareOptions.map((opt) {
+                  return DropdownMenuItem<String>(
+                    value: opt.id,
+                    child: Text('${opt.icon} ${opt.name}', style: const TextStyle(fontSize: 13)),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  if (value != null) widget.onSoftwareChanged?.call(value);
+                },
+              ),
+            ),
+          ),
         ],
       ),
     );

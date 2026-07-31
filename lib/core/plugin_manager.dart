@@ -1,3 +1,4 @@
+import 'dart:developer' as dev;
 import '../plugin_sdk/design_plugin.dart';
 import '../models/session.dart';
 
@@ -5,6 +6,10 @@ class PluginManager {
   final Map<String, DesignPlugin> _plugins = {};
 
   void register(DesignPlugin plugin) {
+    if (_plugins.containsKey(plugin.id)) {
+      dev.log('Plugin "${plugin.id}" already registered, overwriting',
+          name: 'PluginManager');
+    }
     _plugins[plugin.id] = plugin;
   }
 

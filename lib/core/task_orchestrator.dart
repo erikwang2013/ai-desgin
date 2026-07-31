@@ -88,7 +88,8 @@ class TaskOrchestrator {
       if (await _ccRunner.isAvailable()) {
         try {
           final generated = await _ccManager.executeWithClaude(
-            sessionId: ccSession.id, task: task, model: model, runner: _ccRunner,
+            sessionId: ccSession.id, task: task, model: model,
+            runner: _ccRunner, scriptLanguage: plugin.scriptLanguage,
           );
           generatedScript = (generated['script'] as String?) ?? task;
         } catch (_) {

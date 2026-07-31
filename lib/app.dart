@@ -42,6 +42,7 @@ class _MainShell extends StatefulWidget {
 class _MainShellState extends State<_MainShell> {
   int _currentTab = 0;
   DesignCategory _currentDomain = DesignCategory.web;
+  String _currentSoftware = '';
 
   late final PluginManager _pluginManager;
   late final TaskOrchestrator _orchestrator;
@@ -101,14 +102,22 @@ class _MainShellState extends State<_MainShell> {
       _connectionStatus[p.id] = false;
     }
 
+    _currentSoftware = _defaultSoftwareFor(_currentDomain);
+
     if (mounted) setState(() => _ready = true);
   }
 
   void _onTabSelected(int tab) => setState(() => _currentTab = tab);
-  void _onDomainChanged(DesignCategory domain) => setState(() => _currentDomain = domain);
+  void _onDomainChanged(DesignCategory domain) {
+    final domainPlugins = _pluginManager.getByCategory(domain);
+    setState(() {
+      _currentDomain = domain;
+      _currentSoftware = domainPlugins.isNotEmpty ? domainPlugins.first.id : '';
+    });
+  }
 
   Future<String> _onSubmit(String task) async {
-    final sw = _softwareNameFor(_currentDomain);
+    final sw = _currentSoftware.isNotEmpty ? _currentSoftware : _defaultSoftwareFor(_currentDomain);
     final result = await _orchestrator.submitTask(
       domain: _currentDomain,
       softwareName: sw,
@@ -135,7 +144,7 @@ class _MainShellState extends State<_MainShell> {
     return '❌ 任务失败: ${result.error ?? '未知错误'}';
   }
 
-  String _softwareNameFor(DesignCategory domain) {
+  String _defaultSoftwareFor(DesignCategory domain) {
     return switch (domain) {
       DesignCategory.web => 'figma',
       DesignCategory.ad => 'photoshop',
@@ -144,6 +153,12 @@ class _MainShellState extends State<_MainShell> {
       DesignCategory.arch => 'autocad',
       DesignCategory.interior => 'sketchup',
     };
+  }
+
+  List<SoftwareOption> _buildSoftwareOptions() {
+    return _pluginManager.getByCategory(_currentDomain).map((p) {
+      return SoftwareOption(id: p.id, name: p.name, icon: softwareIcons[p.id] ?? '🔌');
+    }).toList();
   }
 
   @override
@@ -159,6 +174,9 @@ class _MainShellState extends State<_MainShell> {
         children: [
           ChatView(
             onSubmit: _ready ? _onSubmit : null,
+            softwareOptions: _ready ? _buildSoftwareOptions() : [],
+            selectedSoftware: _currentSoftware,
+            onSoftwareChanged: (id) => setState(() => _currentSoftware = id),
           ),
           TaskDashboard(key: _dashboardKey),
           SoftwarePanel(

@@ -119,26 +119,26 @@ ai-desgin/
 |       +-- photoshop/                     # Photoshop (ExtendScript)
 |       +-- illustrator/                   # Illustrator (ExtendScript)
 |       +-- indesign/                      # InDesign (ExtendScript)
-|       +-- aftereffects/                  # After Effects (ExtendScript)
-|       +-- premierepro/                   # Premiere Pro (ExtendScript)
-|       +-- xd/                            # Adobe XD (ExtendScript)
-|       +-- lightroom/                     # Lightroom (Lua)
-|       +-- animate/                       # Animate (JSFL)
-|       +-- audition/                      # Audition (ExtendScript)
-|       +-- dreamweaver/                   # Dreamweaver (ExtendScript)
-|       +-- characteranimator/             # Character Animator (ExtendScript)
-|       +-- fresco/                        # Fresco (JS)
-|       +-- dimension/                     # Dimension (ExtendScript)
-|       +-- bridge/                        # Bridge (ExtendScript)
-|       +-- acrobat/                       # Acrobat Pro (JS)
-|       +-- substancepainter/              # Substance 3D Painter (Python)
-|       +-- substancedesigner/             # Substance 3D Designer (Python)
-|       +-- substancesampler/              # Substance 3D Sampler (Python)
-|       +-- substancestager/               # Substance 3D Stager (Python)
-|       +-- substancemodeler/              # Substance 3D Modeler (Python)
-|       +-- mediaencoder/                  # Media Encoder (ExtendScript)
-|       +-- incopy/                        # InCopy (ExtendScript)
-|       +-- express/                       # Adobe Express (REST)
+|       +-- aftereffects/                  # After Effects (ExtendScript) [stub]
+|       +-- premierepro/                   # Premiere Pro (ExtendScript) [stub]
+|       +-- xd/                            # Adobe XD (ExtendScript) [stub]
+|       +-- lightroom/                     # Lightroom (Lua) [stub]
+|       +-- animate/                       # Animate (JSFL) [stub]
+|       +-- audition/                      # Audition (ExtendScript) [stub]
+|       +-- dreamweaver/                   # Dreamweaver (ExtendScript) [stub]
+|       +-- characteranimator/             # Character Animator (ExtendScript) [stub]
+|       +-- fresco/                        # Fresco (JS) [stub]
+|       +-- dimension/                     # Dimension (ExtendScript) [stub]
+|       +-- bridge/                        # Bridge (ExtendScript) [stub]
+|       +-- acrobat/                       # Acrobat Pro (JS) [stub]
+|       +-- substancepainter/              # Substance 3D Painter (Python) [stub]
+|       +-- substancedesigner/             # Substance 3D Designer (Python) [stub]
+|       +-- substancesampler/              # Substance 3D Sampler (Python) [stub]
+|       +-- substancestager/               # Substance 3D Stager (Python) [stub]
+|       +-- substancemodeler/              # Substance 3D Modeler (Python) [stub]
+|       +-- mediaencoder/                  # Media Encoder (ExtendScript) [stub]
+|       +-- incopy/                        # InCopy (ExtendScript) [stub]
+|       +-- express/                       # Adobe Express (REST) [stub]
 |       +-- sketch/                        # Sketch (sketchtool/JS)
 |       +-- blender/                       # Blender (Python)
 |       +-- maya/                          # Maya (Python)
