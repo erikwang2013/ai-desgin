@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/version.dart';
 import 'plugin_marketplace.dart';
 
 class SettingsView extends StatelessWidget {
@@ -31,7 +32,7 @@ class SettingsView extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.info_outline),
             title: const Text('关于'),
-            subtitle: const Text('AI Design Studio v0.1.0'),
+            subtitle: const Text('AI Design Studio v$appVersion'),
             onTap: () => _showAboutDialog(context),
           ),
         ],
@@ -54,7 +55,7 @@ class SettingsView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('版本: v0.1.0'),
+            Text('版本: v$appVersion'),
             SizedBox(height: 8),
             Text('一款 AI 驱动的设计软件自动化工具。'),
             SizedBox(height: 8),

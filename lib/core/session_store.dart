@@ -88,7 +88,7 @@ class SessionStore {
 
     return Session(
       id: row['id'] as String,
-      domain: DesignCategory.values.firstWhere((d) => d.name == row['domain']),
+      domain: DesignCategory.values.firstWhere((d) => d.name == row['domain'], orElse: () => DesignCategory.web),
       softwareName: row['software_name'] as String,
       createdAt: DateTime.parse(row['created_at'] as String),
       context: SessionContext(
@@ -160,7 +160,7 @@ class SessionStore {
       script: row['script'] as String?,
       scriptLanguage: row['script_language'] as String?,
       modelUsed: row['model_used'] as String?,
-      status: TaskStatus.values.firstWhere((s) => s.name == row['status']),
+      status: TaskStatus.values.firstWhere((s) => s.name == row['status'], orElse: () => TaskStatus.failed),
       error: row['error'] as String?,
       artifacts: List<String>.from(jsonDecode(row['artifacts_json'] as String? ?? '[]')),
       createdAt: DateTime.parse(row['created_at'] as String),

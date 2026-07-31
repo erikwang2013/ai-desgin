@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/version.dart';
 
 class PluginInfo {
   final String id;
@@ -16,7 +17,7 @@ class PluginInfo {
     required this.icon,
     required this.category,
     this.installed = false,
-    this.version = '1.0.0',
+    this.version = appVersion,
   });
 }
 
@@ -39,7 +40,7 @@ class _PluginMarketplaceState extends State<PluginMarketplace> {
     const PluginInfo(id: 'illustrator', name: 'Illustrator', description: '矢量图形设计软件插件，支持画板、路径、效果', icon: '🖋️', category: '广告设计', installed: true),
   ];
 
-  void _toggleInstall(PluginInfo plugin) async {
+  void _toggleInstall(PluginInfo plugin) {
     setState(() {
       final idx = _plugins.indexWhere((p) => p.id == plugin.id);
       if (idx >= 0) {

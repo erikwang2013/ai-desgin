@@ -19,15 +19,23 @@ class ChatView extends StatefulWidget {
 
 class _ChatViewState extends State<ChatView> {
   final _controller = TextEditingController();
+  final _scrollController = ScrollController();
   final _messages = <ChatMessage>[];
   bool _isLoading = false;
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
   static const _maxMessages = 500;
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
 
   void _send() {
     final text = _controller.text.trim();
@@ -40,6 +48,7 @@ class _ChatViewState extends State<ChatView> {
       }
       _isLoading = true;
     });
+    _scrollToBottom();
     _controller.clear();
 
     if (widget.onSubmit != null) {
@@ -49,6 +58,7 @@ class _ChatViewState extends State<ChatView> {
             _messages.add(ChatMessage(content: response, isUser: false));
             _isLoading = false;
           });
+          _scrollToBottom();
         }
       }).catchError((error) {
         if (mounted) {
@@ -56,6 +66,7 @@ class _ChatViewState extends State<ChatView> {
             _messages.add(ChatMessage(content: '❌ 错误: $error', isUser: false));
             _isLoading = false;
           });
+          _scrollToBottom();
         }
       });
     } else {
@@ -63,6 +74,7 @@ class _ChatViewState extends State<ChatView> {
         _messages.add(ChatMessage(content: 'Echo: $text', isUser: false));
         _isLoading = false;
       });
+      _scrollToBottom();
     }
   }
 
@@ -73,6 +85,7 @@ class _ChatViewState extends State<ChatView> {
         children: [
           Expanded(
             child: ListView.builder(
+              controller: _scrollController,
               padding: const EdgeInsets.all(16),
               itemCount: _messages.length,
               itemBuilder: (context, index) => _buildMessage(_messages[index]),
@@ -143,6 +156,7 @@ class _ChatViewState extends State<ChatView> {
   @override
   void dispose() {
     _controller.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 }

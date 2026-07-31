@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'models/session.dart';
 import 'models/task_record.dart';
+import 'models/software_capabilities.dart';
 import 'core/plugin_manager.dart';
 import 'core/cc_process_manager.dart';
 import 'core/model_router.dart';
 import 'core/task_orchestrator.dart';
+import 'plugin_sdk/design_plugin.dart';
 import 'ui/shell.dart';
 import 'ui/chat_view.dart';
 import 'ui/task_dashboard.dart';
@@ -53,23 +55,51 @@ class _MainShellState extends State<_MainShell> {
     final pluginManager = PluginManager();
     final ccManager = CCProcessManager();
     final modelRouter = ModelRouter();
+
+    for (final p in _builtInPlugins()) {
+      pluginManager.register(p);
+    }
+
     await modelRouter.loadConfigFromString('''
-default: claude-sonnet-4-6
-routes:
-  - domains: [web, ad]
-    complexity: creative
-    model: claude-opus-4-7
-  - domains: [industrial, threeD, arch, interior]
-    model: claude-opus-4-7
-  - complexity: simple
-    model: claude-haiku-4-5
-''');
+    default: claude-sonnet-4-6
+    routes:
+      - complexity: simple
+        model: claude-haiku-4-5
+      - domains: [web, ad]
+        complexity: creative
+        model: claude-opus-4-7
+      - domains: [industrial, threeD, arch, interior]
+        model: claude-opus-4-7
+    ''');
     _orchestrator = TaskOrchestrator(
       pluginManager: pluginManager,
       ccManager: ccManager,
       modelRouter: modelRouter,
     );
     if (mounted) setState(() => _ready = true);
+  }
+
+  static List<BuiltInPlugin> _builtInPlugins() {
+    return [
+      BuiltInPlugin(id: 'figma', name: 'Figma', category: DesignCategory.web, scriptLanguage: 'javascript',
+        capabilities: SoftwareCapabilities(actions: ['create_canvas','add_rectangle','add_text','set_fill','export_png'], fileFormats: ['fig','png','svg'])),
+      BuiltInPlugin(id: 'sketch', name: 'Sketch', category: DesignCategory.web, scriptLanguage: 'javascript',
+        capabilities: SoftwareCapabilities(actions: ['创建画板','添加形状','导出切片','创建组件'], fileFormats: ['sketch','png','svg','pdf'])),
+      BuiltInPlugin(id: 'photoshop', name: 'Photoshop', category: DesignCategory.ad, scriptLanguage: 'javascript',
+        capabilities: SoftwareCapabilities(actions: ['图层操作','滤镜','批处理','导出'], fileFormats: ['psd','png','jpg','tiff'])),
+      BuiltInPlugin(id: 'illustrator', name: 'Illustrator', category: DesignCategory.ad, scriptLanguage: 'javascript',
+        capabilities: SoftwareCapabilities(actions: ['创建画板','添加形状','路径操作','导出SVG'], fileFormats: ['ai','eps','svg','pdf'])),
+      BuiltInPlugin(id: 'blender', name: 'Blender', category: DesignCategory.threeD, scriptLanguage: 'python',
+        capabilities: SoftwareCapabilities(actions: ['create_cube','create_sphere','export_fbx','render_image'], fileFormats: ['blend','fbx','obj','glb'])),
+      BuiltInPlugin(id: 'sketchup', name: 'SketchUp', category: DesignCategory.interior, scriptLanguage: 'ruby',
+        capabilities: SoftwareCapabilities(actions: ['推拉','材质','场景','剖面'], fileFormats: ['skp','dae','kmz','obj'])),
+      BuiltInPlugin(id: 'autocad', name: 'AutoCAD', category: DesignCategory.arch, scriptLanguage: 'lisp',
+        capabilities: SoftwareCapabilities(actions: ['draw_line','draw_circle','create_layer','export_dwg'], fileFormats: ['dwg','dxf','pdf'])),
+      BuiltInPlugin(id: 'revit', name: 'Revit', category: DesignCategory.arch, scriptLanguage: 'python',
+        capabilities: SoftwareCapabilities(actions: ['创建墙体','创建楼板','放置族','导出IFC'], fileFormats: ['rvt','rfa','ifc','dwg'])),
+      BuiltInPlugin(id: 'fusion360', name: 'Fusion 360', category: DesignCategory.industrial, scriptLanguage: 'python',
+        capabilities: SoftwareCapabilities(actions: ['创建草图','拉伸','倒角','导出STEP'], fileFormats: ['f3d','step','iges','stl'])),
+    ];
   }
 
   void _onTabSelected(int tab) => setState(() => _currentTab = tab);

@@ -89,7 +89,7 @@ class CCRunner {
       final results = await Future.wait([
         process.stdout.transform(utf8.decoder).join(),
         process.stderr.transform(utf8.decoder).join(),
-      ]);
+      ]).timeout(const Duration(seconds: 120));
       final output = results[0];
       final errors = results[1];
 

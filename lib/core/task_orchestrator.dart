@@ -1,5 +1,6 @@
 import 'plugin_manager.dart';
 import 'cc_process_manager.dart';
+import 'cc_runner.dart';
 import 'model_router.dart';
 import '../models/session.dart';
 import '../models/task_record.dart';
@@ -12,6 +13,7 @@ class TaskOrchestrator {
 
   final Map<String, Session> _sessions = {};
   final Map<String, TaskRecord> _tasks = {};
+  int _activeCount = 0;
 
   TaskOrchestrator({
     required PluginManager pluginManager,
@@ -35,11 +37,12 @@ class TaskOrchestrator {
       return record;
     }
 
-    if (activeTaskCount >= maxConcurrent) {
+    if (_activeCount >= maxConcurrent) {
       final record = TaskRecord(sessionId: softwareName, task: task, status: TaskStatus.failed, error: 'Too many concurrent tasks (max $maxConcurrent)');
       _tasks[record.id] = record;
       return record;
     }
+    _activeCount++;
 
     final session = _getOrCreateSession(domain, softwareName);
     final record = TaskRecord(sessionId: session.id, task: task, status: TaskStatus.running);
@@ -50,10 +53,20 @@ class TaskOrchestrator {
       final state = await plugin.getCurrentState();
       final ccSession = _ccManager.createSession(software: softwareName, capabilities: plugin.capabilities, state: state);
 
-      final request = _ccManager.buildRequest(sessionId: ccSession.id, task: task, model: model);
-      _ccManager.serializeRequest(request);
+      String generatedScript = task;
+      final runner = CCRunner();
+      if (await runner.isAvailable()) {
+        try {
+          final generated = await _ccManager.executeWithClaude(
+            sessionId: ccSession.id, task: task, model: model,
+          );
+          generatedScript = (generated['script'] as String?) ?? task;
+        } catch (_) {
+          // Fall back to raw task text if Claude CLI fails
+        }
+      }
 
-      final result = await plugin.execute(task);
+      final result = await plugin.execute(generatedScript);
       _ccManager.closeSession(ccSession.id);
 
       final scriptContent = result.output ?? '';
@@ -78,8 +91,10 @@ class TaskOrchestrator {
         status: result.success ? TaskStatus.completed : TaskStatus.failed,
       );
 
+      _activeCount--;
       return updated;
     } catch (e) {
+      _activeCount--;
       final failed = TaskRecord(
         id: record.id, sessionId: session.id, task: task,
         status: TaskStatus.failed, error: e.toString(),
@@ -113,7 +128,7 @@ class TaskOrchestrator {
     }
   }
 
-  int get activeTaskCount => _tasks.values.where((t) => t.status == TaskStatus.running).length;
+  int get activeTaskCount => _activeCount;
 
   Session _getOrCreateSession(DesignCategory domain, String softwareName) {
     return _sessions.putIfAbsent(softwareName, () => Session(domain: domain, softwareName: softwareName));

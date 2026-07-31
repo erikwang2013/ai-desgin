@@ -1,164 +1,168 @@
-# AI Design Studio — 审查报告
+# AI Design Studio — 审查报告 v2
 
-**日期**: 2026-08-01（更新于同日）
+**日期**: 2026-08-01（第二版）
 **分支**: main
-**当前状态**: Dart 0 issues | 49 tests passed | Rust cargo check clean (0 warnings)
+**当前状态**: Dart 0 issues | 49 tests passed | Rust cargo check 0 warnings
 
 ---
 
 ## 概览
 
-| 维度 | 初始 | 当前 |
+| 维度 | 状态 |
+|------|------|
+| Dart 静态分析 | 0 issues |
+| Flutter 测试 | 49/49 通过 |
+| Rust 编译 | clean (0 warnings) |
+| **关键问题** | **4** |
+| **警告** | **6** |
+| **建议** | **4** |
+
+---
+
+## 关键问题
+
+### 1. PluginManager 从未注册插件 — 应用端到端不可用
+
+`plugin_manager.dart:7` 定义了 `register()` 方法，但在 `app.dart` 的 `_initOrchestrator()` 中创建的 `PluginManager()` 完全为空——没有任何地方调用 `register()`。因此 `TaskOrchestrator.submitTask()` 在任何软件上都会立即返回 `"Software not found"`，应用核心流程完全不可用。
+
+**修复方向**: `_initOrchestrator` 中注册所有可用插件的实例。
+
+### 2. 模型→脚本流水线为空操作 — `task_orchestrator.dart:53-56`
+
+```dart
+final request = _ccManager.buildRequest(...);
+_ccManager.serializeRequest(request);  // 序列化后丢弃
+final result = await plugin.execute(task);  // 执行原始 task 文本，非生成脚本
+```
+
+`buildRequest()` + `serializeRequest()` 只构建 JSON-RPC 请求并转为字符串，从未调用 `executeWithClaude()` 真正发送给 Claude CLI。随后 `plugin.execute(task)` 将用户的原始自然语言任务文本直接作为脚本执行。用户输入「设计一个按钮」会被当作 Figma Plugin API 代码执行，必然失败。
+
+**修复方向**: 调用 `executeWithClaude()` 获取模型生成的脚本，再将脚本传给 `plugin.execute()`。
+
+### 3. 并发限制存在竞态条件 — `task_orchestrator.dart:38`
+
+`activeTaskCount` 只统计 `status == running` 的记录，而 `submitTask` 在异步执行前先检查数量。两个并发的 `submitTask` 调用可以同时通过检查，导致实际并发超出 `maxConcurrent=3` 的限制。`cancelTask` 也无法中止正在执行的 `plugin.execute()`。
+
+**修复方向**: 使用计数器（`_activeCount`）在异步操作前递增、完成后递减，使用 `Completer` 支持取消。
+
+### 4. Meshy API 关键词路由错误 — `meshy/api.rs:53-57`
+
+```rust
+if script_lower.contains("text") {  // "texture" 也包含 "text"！
+    text_to_3d(...)
+} else if script_lower.contains("texture") {  // 永远不会到达
+    generate_texture(...)
+}
+```
+
+`"texture"` 包含子串 `"text"`，纹理生成请求被错误路由到 `text_to_3d`。此外 `"image"` 也匹配 `"optimize"` 中的——不，等等。让我重新确认：`"texture".contains("text") = true`，所以纹理请求确实会被 text_to_3d 拦截。需将 `texture` 检查放在 `text` 之前。
+
+---
+
+## 警告
+
+### 5. 枚举反序列化缺少容错 — `session_store.dart:91,126,163`
+
+```dart
+DesignCategory.values.firstWhere((d) => d.name == row['domain'])
+TaskStatus.values.firstWhere((s) => s.name == row['status'])
+```
+
+如果数据库中存储了无效的枚举值（如旧版本数据、手动修改），`firstWhere` 无 `orElse` 会抛出 `StateError` 导致查询崩溃。`model_router.dart:28` 的 `loadYaml` 同样缺少 try-catch。
+
+### 6. cc_runner 无超时限制 — `cc_runner.dart:89`
+
+```dart
+final results = await Future.wait([
+  process.stdout.transform(utf8.decoder).join(),
+  process.stderr.transform(utf8.decoder).join(),
+]);
+```
+
+没有 `.timeout()`，如果 Claude CLI 挂死，此 Future 永久阻塞，占用一个隔离线程。
+
+### 7. Rust API id 不匹配 — `core/api.rs`
+
+`list_plugins()` 返回 `"com.aidesign.figma"` 格式的 ID，但 `get_plugin_capabilities()` 用 `"figma"` / `"blender"` / `"autocad"` 裸名匹配。新增的 illustrator/sketch/revit/sketchup 在 `get_plugin_capabilities` 中的 `_` 分支返回 `{}`——即插件列表宣称存在，但查询能力时返回空对象。
+
+### 8. SessionStore 从未使用 — 持久化层是死代码
+
+`session_store.dart` 定义了完整的 SQLite 持久化方案，但 `app.dart` 中从未实例化 `SessionStore`。所有 orchestrator 的 session 和 task 只存在于内存 `Map` 中，应用重启后全部丢失。`_connectionStatus` 也未填充，SoftwarePanel 始终显示「检测中...」。
+
+### 9. 路由优先级导致规则被遮蔽 — `model_router.dart`
+
+```yaml
+- domains: [industrial, threeD, arch, interior]
+  model: claude-opus-4-7          # 域名路由
+- complexity: simple
+  model: claude-haiku-4-5         # 简单路由
+```
+
+域名路由匹配所有复杂度的 industrial/threeD/arch/interior 任务，排在 `simple` 路由之前。在工业设计领域输入「导出 STL」（被 `_inferComplexity` 识别为 simple）仍然消耗 Opus 资源。
+
+### 10. 插件初始化行为不一致
+
+| 插件 | 非目标平台行为 |
+|------|---------------|
+| Sketch | `initialize()` 返回 `Err("Sketch requires macOS.")` |
+| Illustrator | `initialize()` 返回 `Ok(())` |
+| SketchUp | `initialize()` 返回 `Ok(())` |
+
+Sketch 返回错误会阻止 orchestrator 继续，而 Illustrator/SketchUp 静默通过。策略应统一。
+
+---
+
+## 建议
+
+### 11. 版本号不一致
+
+| 位置 | 版本 |
+|------|------|
+| `pubspec.yaml` | `1.0.0+1` |
+| `settings_view.dart` | `v0.1.0` |
+| `Cargo.toml` | `1.0.5` |
+| `api.rs` (新插件) | `1.0.4` |
+| `plugin_marketplace.dart` | `1.0.0` |
+
+多处版本号不统一，`settings_view` 的 `v0.1.0` 明显过时。
+
+### 12. 未使用代码
+
+- `chat_view.dart:26` — `initState` 重写为空方法体
+- `software_panel.dart:42` — `_toggleInstall` 声明为 `async` 但无 `await`
+- `cc_runner.dart` — `buildPromptForTest` 仅在测试中使用，可标记 `@visibleForTesting`
+
+### 13. 性能问题
+
+- `session_store.dart:53` — `save()` 对每个 history 记录做一次 `SELECT` + `INSERT`（N+1 查询）
+- `blender/src/lib.rs` 的 `get_current_state()` 每次调用启动完整 Blender 进程
+
+### 14. UX 改进
+
+- 切换到新消息时 ChatView 不自动滚动到底部
+- 切换设计领域时 `ValueKey('chat_${_currentDomain.name}')` 会丢弃当前聊天历史
+
+---
+
+## 变更影响矩阵
+
+| 文件 | 状态 | 问题 |
 |------|------|------|
-| 关键问题 | 5 | 0 |
-| 警告 | 10 | 0 |
-| 建议 | 6 | 2 保持 / 4 已修复 |
-| 测试 | 49 passed | 49 passed |
-
----
-
-## 关键问题 — 全部已修复
-
-### ~~1. 子进程管道死锁~~ `cc_runner.dart:80` ✅
-
-原问题：`stdout` 读完后才读 `stderr`，缓冲区满时挂死。
-修复：使用 `Future.wait` 并发读取 stdout 和 stderr。
-
-### ~~2. ChatView 未处理的 Future 异常~~ `chat_view.dart:49` ✅
-
-原问题：`onSubmit` 异常被静默吞没，UI 永久锁定。
-修复：添加 `.catchError` 处理，显示错误消息并恢复输入。
-
-### ~~3. Session 列表查询不加载历史~~ `session_store.dart:117` ✅
-
-原问题：`listBySoftware()` / `search()` 返回空历史和空白上下文。
-修复：`_deserializeSessionRows` 通过 `_parseContext()` 反序列化 `context_json`。
-
-### ~~4. Illustrator / SketchUp 插件跨平台编译失败~~ ✅
-
-原问题：`Command::new()` 缺少 import，Win/Mac 编译失败。
-修复：添加 `#[cfg(any(target_os = "windows", target_os = "macos"))] use std::process::Command;`
-
-### ~~5. Rust 核心 API 遗漏 4 个新插件~~ `core/api.rs` ✅
-
-原问题：`list_plugins()` 只包含 4 个老插件。
-修复：增加 illustrator、sketch、revit、sketchup 四个插件条目。
-
----
-
-## 警告 — 全部已修复
-
-### ~~6. CCResult.fromJson 无条件成功~~ `cc_runner.dart:26` ✅
-
-修复：改为 `success: json['success'] as bool? ?? true`。
-
-### ~~7. maxConcurrent 未执行~~ `task_orchestrator.dart:48` ✅
-
-修复：`submitTask` 入口处增加 `activeTaskCount >= maxConcurrent` 检查。
-
-### ~~8. Session ID 不一致~~ `task_orchestrator.dart:38` ✅
-
-修复：TaskRecord 的 `sessionId` 统一使用 `Session.id`（UUID），不再用 `softwareName` 字符串。
-
-### ~~9. JSON-RPC 请求未使用~~ `task_orchestrator.dart:54` ✅
-
-修复：调用 `serializeRequest()` 将请求序列化（为后续发送做准备）。
-
-### ~~10. Revit 脚本语言不匹配~~ `revit/lib.rs:25` ✅
-
-修复：`script_language` 从 `"csharp"` 改为 `"python"`，匹配 Dynamo Python 执行。
-
-### ~~11. Revit / SketchUp 吞没执行失败~~ `script.rs` ✅
-
-修复：CLI 不可用时返回 `ScriptResult::failure`（含回退提示），不再伪装成功。
-
-### ~~12. Illustrator macOS 路径~~ — 经核实为误报 ✅
-
-`/Applications/Adobe Illustrator 2025/Adobe Illustrator.app` 中不含字面反斜杠，Rust Read 显示正确。路径正常。
-
-### ~~13. Meshy API 脚本全文作 URL~~ `api.rs` ✅
-
-修复：新增 `parse_url_and_prompt()` 从结构化脚本中提取 URL，不再将全文作为 URL 参数。
-
-### ~~14. 消息和任务列表无界增长~~ ✅
-
-修复：`ChatView._maxMessages = 500` 和 `TaskDashboard._maxTasks = 500`，超出时从头部淘汰。
-
-### ~~15. TaskDashboard 字符串状态~~ `task_dashboard.dart:8` ✅
-
-修复：`TaskItem.status` 从 `String` 改为 `TaskStatus` 枚举，联动 `app.dart` 移除字符串转换。
-
----
-
-## 建议 — 部分已修复，2 项保持
-
-### ~~16. ChatView 每次按键全量重建~~ ✅
-
-修复：移除 `addListener(() => setState(() {}))`，改用 `ListenableBuilder` 仅重建发送按钮。
-
-### ~~17. 域名回退掩盖配置错误~~ ✅
-
-修复：默认分支增加 `_log.warning` 记录未知域名。同时增加 `import 'package:logging/logging.dart'`。
-
-### ~~18. 复杂度推断仅中文关键词~~ ✅
-
-修复：`_inferComplexity` 增加英文关键词 `create`、`creative`、`generate`、`get`、`view`、`show`。
-
-### 19. Session.save() 全量重写 🔷 保持
-
-当前数据量小（每个 Session 通常 < 100 条记录），全量 upsert 在 SQLite 上性能可接受。数据量大时应改为差分 upsert，但不属于当前优化范围。
-
-### 20. SoftwarePanel 连接状态硬编码 🔷 保持
-
-需要后端连通性检测机制配合（如定期 ping 插件进程 / WebSocket 状态）。涉及前后端协作，超出本次纯代码修复范围。
-
-### ~~21. Session.search() LIKE 注入风险~~ ✅
-
-修复：新增 `_escapeLike()` 转义 `%`、`_`、`\`；SQL 增加 `ESCAPE '\'` 子句。
-
----
-
-## 测试覆盖（未变）
-
-| 模块 | 已有测试 | 缺失覆盖 |
-|------|---------|---------|
-| chat_view | 基础渲染 | 异常路径（测试困难，依赖 Flutter 环境） |
-| session_store | 基础 CRUD | listBySoftware/search 反序列化 |
-| task_orchestrator | 基础任务流 | cancelTask、并发限制 |
-| cc_runner | 基础请求构建 | 子进程交互（需 mock Process） |
-| software_panel | 无 | 基础渲染 |
-| settings_view | 无 | 基础渲染 |
-
----
-
-## 变更文件清单
-
-### Dart
-| 文件 | 变更 |
-|------|------|
-| `lib/core/cc_runner.dart` | `Future.wait` 并发流读取；fromJson 读 success 字段 |
-| `lib/ui/chat_view.dart` | catchError；ListenableBuilder；500 条上限 |
-| `lib/core/session_store.dart` | `_deserializeSessionRows` 加 context；`_escapeLike`；`_parseContext` |
-| `lib/core/task_orchestrator.dart` | maxConcurrent 检查；Session UUID 一致；serializeRequest；error 路径 session id |
-| `lib/core/model_router.dart` | 日志 import；默认域名 warning；英文关键词 |
-| `lib/ui/task_dashboard.dart` | TaskStatus 枚举替代 String；500 条上限 |
-| `lib/app.dart` | 移除 status 字符串转换，直接用 result.status |
-
-### Rust
-| 文件 | 变更 |
-|------|------|
-| `plugins/illustrator/src/script.rs` | cfg-conditioned `use std::process::Command` |
-| `plugins/sketchup/src/script.rs` | cfg-conditioned `use std::process::Command` |
-| `core/src/api.rs` | `list_plugins()` 增加 4 个新插件 |
-| `plugins/revit/src/lib.rs` | `script_language: "python"` |
-| `plugins/revit/src/script.rs` | CLI 不可用返回 failure |
-| `plugins/meshy/src/api.rs` | `parse_url_and_prompt()`；URL 参数不再传脚本全文 |
+| `app.dart` | 🔴 | 未注册插件、未使用 SessionStore、未填充连接状态 |
+| `task_orchestrator.dart` | 🔴 | 模型流水线断链、并发竞态 |
+| `meshy/api.rs` | 🔴 | 关键词路由顺序错误 |
+| `core/api.rs` | 🟡 | ID 格式不匹配 |
+| `session_store.dart` | 🟡 | 枚举反序列化无容错、N+1 查询 |
+| `cc_runner.dart` | 🟡 | 无超时 |
+| `model_router.dart` | 🟡 | 路由优先级遮蔽 |
 
 ---
 
 ## 量化总结
 
-- **初始**: 5 关键 + 10 警告 + 6 建议 = 21 项
-- **已修复**: 5 关键 + 10 警告 + 4 建议 = 19 项
-- **保持**: 2 项建议（需后端协作的架构级改动）
-- **测试**: 49/49 全通过，无退化
+- **代码规模**: Dart 1869 行 + Rust 20+ 插件
+- **测试**: 49 个全通过（但未覆盖关键流程的实际执行路径）
+- **关键问题**: 4 个（应用可用性 + 流水线完整性）
+- **警告**: 6 个
+- **建议**: 4 个
+- **v1 修复遗留**: 上一轮的 21 项修复全部保持有效

@@ -50,22 +50,22 @@ pub async fn execute_meshy_request(api_key: &str, script: &str) -> Result<Script
     let client = reqwest::Client::new();
     let script_lower = script.to_lowercase();
 
-    if script_lower.contains("文字生成3d")
-        || script_lower.contains("text")
-        || script_lower.contains("文字生成")
-    {
-        text_to_3d(client, api_key, script).await
+    if script_lower.contains("纹理") || script_lower.contains("texture") {
+        generate_texture(client, api_key, script).await
     } else if script_lower.contains("图片生成3d")
         || script_lower.contains("image")
         || script_lower.contains("图片生成")
     {
         image_to_3d(client, api_key, script).await
-    } else if script_lower.contains("纹理") || script_lower.contains("texture") {
-        generate_texture(client, api_key, script).await
     } else if script_lower.contains("优化") || script_lower.contains("optimize") {
         optimize_model(client, api_key, script).await
     } else if script_lower.contains("export") || script_lower.contains("导出") {
         export_model(client, api_key, script).await
+    } else if script_lower.contains("文字生成3d")
+        || script_lower.contains("text")
+        || script_lower.contains("文字生成")
+    {
+        text_to_3d(client, api_key, script).await
     } else {
         // Default to text-to-3D
         text_to_3d(client, api_key, script).await

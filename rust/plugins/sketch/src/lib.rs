@@ -63,7 +63,7 @@ impl DesignPlugin for SketchPlugin {
     fn initialize(&mut self, _ctx: &PluginContext) -> Result<(), String> {
         self.sketch_path = self.find_sketch();
         if self.sketch_path.is_none() {
-            return Err("Sketch requires macOS.".into());
+            // Sketch is macOS-only, but don't prevent the app from launching
         }
         Ok(())
     }

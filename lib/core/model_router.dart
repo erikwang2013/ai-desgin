@@ -25,12 +25,13 @@ class ModelRouter {
   final List<ModelRoute> _routes = [];
 
   Future<void> loadConfigFromString(String yamlContent) async {
-    final doc = loadYaml(yamlContent);
-    _defaultModel = doc['default'] as String? ?? _defaultModel;
-    _routes.clear();
+    try {
+      final doc = loadYaml(yamlContent);
+      _defaultModel = doc['default'] as String? ?? _defaultModel;
+      _routes.clear();
 
-    final routes = doc['routes'] as YamlList? ?? [];
-    for (final r in routes) {
+      final routes = doc['routes'] as YamlList? ?? [];
+      for (final r in routes) {
       final domainsRaw = r['domains'] as YamlList?;
       final domains = domainsRaw?.map((d) {
         switch (d.toString()) {
@@ -67,6 +68,9 @@ class ModelRouter {
         complexity: complexity,
         model: r['model'].toString(),
       ));
+    }
+    } catch (e) {
+      _log.severe('Failed to load model router config: $e');
     }
   }
 
