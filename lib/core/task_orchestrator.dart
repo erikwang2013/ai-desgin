@@ -1,9 +1,25 @@
+import 'dart:async';
 import 'plugin_manager.dart';
 import 'cc_process_manager.dart';
 import 'cc_runner.dart';
 import 'model_router.dart';
 import '../models/session.dart';
 import '../models/task_record.dart';
+
+class _QueuedTask {
+  final DesignCategory domain;
+  final String softwareName;
+  final String task;
+  final String? overrideModel;
+  final Completer<TaskRecord> completer;
+
+  _QueuedTask({
+    required this.domain,
+    required this.softwareName,
+    required this.task,
+    this.overrideModel,
+  }) : completer = Completer<TaskRecord>();
+}
 
 class TaskOrchestrator {
   final PluginManager _pluginManager;
@@ -15,6 +31,7 @@ class TaskOrchestrator {
   final Map<String, Session> _sessions = {};
   final Map<String, TaskRecord> _tasks = {};
   int _activeCount = 0;
+  final List<_QueuedTask> _taskQueue = [];
 
   TaskOrchestrator({
     required PluginManager pluginManager,
@@ -41,9 +58,12 @@ class TaskOrchestrator {
     }
 
     if (_activeCount >= maxConcurrent) {
-      final record = TaskRecord(sessionId: softwareName, task: task, status: TaskStatus.failed, error: 'Too many concurrent tasks (max $maxConcurrent)');
-      _tasks[record.id] = record;
-      return record;
+      final queued = _QueuedTask(domain: domain, softwareName: softwareName, task: task, overrideModel: overrideModel);
+      _taskQueue.add(queued);
+      final pending = TaskRecord(sessionId: softwareName, task: task, status: TaskStatus.pending);
+      _tasks[pending.id] = pending;
+      _processQueue();
+      return queued.completer.future;
     }
     _activeCount++;
 
@@ -104,6 +124,7 @@ class TaskOrchestrator {
       return failed;
     } finally {
       _activeCount--;
+      _processQueue();
     }
   }
 
@@ -136,5 +157,35 @@ class TaskOrchestrator {
 
   Session _getOrCreateSession(DesignCategory domain, String softwareName) {
     return _sessions.putIfAbsent(softwareName, () => Session(domain: domain, softwareName: softwareName));
+  }
+
+  void _processQueue() {
+    if (_taskQueue.isEmpty || _activeCount >= maxConcurrent) return;
+
+    final queued = _taskQueue.removeAt(0);
+    submitTask(
+      domain: queued.domain,
+      softwareName: queued.softwareName,
+      task: queued.task,
+      overrideModel: queued.overrideModel,
+    ).then((result) {
+      if (!queued.completer.isCompleted) {
+        queued.completer.complete(result);
+      }
+    }).catchError((e) {
+      if (!queued.completer.isCompleted) {
+        queued.completer.completeError(e);
+      }
+    });
+  }
+
+  /// Evict old task records to prevent unbounded memory growth
+  void pruneTasks({int keep = 100}) {
+    if (_tasks.length <= keep) return;
+    final sorted = _tasks.entries.toList()
+      ..sort((a, b) => a.value.createdAt.compareTo(b.value.createdAt));
+    for (var i = 0; i < sorted.length - keep; i++) {
+      _tasks.remove(sorted[i].key);
+    }
   }
 }

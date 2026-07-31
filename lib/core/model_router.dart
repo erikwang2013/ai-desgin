@@ -32,46 +32,46 @@ class ModelRouter {
 
       final routes = doc['routes'] as YamlList? ?? [];
       for (final r in routes) {
-      final domainsRaw = r['domains'] as YamlList?;
-      final domains = domainsRaw?.map((d) {
-        switch (d.toString()) {
-          case 'web':
-            return DesignCategory.web;
-          case 'ad':
-            return DesignCategory.ad;
-          case 'industrial':
-            return DesignCategory.industrial;
-          case 'threeD':
-            return DesignCategory.threeD;
-          case 'arch':
-            return DesignCategory.arch;
-          case 'interior':
-            return DesignCategory.interior;
-          default:
-            _log.warning('Unknown domain in config: "$d", falling back to web');
-            return DesignCategory.web;
+        final domainsRaw = r['domains'] as YamlList?;
+        final domains = domainsRaw?.map((d) {
+          switch (d.toString()) {
+            case 'web':
+              return DesignCategory.web;
+            case 'ad':
+              return DesignCategory.ad;
+            case 'industrial':
+              return DesignCategory.industrial;
+            case 'threeD':
+              return DesignCategory.threeD;
+            case 'arch':
+              return DesignCategory.arch;
+            case 'interior':
+              return DesignCategory.interior;
+            default:
+              _log.warning('Unknown domain in config: "$d", falling back to web');
+              return DesignCategory.web;
+          }
+        }).toList();
+
+        TaskComplexity? complexity;
+        final comp = r['complexity']?.toString();
+        if (comp == 'simple') {
+          complexity = TaskComplexity.simple;
+        } else if (comp == 'moderate') {
+          complexity = TaskComplexity.moderate;
+        } else if (comp == 'creative') {
+          complexity = TaskComplexity.creative;
         }
-      }).toList();
 
-      TaskComplexity? complexity;
-      final comp = r['complexity']?.toString();
-      if (comp == 'simple') {
-        complexity = TaskComplexity.simple;
-      } else if (comp == 'moderate') {
-        complexity = TaskComplexity.moderate;
-      } else if (comp == 'creative') {
-        complexity = TaskComplexity.creative;
+        if (domains == null && complexity == null) {
+          _log.warning('Model route with no domains or complexity will match all tasks. Add at least one filter.');
+        }
+        _routes.add(ModelRoute(
+          domains: domains,
+          complexity: complexity,
+          model: r['model'].toString(),
+        ));
       }
-
-      if (domains == null && complexity == null) {
-        _log.warning('Model route with no domains or complexity will match all tasks. Add at least one filter.');
-      }
-      _routes.add(ModelRoute(
-        domains: domains,
-        complexity: complexity,
-        model: r['model'].toString(),
-      ));
-    }
     } catch (e) {
       _log.severe('Failed to load model router config: $e');
     }

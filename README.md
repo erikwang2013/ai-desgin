@@ -46,7 +46,7 @@ Rust 插件注入脚本 → Figma 执行 → 返回结果
 | UI | Flutter 3.x + Material 3 | 跨平台桌面界面 |
 | 核心逻辑 | Dart | 任务编排、模型路由、会话管理 |
 | 插件 | Dart (内置) | 设计软件脚本生成、插件管理、市场分发 |
-| 配置 | YAML | Prompt 模板、模型路由配置 |
+| 配置 | YAML | 模型路由规则配置 |
 | AI 引擎 | Claude Code CLI | 多模型调度与脚本生成 |
 | 持久化 | SQLite (sqflite) | 会话与任务历史 |
 

@@ -46,7 +46,7 @@ Rust plugin injects script → Figma executes → returns result
 | UI | Flutter 3.x + Material 3 | Cross-platform desktop UI |
 | Core Logic | Dart | Task orchestration, model routing, session management |
 | Plugins | Dart (built-in) | Design software script generation, plugin management, marketplace |
-| Config | YAML | Prompt templates, model routing configuration |
+| Config | YAML | Model routing rule configuration |
 | AI Engine | Claude Code CLI | Multi-model orchestration and script generation |
 | Storage | SQLite (sqflite) | Session and task history persistence |
 

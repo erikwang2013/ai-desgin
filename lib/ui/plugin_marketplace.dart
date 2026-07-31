@@ -62,7 +62,7 @@ class _PluginMarketplaceState extends State<PluginMarketplace> {
         description: softwareDescriptions[p.id] ?? '${p.name} 插件',
         icon: icon,
         category: p.category.label,
-        installed: true,
+        installed: !_removedPlugins.containsKey(p.id),
         version: p.version,
       );
     }).toList();

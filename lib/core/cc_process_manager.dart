@@ -28,6 +28,7 @@ class CCProcessManager {
   final int maxProcesses;
   final int idleTimeoutSeconds;
   final Map<String, CCSession> _sessions = {};
+  final CCRunner _sharedRunner = CCRunner();
 
   CCProcessManager({this.maxProcesses = 3, this.idleTimeoutSeconds = 300});
 
@@ -95,7 +96,7 @@ class CCProcessManager {
       return {'error': 'Session not found: $sessionId'};
     }
 
-    final effectiveRunner = runner ?? CCRunner();
+    final effectiveRunner = runner ?? _sharedRunner;
     final result = await effectiveRunner.execute(
       task: task,
       software: session.software,
