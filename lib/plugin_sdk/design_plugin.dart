@@ -43,7 +43,7 @@ class BuiltInPlugin implements DesignPlugin {
   @override
   final SoftwareCapabilities capabilities;
 
-  BuiltInPlugin({
+  const BuiltInPlugin({
     required this.id,
     required this.name,
     this.version = appVersion,
@@ -77,10 +77,5 @@ class BuiltInPlugin implements DesignPlugin {
   }
 
   @override
-  Future<SoftwareState> getCurrentState() async => SoftwareState(
-    activeDocument: '',
-    selectedNodes: [],
-    layers: [],
-    extra: null,
-  );
+  Future<SoftwareState> getCurrentState() async => const SoftwareState();
 }

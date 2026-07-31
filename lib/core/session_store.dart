@@ -54,22 +54,28 @@ class SessionStore {
         columns: ['id'], where: 'session_id = ?', whereArgs: [session.id]);
     final existingIds = existingRows.map((r) => r['id'] as String).toSet();
 
-    for (final record in session.history) {
-      if (existingIds.contains(record.id)) continue;
-      await _db.insert('task_records', {
-        'id': record.id,
-        'session_id': session.id,
-        'task': record.task,
-        'script': record.script,
-        'script_language': record.scriptLanguage,
-        'model_used': record.modelUsed,
-        'status': record.status.name,
-        'error': record.error,
-        'artifacts_json': jsonEncode(record.artifacts),
-        'created_at': record.createdAt.toIso8601String(),
-        'completed_at': record.completedAt?.toIso8601String(),
-      }, conflictAlgorithm: ConflictAlgorithm.replace);
-    }
+    final newRecords = session.history.where((r) => !existingIds.contains(r.id)).toList();
+    if (newRecords.isEmpty) return;
+
+    await _db.transaction((txn) async {
+      final batch = txn.batch();
+      for (final record in newRecords) {
+        batch.insert('task_records', {
+          'id': record.id,
+          'session_id': session.id,
+          'task': record.task,
+          'script': record.script,
+          'script_language': record.scriptLanguage,
+          'model_used': record.modelUsed,
+          'status': record.status.name,
+          'error': record.error,
+          'artifacts_json': jsonEncode(record.artifacts),
+          'created_at': record.createdAt.toIso8601String(),
+          'completed_at': record.completedAt?.toIso8601String(),
+        }, conflictAlgorithm: ConflictAlgorithm.replace);
+      }
+      await batch.commit(noResult: true);
+    });
   }
 
   Future<Session?> load(String sessionId) async {
