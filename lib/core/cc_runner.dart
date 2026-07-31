@@ -40,10 +40,16 @@ class CCResult {
 
 class CCRunner {
   final String? claudeCliPath;
+  Process? _currentProcess;
 
   CCRunner({this.claudeCliPath});
 
   String get _cliPath => claudeCliPath ?? 'claude';
+
+  void cancel() {
+    _currentProcess?.kill();
+    _currentProcess = null;
+  }
 
   /// Check if Claude Code CLI is available
   Future<bool> isAvailable() async {
@@ -88,6 +94,7 @@ class CCRunner {
           if (model != null) 'CLAUDE_DEFAULT_MODEL': model,
         },
       );
+      _currentProcess = process;
 
       process.stdin.write(prompt);
       await process.stdin.flush();
@@ -97,6 +104,7 @@ class CCRunner {
         process.stdout.transform(utf8.decoder).join(),
         process.stderr.transform(utf8.decoder).join(),
       ]).timeout(const Duration(seconds: 120));
+      _currentProcess = null;
       final output = results[0];
       final errors = results[1];
 
@@ -128,6 +136,7 @@ class CCRunner {
 
       return CCResult.failure('No output from Claude Code');
     } catch (e) {
+      _currentProcess = null;
       _log.severe('Claude Code execution failed: $e');
       return CCResult.failure('Claude Code execution failed: $e');
     }

@@ -204,11 +204,11 @@ cd rust && cargo clippy           # Rust lint check
 | Check | Status |
 |-------|--------|
 | `flutter analyze` | No issues found |
-| `flutter test` | All passing |
+| `flutter test` | 49 tests passed |
 | `cargo build` | 40 crates compiled |
 | `cargo clippy` | 0 warnings |
 
-Detailed reports: [Review v3](docs/review-report-2026-07-31-v3.md) | [Review v2](docs/review-report-2026-07-31-v2.md) | [Test](docs/test-report-2026-07-31.md)
+Detailed reports: [Review v4](docs/review-report-2026-07-31-v4.md) | [Review v3](docs/review-report-2026-07-31-v3.md) | [Test](docs/test-report-2026-07-31.md)
 
 ## Usage
 
@@ -366,7 +366,7 @@ Text-to-3D and image-to-3D generation via Meshy API, with automatic polygon opti
 2. Implement the `DesignPlugin` trait (see `rust/core/src/traits.rs`)
 3. Add the crate to workspace members in `rust/Cargo.toml`
 4. Generate Dart bindings via `flutter_rust_bridge`
-5. Register in `lib/core/builtin_plugins.dart`
+5. Register in `lib/core/builtin_plugins.dart` (includes icon and description)
 6. UI panels (`SoftwarePanel` and `PluginMarketplace`) auto-detect new plugins from `PluginManager` — no manual UI changes needed
 
 See design docs: [Design Spec](docs/superpowers/specs/2026-07-30-ai-design-studio-design.md) | [Implementation Plan](docs/superpowers/plans/2026-07-30-ai-design-studio-plan.md)

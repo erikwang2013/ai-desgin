@@ -230,11 +230,11 @@ cd rust && cargo clippy       # Rust lint 检查
 | 检查项 | 状态 |
 |--------|------|
 | `flutter analyze` | No issues found |
-| `flutter test` | 全部通过 |
+| `flutter test` | 49 tests passed |
 | `cargo build` | 40 crates compiled |
 | `cargo clippy` | 0 warnings |
 
-详细报告：[审查报告 v3](docs/review-report-2026-07-31-v3.md) | [审查报告 v2](docs/review-report-2026-07-31-v2.md) | [测试报告](docs/test-report-2026-07-31.md)
+详细报告：[审查报告 v4](docs/review-report-2026-07-31-v4.md) | [审查报告 v3](docs/review-report-2026-07-31-v3.md) | [测试报告](docs/test-report-2026-07-31.md)
 
 ## 使用教程
 
@@ -392,7 +392,7 @@ AI 生成脚本后会展示预览，确认无误后点击执行。执行结果�
 2. 实现 `DesignPlugin` trait（参考 `rust/core/src/traits.rs`）
 3. 在 `rust/Cargo.toml` workspace members 中添加新 crate
 4. Dart 侧通过 `flutter_rust_bridge` 生成绑定
-5. 在 `lib/core/builtin_plugins.dart` 中注册插件
+5. 在 `lib/core/builtin_plugins.dart` 中注册插件（含图标和描述）
 6. 无需手动更新 UI 面板，`SoftwarePanel` 和 `PluginMarketplace` 会自动从 `PluginManager` 读取列表
 
 详见设计文档：[设计规格](docs/superpowers/specs/2026-07-30-ai-design-studio-design.md) | [实现计划](docs/superpowers/plans/2026-07-30-ai-design-studio-plan.md)

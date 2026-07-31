@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/session.dart';
 import '../core/plugin_manager.dart';
 import '../core/builtin_plugins.dart';
+import '../plugin_sdk/design_plugin.dart';
 import 'plugin_marketplace.dart';
 
 class SoftwarePanel extends StatelessWidget {
@@ -41,7 +42,7 @@ class SoftwarePanel extends StatelessWidget {
     );
   }
 
-  Widget _buildSoftwareCard(BuildContext context, dynamic plugin) {
+  Widget _buildSoftwareCard(BuildContext context, DesignPlugin plugin) {
     final status = connectionStatus?[plugin.id];
     final icon = softwareIcons[plugin.id] ?? '🔌';
     return Card(
@@ -59,7 +60,7 @@ class SoftwarePanel extends StatelessWidget {
                   Text(plugin.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 4),
                   Text(
-                    _categoryLabel(plugin.category),
+                    plugin.category.label,
                     style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                   ),
                   Text('v${plugin.version}', style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
@@ -113,16 +114,5 @@ class SoftwarePanel extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  String _categoryLabel(DesignCategory cat) {
-    return switch (cat) {
-      DesignCategory.web => 'Web 设计',
-      DesignCategory.ad => '广告设计',
-      DesignCategory.industrial => '工业设计',
-      DesignCategory.threeD => '3D 设计',
-      DesignCategory.arch => '建筑设计',
-      DesignCategory.interior => '装修设计',
-    };
   }
 }

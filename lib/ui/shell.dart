@@ -23,12 +23,12 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   static const _domains = [
-    (DesignCategory.web, 'Web 设计', Icons.language),
-    (DesignCategory.ad, '广告设计', Icons.campaign),
-    (DesignCategory.industrial, '工业设计', Icons.precision_manufacturing),
-    (DesignCategory.threeD, '3D 设计', Icons.view_in_ar),
-    (DesignCategory.arch, '建筑设计', Icons.architecture),
-    (DesignCategory.interior, '装修设计', Icons.chair),
+    (DesignCategory.web, Icons.language),
+    (DesignCategory.ad, Icons.campaign),
+    (DesignCategory.industrial, Icons.precision_manufacturing),
+    (DesignCategory.threeD, Icons.view_in_ar),
+    (DesignCategory.arch, Icons.architecture),
+    (DesignCategory.interior, Icons.chair),
   ];
 
   static const _tabs = [
@@ -111,12 +111,12 @@ class _AppShellState extends State<AppShell> {
     );
   }
 
-  Widget _buildDomainTile((DesignCategory, String, IconData) domain) {
-    final (cat, label, icon) = domain;
+  Widget _buildDomainTile((DesignCategory, IconData) domain) {
+    final (cat, icon) = domain;
     final isSelected = cat == widget.selectedDomain;
     return ListTile(
       leading: Icon(icon, size: 20),
-      title: Text(label, style: const TextStyle(fontSize: 14)),
+      title: Text(cat.label, style: const TextStyle(fontSize: 14)),
       selected: isSelected,
       dense: true,
       onTap: () => widget.onDomainChanged?.call(cat),

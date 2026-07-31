@@ -5,6 +5,17 @@ const _uuid = Uuid();
 
 enum DesignCategory { web, ad, industrial, threeD, arch, interior }
 
+extension DesignCategoryLabel on DesignCategory {
+  String get label => switch (this) {
+    DesignCategory.web => 'Web 设计',
+    DesignCategory.ad => '广告设计',
+    DesignCategory.industrial => '工业设计',
+    DesignCategory.threeD => '3D 设计',
+    DesignCategory.arch => '建筑设计',
+    DesignCategory.interior => '装修设计',
+  };
+}
+
 class SessionContext {
   final Map<String, dynamic> softwareState;
   final Map<String, dynamic> userPreferences;

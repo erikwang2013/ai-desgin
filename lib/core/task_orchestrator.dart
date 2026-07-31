@@ -1,5 +1,3 @@
-import 'dart:async';
-import 'dart:io';
 import 'plugin_manager.dart';
 import 'cc_process_manager.dart';
 import 'cc_runner.dart';
@@ -16,7 +14,6 @@ class TaskOrchestrator {
 
   final Map<String, Session> _sessions = {};
   final Map<String, TaskRecord> _tasks = {};
-  final Map<String, Process> _activeProcesses = {};
   int _activeCount = 0;
 
   TaskOrchestrator({
@@ -63,7 +60,7 @@ class TaskOrchestrator {
       if (await _ccRunner.isAvailable()) {
         try {
           final generated = await _ccManager.executeWithClaude(
-            sessionId: ccSession.id, task: task, model: model,
+            sessionId: ccSession.id, task: task, model: model, runner: _ccRunner,
           );
           generatedScript = (generated['script'] as String?) ?? task;
         } catch (_) {
@@ -117,8 +114,7 @@ class TaskOrchestrator {
   void cancelTask(String taskId) {
     final task = _tasks[taskId];
     if (task != null && task.status != TaskStatus.cancelled) {
-      final process = _activeProcesses.remove(taskId);
-      process?.kill();
+      _ccRunner.cancel();
 
       _tasks[taskId] = TaskRecord(
         id: task.id,

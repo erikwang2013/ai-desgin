@@ -88,14 +88,15 @@ class CCProcessManager {
     required String sessionId,
     required String task,
     required String model,
+    CCRunner? runner,
   }) async {
     final session = _sessions[sessionId];
     if (session == null) {
       return {'error': 'Session not found: $sessionId'};
     }
 
-    final runner = CCRunner();
-    final result = await runner.execute(
+    final effectiveRunner = runner ?? CCRunner();
+    final result = await effectiveRunner.execute(
       task: task,
       software: session.software,
       capabilities: session.capabilities.toJson(),
