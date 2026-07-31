@@ -153,6 +153,7 @@ class _MainShellState extends State<_MainShell> {
       selectedTabIndex: _currentTab,
       onDomainChanged: _onDomainChanged,
       onTabSelected: _onTabSelected,
+      pluginManager: _pluginManager,
       child: IndexedStack(
         index: _currentTab,
         children: [

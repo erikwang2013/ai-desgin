@@ -33,9 +33,9 @@ Rust 插件注入脚本 → Figma 执行 → 返回结果
 |  TaskOrchestrator · CCProcessManager     |
 |  ModelRouter · PluginManager · Session   |
 +------------------------------------------+
-|  插件层 (Rust crates)                     |
+|  插件层 (Built-in Plugins)                |
 |  Figma · Blender · AutoCAD · Photoshop   |
-|  (通过 flutter_rust_bridge FFI 桥接)      |
+|  (28 个内置设计软件插件)                    |
 +------------------------------------------+
 ```
 
@@ -45,8 +45,8 @@ Rust 插件注入脚本 → Figma 执行 → 返回结果
 |---|------|------|
 | UI | Flutter 3.x + Material 3 | 跨平台桌面界面 |
 | 核心逻辑 | Dart | 任务编排、模型路由、会话管理 |
-| 插件 | Rust | 系统级 API 调用、进程管理、脚本注入 |
-| 桥接 | flutter_rust_bridge | Dart ↔ Rust FFI 自动生成 |
+| 插件 | Dart (内置) | 设计软件脚本生成、插件管理、市场分发 |
+| 配置 | YAML | Prompt 模板、模型路由配置 |
 | AI 引擎 | Claude Code CLI | 多模型调度与脚本生成 |
 | 持久化 | SQLite (sqflite) | 会话与任务历史 |
 
@@ -63,7 +63,7 @@ Rust 插件注入脚本 → Figma 执行 → 返回结果
                               生成的脚本 ← PluginManager
                                           |
                                           v
-                     Rust crate 执行 → 设计软件操作
+                     Built-in Plugin 执行 → 设计软件操作
                                           |
                                           v
                               结果/截图 ← 用户确认
@@ -71,14 +71,14 @@ Rust 插件注入脚本 → Figma 执行 → 返回结果
 
 ### 插件架构
 
-每个设计软件作为独立 Rust crate，实现统一的 `DesignPlugin` trait：
+每个设计软件作为内置 `BuiltInPlugin` 实例，实现统一的 `DesignPlugin` 接口：
 
 ```
-Dart (接口定义)  →  flutter_rust_bridge  →  Rust (真实执行)
-                                                 |
-                  +------------------------------+--------------------------+
-                  v                              v                          v
-            figma_plugin                  blender_plugin              autocad_plugin
+Dart (接口定义)  →  PluginManager  →  BuiltInPlugin (脚本生成)
+                                                    |
+                 +------------------------------+--------------------------+
+                 v                              v                          v
+           figma_plugin                  blender_plugin              autocad_plugin
             (REST API)                    (Python bpy)                (AutoLISP)
 ```
 
@@ -388,12 +388,10 @@ AI 生成脚本后会展示预览，确认无误后点击执行。执行结果�
 
 ### 添加新插件
 
-1. 在 `rust/plugins/` 下创建新 Rust crate
-2. 实现 `DesignPlugin` trait（参考 `rust/core/src/traits.rs`）
-3. 在 `rust/Cargo.toml` workspace members 中添加新 crate
-4. Dart 侧通过 `flutter_rust_bridge` 生成绑定
-5. 在 `lib/core/builtin_plugins.dart` 中注册插件（含图标和描述）
-6. 无需手动更新 UI 面板，`SoftwarePanel` 和 `PluginMarketplace` 会自动从 `PluginManager` 读取列表
+1. 在 `lib/core/builtin_plugins.dart` 中添加新的 `BuiltInPlugin` 条目
+2. 设置 `capabilities`（操作列表和文件格式）
+3. 在 `softwareIcons` 和 `softwareDescriptions` 映射中添加对应条目
+4. 插件将自动出现在 `SoftwarePanel` 和 `PluginMarketplace` 中
 
 详见设计文档：[设计规格](docs/superpowers/specs/2026-07-30-ai-design-studio-design.md) | [实现计划](docs/superpowers/plans/2026-07-30-ai-design-studio-plan.md)
 

@@ -38,7 +38,7 @@ class CCProcessManager {
   }) {
     _evictIdleSessions();
 
-    if (_sessions.length >= maxProcesses) {
+    if (_sessions.length >= maxProcesses && _sessions.isNotEmpty) {
       final oldest = _sessions.entries
           .reduce((a, b) => a.value.lastActivity.isBefore(b.value.lastActivity) ? a : b);
       _sessions.remove(oldest.key);

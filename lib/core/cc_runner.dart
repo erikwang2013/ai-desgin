@@ -30,6 +30,7 @@ class CCResult {
       explanation: json['explanation'] as String?,
       modelUsed: json['modelUsed'] as String?,
       success: json['success'] as bool? ?? true,
+      error: json['error'] as String?,
     );
   }
 
@@ -41,6 +42,10 @@ class CCResult {
 class CCRunner {
   final String? claudeCliPath;
   Process? _currentProcess;
+  bool? _cachedAvailable;
+  DateTime? _lastAvailabilityCheck;
+
+  static const _availabilityCacheTtl = Duration(seconds: 60);
 
   CCRunner({this.claudeCliPath});
 
@@ -51,21 +56,28 @@ class CCRunner {
     _currentProcess = null;
   }
 
-  /// Check if Claude Code CLI is available
+  /// Check if Claude Code CLI is available (cached for 60s)
   Future<bool> isAvailable() async {
+    if (_cachedAvailable != null && _lastAvailabilityCheck != null) {
+      if (DateTime.now().difference(_lastAvailabilityCheck!) < _availabilityCacheTtl) {
+        return _cachedAvailable!;
+      }
+    }
     try {
       final result = await Process.run(
         _cliPath,
         ['--version'],
       ).timeout(const Duration(seconds: 10));
-      return result.exitCode == 0;
+      _cachedAvailable = result.exitCode == 0;
     } on TimeoutException {
       _log.warning('Claude Code CLI version check timed out');
-      return false;
+      _cachedAvailable = false;
     } catch (e) {
       _log.warning('Claude Code CLI not found: $e');
-      return false;
+      _cachedAvailable = false;
     }
+    _lastAvailabilityCheck = DateTime.now();
+    return _cachedAvailable!;
   }
 
   /// Send a design task to Claude Code and get back a generated script
@@ -111,7 +123,15 @@ class CCRunner {
         _log.info('Claude Code stderr: $errors');
       }
 
-      // Parse the JSON response
+      // Parse the JSON response — try full output first, then line-by-line
+      try {
+        final json = jsonDecode(output.trim()) as Map<String, dynamic>;
+        if (json.containsKey('result')) {
+          return CCResult.fromJson(json['result'] as Map<String, dynamic>);
+        }
+      } catch (_) {
+        // Not a single JSON object; fall through to line-by-line
+      }
       final lines = output.split('\n').where((l) => l.trim().isNotEmpty);
       for (final line in lines) {
         try {

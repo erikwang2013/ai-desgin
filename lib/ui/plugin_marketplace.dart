@@ -45,6 +45,7 @@ class PluginMarketplace extends StatefulWidget {
 
 class _PluginMarketplaceState extends State<PluginMarketplace> {
   late final List<PluginInfo> _plugins;
+  final Map<String, DesignPlugin> _removedPlugins = {};
 
   @override
   void initState() {
@@ -70,13 +71,20 @@ class _PluginMarketplaceState extends State<PluginMarketplace> {
   void _toggleInstall(PluginInfo plugin) {
     final pm = widget.pluginManager;
     if (plugin.installed) {
+      final existing = pm.get(plugin.id);
+      if (existing != null) _removedPlugins[plugin.id] = existing;
       pm.unregister(plugin.id);
     } else {
-      final builtin = builtInPlugins.cast<DesignPlugin?>().firstWhere(
-        (p) => p!.id == plugin.id,
-        orElse: () => null,
-      );
-      if (builtin != null) pm.register(builtin);
+      final saved = _removedPlugins.remove(plugin.id);
+      if (saved != null) {
+        pm.register(saved);
+      } else {
+        final builtin = builtInPlugins.cast<DesignPlugin?>().firstWhere(
+          (p) => p!.id == plugin.id,
+          orElse: () => null,
+        );
+        if (builtin != null) pm.register(builtin);
+      }
     }
 
     setState(() {

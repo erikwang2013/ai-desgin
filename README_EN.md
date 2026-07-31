@@ -33,9 +33,9 @@ Rust plugin injects script → Figma executes → returns result
 |  TaskOrchestrator · CCProcessManager     |
 |  ModelRouter · PluginManager · Session   |
 +------------------------------------------+
-|  Plugin Layer (Rust crates)               |
+|  Plugin Layer (Built-in Plugins)          |
 |  Figma · Blender · AutoCAD · Photoshop   |
-|  (bridged via flutter_rust_bridge FFI)    |
+|  (28 built-in design software plugins)    |
 +------------------------------------------+
 ```
 
@@ -45,8 +45,8 @@ Rust plugin injects script → Figma executes → returns result
 |-------|-----------|---------|
 | UI | Flutter 3.x + Material 3 | Cross-platform desktop UI |
 | Core Logic | Dart | Task orchestration, model routing, session management |
-| Plugins | Rust | System-level API calls, process management, script injection |
-| Bridge | flutter_rust_bridge | Auto-generated Dart-Rust FFI bindings |
+| Plugins | Dart (built-in) | Design software script generation, plugin management, marketplace |
+| Config | YAML | Prompt templates, model routing configuration |
 | AI Engine | Claude Code CLI | Multi-model orchestration and script generation |
 | Storage | SQLite (sqflite) | Session and task history persistence |
 
@@ -63,7 +63,7 @@ User Input → TaskOrchestrator → CCProcessManager → Claude Code CLI
                               Generated script <- PluginManager
                                            |
                                            v
-                       Rust crate executes → Design software operation
+                       Built-in Plugin executes → Design software operation
                                            |
                                            v
                               Result/screenshot <- User confirmation
@@ -71,14 +71,14 @@ User Input → TaskOrchestrator → CCProcessManager → Claude Code CLI
 
 ### Plugin Architecture
 
-Each design software is an independent Rust crate implementing the `DesignPlugin` trait:
+Each design software is a built-in `BuiltInPlugin` instance implementing the unified `DesignPlugin` interface:
 
 ```
-Dart (interface)  →  flutter_rust_bridge  →  Rust (execution)
-                                                   |
-                    +------------------------------+--------------------------+
-                    v                              v                          v
-              figma_plugin                  blender_plugin              autocad_plugin
+Dart (interface)  →  PluginManager  →  BuiltInPlugin (script generation)
+                                                    |
+                 +------------------------------+--------------------------+
+                 v                              v                          v
+           figma_plugin                  blender_plugin              autocad_plugin
               (REST API)                    (Python bpy)                (AutoLISP)
 ```
 
@@ -362,12 +362,10 @@ Text-to-3D and image-to-3D generation via Meshy API, with automatic polygon opti
 
 ### Adding a New Plugin
 
-1. Create a new Rust crate under `rust/plugins/`
-2. Implement the `DesignPlugin` trait (see `rust/core/src/traits.rs`)
-3. Add the crate to workspace members in `rust/Cargo.toml`
-4. Generate Dart bindings via `flutter_rust_bridge`
-5. Register in `lib/core/builtin_plugins.dart` (includes icon and description)
-6. UI panels (`SoftwarePanel` and `PluginMarketplace`) auto-detect new plugins from `PluginManager` — no manual UI changes needed
+1. Add a new `BuiltInPlugin` entry in `lib/core/builtin_plugins.dart`
+2. Set `capabilities` (action list and file formats)
+3. Add corresponding entries in `softwareIcons` and `softwareDescriptions` maps
+4. The plugin auto-appears in `SoftwarePanel` and `PluginMarketplace`
 
 See design docs: [Design Spec](docs/superpowers/specs/2026-07-30-ai-design-studio-design.md) | [Implementation Plan](docs/superpowers/plans/2026-07-30-ai-design-studio-plan.md)
 

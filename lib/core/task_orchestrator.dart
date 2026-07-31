@@ -93,10 +93,8 @@ class TaskOrchestrator {
         status: result.success ? TaskStatus.completed : TaskStatus.failed,
       );
 
-      _activeCount--;
       return updated;
     } catch (e) {
-      _activeCount--;
       final failed = TaskRecord(
         id: record.id, sessionId: session.id, task: task,
         status: TaskStatus.failed, error: e.toString(),
@@ -104,6 +102,8 @@ class TaskOrchestrator {
       );
       _tasks[record.id] = failed;
       return failed;
+    } finally {
+      _activeCount--;
     }
   }
 

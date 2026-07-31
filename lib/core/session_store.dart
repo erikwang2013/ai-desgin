@@ -131,21 +131,31 @@ class SessionStore {
   }
 
   Future<List<Session>> _loadSessionRowsWithHistory(List<Map<String, dynamic>> rows) async {
+    if (rows.isEmpty) return [];
+
+    final sessionIds = rows.map((r) => r['id'] as String).toList();
+    final placeholders = List.filled(sessionIds.length, '?').join(',');
+    final allRecords = await _db.rawQuery(
+      'SELECT * FROM task_records WHERE session_id IN ($placeholders) ORDER BY created_at ASC',
+      sessionIds,
+    );
+
+    final recordsBySession = <String, List<TaskRecord>>{};
+    for (final rec in allRecords) {
+      final sid = rec['session_id'] as String;
+      recordsBySession.putIfAbsent(sid, () => []).add(_deserializeRecord(rec));
+    }
+
     final sessions = <Session>[];
     for (final r in rows) {
-      final records = await _db.query(
-        'task_records',
-        where: 'session_id = ?',
-        whereArgs: [r['id'] as String],
-        orderBy: 'created_at ASC',
-      );
+      final sid = r['id'] as String;
       sessions.add(Session(
-        id: r['id'] as String,
+        id: sid,
         domain: DesignCategory.values.firstWhere((d) => d.name == r['domain'], orElse: () => DesignCategory.web),
         softwareName: r['software_name'] as String,
         createdAt: DateTime.parse(r['created_at'] as String),
         context: _parseContext(r['context_json'] as String?),
-        history: records.map(_deserializeRecord).toList(),
+        history: recordsBySession[sid] ?? [],
       ));
     }
     return sessions;

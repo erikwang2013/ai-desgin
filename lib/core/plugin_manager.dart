@@ -21,9 +21,7 @@ class PluginManager {
   }
 
   Future<void> initializeAll(PluginContext ctx) async {
-    for (final plugin in _plugins.values) {
-      await plugin.initialize(ctx);
-    }
+    await Future.wait(_plugins.values.map((p) => p.initialize(ctx)));
   }
 
   Future<void> disposeAll() async {

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import '../core/version.dart';
+import '../core/plugin_manager.dart';
 import 'plugin_marketplace.dart';
 
 class SettingsView extends StatelessWidget {
-  const SettingsView({super.key});
+  final PluginManager? pluginManager;
+
+  const SettingsView({super.key, this.pluginManager});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +24,10 @@ class SettingsView extends StatelessWidget {
             leading: const Icon(Icons.extension),
             title: const Text('插件市场'),
             subtitle: const Text('浏览和安装插件'),
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => PluginMarketplace())),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => PluginMarketplace(pluginManager: pluginManager)),
+            ),
           ),
           ListTile(
             leading: const Icon(Icons.wifi),

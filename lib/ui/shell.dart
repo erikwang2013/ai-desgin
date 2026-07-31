@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/session.dart';
+import '../core/plugin_manager.dart';
+import 'settings_view.dart';
 
 class AppShell extends StatefulWidget {
   final Widget child;
@@ -7,6 +9,7 @@ class AppShell extends StatefulWidget {
   final int selectedTabIndex;
   final ValueChanged<DesignCategory>? onDomainChanged;
   final ValueChanged<int>? onTabSelected;
+  final PluginManager? pluginManager;
 
   const AppShell({
     super.key,
@@ -15,6 +18,7 @@ class AppShell extends StatefulWidget {
     this.selectedTabIndex = 0,
     this.onDomainChanged,
     this.onTabSelected,
+    this.pluginManager,
   });
 
   @override
@@ -92,7 +96,10 @@ class _AppShellState extends State<AppShell> {
           ListTile(
             leading: const Icon(Icons.settings),
             title: const Text('设置'),
-            onTap: () => Navigator.pushNamed(context, '/settings'),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => SettingsView(pluginManager: widget.pluginManager)),
+            ),
           ),
         ],
       ),
