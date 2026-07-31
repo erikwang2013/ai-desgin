@@ -3,6 +3,7 @@ import '../models/session.dart';
 import '../core/plugin_manager.dart';
 import '../core/version.dart';
 import '../core/builtin_plugins.dart';
+import '../plugin_sdk/design_plugin.dart';
 
 class PluginInfo {
   final String id;
@@ -67,6 +68,17 @@ class _PluginMarketplaceState extends State<PluginMarketplace> {
   }
 
   void _toggleInstall(PluginInfo plugin) {
+    final pm = widget.pluginManager;
+    if (plugin.installed) {
+      pm.unregister(plugin.id);
+    } else {
+      final builtin = builtInPlugins.cast<DesignPlugin?>().firstWhere(
+        (p) => p!.id == plugin.id,
+        orElse: () => null,
+      );
+      if (builtin != null) pm.register(builtin);
+    }
+
     setState(() {
       final idx = _plugins.indexWhere((p) => p.id == plugin.id);
       if (idx >= 0) {

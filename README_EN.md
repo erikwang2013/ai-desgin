@@ -208,7 +208,7 @@ cd rust && cargo clippy           # Rust lint check
 | `cargo build` | 40 crates compiled |
 | `cargo clippy` | 0 warnings |
 
-Detailed reports: [Review v4](docs/review-report-2026-07-31-v4.md) | [Review v3](docs/review-report-2026-07-31-v3.md) | [Test](docs/test-report-2026-07-31.md)
+Detailed reports: [Review v5](docs/review-report-2026-07-31-v5.md) | [Review v4](docs/review-report-2026-07-31-v4.md) | [Test](docs/test-report-2026-07-31.md)
 
 ## Usage
 

@@ -102,7 +102,6 @@ class CCProcessManager {
       capabilities: session.capabilities.toJson(),
       state: session.state.toJson(),
       model: model,
-      sessionId: sessionId,
     );
 
     session.lastActivity = DateTime.now();

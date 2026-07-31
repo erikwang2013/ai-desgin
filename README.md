@@ -234,7 +234,7 @@ cd rust && cargo clippy       # Rust lint 检查
 | `cargo build` | 40 crates compiled |
 | `cargo clippy` | 0 warnings |
 
-详细报告：[审查报告 v4](docs/review-report-2026-07-31-v4.md) | [审查报告 v3](docs/review-report-2026-07-31-v3.md) | [测试报告](docs/test-report-2026-07-31.md)
+详细报告：[审查报告 v5](docs/review-report-2026-07-31-v5.md) | [审查报告 v4](docs/review-report-2026-07-31-v4.md) | [测试报告](docs/test-report-2026-07-31.md)
 
 ## 使用教程
 

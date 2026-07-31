@@ -92,7 +92,6 @@ class ModelRouter {
   }
 
   TaskComplexity _inferComplexity(String task) {
-    final creativeKeywords = ['创意', '方案', '风格', 'layout', 'design', 'create', 'creative', 'generate', '构思'];
     final simpleKeywords = [
       '改名',
       '导出',
@@ -108,11 +107,12 @@ class ModelRouter {
       '查看',
       '显示',
     ];
-    for (final kw in creativeKeywords) {
-      if (task.contains(kw)) return TaskComplexity.creative;
-    }
+    final creativeKeywords = ['创意', '方案', '风格', 'layout', 'design', 'create', 'creative', 'generate', '构思'];
     for (final kw in simpleKeywords) {
       if (task.contains(kw)) return TaskComplexity.simple;
+    }
+    for (final kw in creativeKeywords) {
+      if (task.contains(kw)) return TaskComplexity.creative;
     }
     return TaskComplexity.moderate;
   }

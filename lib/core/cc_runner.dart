@@ -75,7 +75,6 @@ class CCRunner {
     required Map<String, dynamic> capabilities,
     required Map<String, dynamic> state,
     String? model,
-    String? sessionId,
   }) async {
     final prompt = _buildPrompt(
       task: task,
