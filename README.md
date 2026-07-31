@@ -25,18 +25,18 @@ Rust 插件注入脚本 → Figma 执行 → 返回结果
 ### 三层架构
 
 ```
-┌──────────────────────────────────────────┐
-│  Flutter UI (Dart)                       │
-│  ChatView · TaskDashboard · SoftwarePanel│
-├──────────────────────────────────────────┤
-│  核心层 (Dart)                            │
-│  TaskOrchestrator · CCProcessManager     │
-│  ModelRouter · PluginManager · Session   │
-├──────────────────────────────────────────┤
-│  插件层 (Rust crates)                     │
-│  Figma · Blender · AutoCAD · Photoshop   │
-│  (通过 flutter_rust_bridge FFI 桥接)      │
-└──────────────────────────────────────────┘
++------------------------------------------+
+|  Flutter UI (Dart)                       |
+|  ChatView · TaskDashboard · SoftwarePanel|
++------------------------------------------+
+|  核心层 (Dart)                            |
+|  TaskOrchestrator · CCProcessManager     |
+|  ModelRouter · PluginManager · Session   |
++------------------------------------------+
+|  插件层 (Rust crates)                     |
+|  Figma · Blender · AutoCAD · Photoshop   |
+|  (通过 flutter_rust_bridge FFI 桥接)      |
++------------------------------------------+
 ```
 
 ### 技术栈
@@ -54,18 +54,18 @@ Rust 插件注入脚本 → Figma 执行 → 返回结果
 
 ```
 用户输入 → TaskOrchestrator → CCProcessManager → Claude Code CLI
-                                                      │
-                                          ┌───────────┘
-                                          ▼
+                                                      |
+                                          +-----------+
+                                          v
                                    模型路由决策 + 脚本生成
-                                          │
-                                          ▼
+                                          |
+                                          v
                               生成的脚本 ← PluginManager
-                                          │
-                                          ▼
+                                          |
+                                          v
                      Rust crate 执行 → 设计软件操作
-                                          │
-                                          ▼
+                                          |
+                                          v
                               结果/截图 ← 用户确认
 ```
 
@@ -75,9 +75,9 @@ Rust 插件注入脚本 → Figma 执行 → 返回结果
 
 ```
 Dart (接口定义)  →  flutter_rust_bridge  →  Rust (真实执行)
-                                                 │
-                  ┌──────────────────────────────┼──────────────────────────┐
-                  ▼                              ▼                          ▼
+                                                 |
+                  +------------------------------+--------------------------+
+                  v                              v                          v
             figma_plugin                  blender_plugin              autocad_plugin
             (REST API)                    (Python bpy)                (AutoLISP)
 ```
@@ -98,83 +98,100 @@ Dart (接口定义)  →  flutter_rust_bridge  →  Rust (真实执行)
 
 ```
 ai-desgin/
-├── lib/
-│   ├── main.dart                          # 应用入口
-│   ├── app.dart                           # MaterialApp + 路由
-│   ├── models/                            # 数据模型
-│   │   ├── session.dart                   # Session, DesignCategory
-│   │   ├── task_record.dart               # TaskRecord, TaskStatus
-│   │   ├── plugin.dart                    # PluginMeta, ScriptResult
-│   │   └── software_capabilities.dart     # SoftwareCapabilities
-│   ├── plugin_sdk/
-│   │   └── design_plugin.dart             # DesignPlugin 抽象接口
-│   ├── core/
-│   │   ├── plugin_manager.dart            # 插件注册/生命周期
-│   │   ├── model_router.dart              # 模型路由引擎
-│   │   ├── cc_process_manager.dart        # Claude Code 会话管理
-│   │   ├── cc_runner.dart                 # Claude Code 子进程通信
-│   │   ├── task_orchestrator.dart         # 任务编排引擎
-│   │   └── session_store.dart             # SQLite 会话持久化
-│   └── ui/
-│       ├── shell.dart                     # 侧边栏 + 页面布局
-│       ├── chat_view.dart                 # AI 对话面板
-│       ├── task_dashboard.dart            # 任务队列/历史
-│       ├── software_panel.dart            # 软件连接/状态
-│       ├── settings_view.dart             # 系统设置
-│       └── plugin_marketplace.dart        # 插件市场
-├── rust/
-│   ├── Cargo.toml                         # Rust workspace 根
-│   ├── core/
-│   │   └── src/
-│   │       ├── traits.rs                  # DesignPlugin Rust trait
-│   │       ├── types.rs                   # 共享类型定义
-│   │       │   └── api.rs                  # Flutter-Rust bridge API
-│       └── ipc.rs                     # 进程隔离工具
-│   └── plugins/
-│       ├── figma/                         # Figma 插件 (REST API)
-│       ├── photoshop/                     # Photoshop 插件 (ExtendScript)
-│       ├── blender/                       # Blender 插件 (Python)
-│       ├── fusion360/                     # Fusion 360 插件 (Python)
-│       ├── solidworks/                    # SolidWorks 插件 (VBA/COM)
-│       ├── freecad/                       # FreeCAD 插件 (Python)
-│       ├── openscad/                      # OpenSCAD 插件 (SCAD)
-│       ├── rhino/                         # Rhino 插件 (Python)
-│       ├── autocad/                       # AutoCAD 插件 (AutoLISP)
-│       ├── tinkercad/                     # Tinkercad 插件 (REST)
-│       ├── meshy/                         # Meshy 插件 (AI REST)
-│       ├── cura/                          # Cura 插件 (CLI)
-│       ├── prusaslicer/                   # PrusaSlicer 插件 (CLI)
-│       ├── orcaslicer/                    # OrcaSlicer 插件 (CLI)
-│       ├── simplify3d/                    # Simplify3D 插件 (CLI)
-│       ├── chitubox/                      # ChiTuBox 插件 (CLI)
-│       ├── lychee/                        # Lychee 插件 (CLI)
-│       ├── illustrator/                   # Illustrator 插件 (ExtendScript)
-│       ├── sketch/                        # Sketch 插件 (sketchtool/js)
-│       ├── revit/                         # Revit 插件 (Dynamo/.NET)
-│       └── sketchup/                      # SketchUp 插件 (Ruby)
-├── config/
-│   └── model-routing.yaml                 # 模型路由配置
-├── scripts/
-│   ├── build.sh                           # Unix 构建脚本
-│   ├── build_windows.bat                  # Windows 构建脚本
-│   └── release.sh                         # 发布打包脚本
-├── test/                                  # Dart 测试 (49 tests, 全部通过)
-├── docs/
-│   ├── test-report-2026-07-31.md          # 测试报告
-│   ├── review-report-2026-07-31.md        # 审查报告
-│   └── superpowers/
-│       ├── specs/                         # 设计规格文档
-│       └── plans/                         # 实现计划文档
-├── pubspec.yaml                           # Flutter 依赖声明
-└── flutter_rust_bridge.yaml               # Rust 桥接配置
++-- lib/
+|   +-- main.dart                          # 应用入口
+|   +-- app.dart                           # MaterialApp + 路由
+|   +-- models/                            # 数据模型
+|   |   +-- session.dart                   # Session, DesignCategory
+|   |   +-- task_record.dart               # TaskRecord, TaskStatus
+|   |   +-- plugin.dart                    # PluginMeta, ScriptResult
+|   |   +-- software_capabilities.dart     # SoftwareCapabilities
+|   +-- plugin_sdk/
+|   |   +-- design_plugin.dart             # DesignPlugin 抽象接口
+|   +-- core/
+|   |   +-- plugin_manager.dart            # 插件注册/生命周期
+|   |   +-- model_router.dart              # 模型路由引擎
+|   |   +-- cc_process_manager.dart        # Claude Code 会话管理
+|   |   +-- cc_runner.dart                 # Claude Code 子进程通信
+|   |   +-- task_orchestrator.dart         # 任务编排引擎
+|   |   +-- session_store.dart             # SQLite 会话持久化
+|   +-- ui/
+|       +-- shell.dart                     # 侧边栏 + 页面布局
+|       +-- chat_view.dart                 # AI 对话面板
+|       +-- task_dashboard.dart            # 任务队列/历史
+|       +-- software_panel.dart            # 软件连接/状态
+|       +-- settings_view.dart             # 系统设置
+|       +-- plugin_marketplace.dart        # 插件市场
++-- rust/
+|   +-- Cargo.toml                         # Rust workspace 根
+|   +-- core/
+|   |   +-- src/
+|   |       +-- traits.rs                  # DesignPlugin Rust trait
+|   |       +-- types.rs                   # 共享类型定义
+|   |       +-- api.rs                     # Flutter-Rust bridge API
+|   |       +-- ipc.rs                     # 进程隔离工具
+|   +-- plugins/
+|       +-- figma/                         # Figma (REST API)
+|       +-- photoshop/                     # Photoshop (ExtendScript)
+|       +-- illustrator/                   # Illustrator (ExtendScript)
+|       +-- indesign/                      # InDesign (ExtendScript)
+|       +-- sketch/                        # Sketch (sketchtool/JS)
+|       +-- blender/                       # Blender (Python)
+|       +-- maya/                          # Maya (Python)
+|       +-- 3dsmax/                        # 3ds Max (MaxScript/Python)
+|       +-- cinema4d/                      # Cinema 4D (Python)
+|       +-- fusion360/                     # Fusion 360 (Python)
+|       +-- solidworks/                    # SolidWorks (VBA/COM)
+|       +-- freecad/                       # FreeCAD (Python)
+|       +-- openscad/                      # OpenSCAD (SCAD)
+|       +-- rhino/                         # Rhino (Python)
+|       +-- zw3d/                          # 中望3D (Python)
+|       +-- autocad/                       # AutoCAD (AutoLISP)
+|       +-- revit/                         # Revit (Dynamo/.NET)
+|       +-- sketchup/                      # SketchUp (Ruby)
+|       +-- tinkercad/                     # Tinkercad (REST)
+|       +-- meshy/                         # Meshy (AI REST)
+|       +-- 3done/                         # 3D One (Python)
+|       +-- voxeldance/                    # VoxelDance Additive
+|       +-- happy3d/                       # Happy3D (Python)
+|       +-- maodou3d/                      # 毛豆科技3D建模 (Python)
+|       +-- cura/                          # Cura (CLI)
+|       +-- prusaslicer/                   # PrusaSlicer (CLI)
+|       +-- orcaslicer/                    # OrcaSlicer (CLI)
+|       +-- simplify3d/                    # Simplify3D (CLI)
+|       +-- chitubox/                      # ChiTuBox (CLI)
+|       +-- lychee/                        # Lychee (CLI)
+|       +-- makerlab/                      # MakerLab (Python)
+|       +-- crealitycloud/                 # Creality Cloud (Python)
+|       +-- flashprint/                    # FlashPrint (Python)
+|       +-- flashstudio/                   # Flash Studio (Python)
+|       +-- snapmakerluban/                # Snapmaker Luban (Python)
+|       +-- snapmakerorca/                 # Snapmaker Orca (Python)
+|       +-- buildplanner/                  # Build Planner (Python)
+|       +-- flashdental/                   # FlashDental (Python)
+|       +-- waxjetprint/                   # WaxJetPrint (Python)
++-- config/
+|   +-- model-routing.yaml                 # 模型路由配置
++-- scripts/
+|   +-- build.sh                           # Unix 构建
+|   +-- build_windows.bat                  # Windows 构建
+|   +-- release.sh                         # 发布打包
++-- test/                                  # Dart 测试 (39 tests)
++-- docs/
+    +-- test-report-2026-07-31.md          # 测试报告
+    +-- review-report-2026-07-31.md        # 审查报告
+    +-- review-report-2026-07-31-v2.md     # 审查报告 v2
+    +-- superpowers/
+        +-- specs/                         # 设计规格文档
+        +-- plans/                         # 实现计划文档
 ```
 
 ## 快速开始
 
 ### 环境要求
 
-- **Flutter SDK** ≥ 3.x（含 Windows/macOS 平台支持）
-- **Rust** ≥ 1.75（Cargo + rustup）
+- **Flutter SDK** >= 3.x（含 Windows/macOS 平台支持）
+- **Rust** >= 1.75（Cargo + rustup）
 - **Claude Code CLI**（可选，用于 AI 脚本生成功能）
 - 至少一款设计软件：Figma / Blender / AutoCAD / Photoshop
 
@@ -202,8 +219,8 @@ flutter run -d windows        # 或 -d macos
 ### 运行测试
 
 ```bash
-flutter test                  # 全部 Dart 测试 (49 tests, 100% 通过)
-cd rust && cargo build        # Rust 编译验证 (18 crates, 0 warnings)
+flutter test                  # 全部 Dart 测试
+cd rust && cargo build        # Rust 编译验证 (40 crates)
 cd rust && cargo clippy       # Rust lint 检查
 ```
 
@@ -212,11 +229,11 @@ cd rust && cargo clippy       # Rust lint 检查
 | 检查项 | 状态 |
 |--------|------|
 | `flutter analyze` | No issues found |
-| `flutter test` | 49/49 passed |
-| `cargo build` | 18 crates compiled |
+| `flutter test` | 全部通过 |
+| `cargo build` | 40 crates compiled |
 | `cargo clippy` | 0 warnings |
 
-详细报告：[审查报告](docs/review-report-2026-07-31.md) | [测试报告](docs/test-report-2026-07-31.md)
+详细报告：[审查报告 v2](docs/review-report-2026-07-31-v2.md) | [测试报告](docs/test-report-2026-07-31.md)
 
 ## 使用教程
 
@@ -227,12 +244,12 @@ cd rust && cargo clippy       # Rust lint 检查
 ### 第二步：选择领域
 
 左侧边栏切换设计领域，AI 会根据领域自动选择合适的模型和控制策略：
-- **Web 设计** → Figma、Sketch
-- **广告设计** → Photoshop、Illustrator
-- **工业设计** → Fusion 360、SolidWorks
-- **3D 设计** → Blender、Maya
-- **建筑设计** → AutoCAD、Revit
-- **装修设计** → SketchUp、3ds Max
+- **Web 设计** -> Figma、Sketch
+- **广告设计** -> Photoshop、Illustrator、InDesign
+- **工业设计** -> Fusion 360、SolidWorks、中望3D、VoxelDance Additive
+- **3D 设计** -> Blender、Maya、3ds Max、Cinema 4D、3D One、Happy3D、毛豆科技
+- **建筑设计** -> AutoCAD、Revit
+- **装修设计** -> SketchUp
 
 ### 第三步：描述需求
 
@@ -254,25 +271,25 @@ AI 生成脚本后会展示预览，确认无误后点击执行。执行结果�
 
 ### 配置模型
 
-在「设置 → 模型配置」中配置 API endpoint 和密钥。模型路由规则在 `config/model-routing.yaml` 中自定义。
+在「设置 -> 模型配置」中配置 API endpoint 和密钥。模型路由规则在 `config/model-routing.yaml` 中自定义。
 
 ### 安装新插件
 
-「设置 → 插件市场」中浏览可用插件，一键安装。安装后即可在软件控制台中看到新的软件入口。
+「设置 -> 插件市场」中浏览可用插件，一键安装。安装后即可在软件控制台中看到新的软件入口。
 
 ## 功能说明
 
 ### 平面与 UI 设计
 
-支持 Figma 和 Photoshop 的自动化操作。AI 可以创建画布、添加图层、设置样式、导出切图，将设计稿直接转为 HTML/CSS 代码。
+支持 Figma、Sketch、Photoshop、Illustrator 和 InDesign 的自动化操作。AI 可以创建画布、添加图层、设置样式、导出切图，将设计稿直接转为 HTML/CSS 代码。
 
-### 3D 建模与 CAD
+### 3D 建模与动画
 
-覆盖主流参数化建模、多边形建模和 NURBS 曲面建模软件。AI 可自动创建零件、装配体、生成工程图、导出 STL/STEP 等格式用于 3D 打印。
+覆盖主流参数化建模、多边形建模和 NURBS 曲面建模软件。支持 Maya、3ds Max、Cinema 4D 的骨骼绑定、动画制作和渲染。AI 可自动创建零件、装配体、生成工程图、导出 STL/STEP 等格式用于 3D 打印。
 
-### 3D 打印切片
+### 3D 打印切片与配套
 
-完整支持 FDM 和树脂打印流程。AI 可根据模型复杂度自动设置层高、填充密度、支撑结构，一键生成 GCode 或 CTB 切片文件。
+完整支持 FDM 和树脂打印流程，覆盖主流切片器和打印管理平台。AI 可根据模型复杂度自动设置层高、填充密度、支撑结构，一键生成 GCode 或 CTB 切片文件。支持 Snapmaker 多功能 CAM、Creality Cloud 云端打印、FlashDental 牙科打印等专业场景。
 
 ### AI 模型生成
 
@@ -280,60 +297,91 @@ AI 生成脚本后会展示预览，确认无误后点击执行。执行结果�
 
 ## 已支持的软件
 
-### 平面与 UI 设计（4 个）
+### 平面与 UI 设计（5 个）
 
 | 软件 | 控制方式 | 平台 | 状态 |
 |------|---------|------|------|
-| Figma | REST API + 浏览器自动化 | Web/macOS/Win | ✅ |
-| Photoshop | ExtendScript + COM/AppleScript | macOS/Win | ✅ |
-| Sketch | sketchtool CLI + osascript | macOS | ✅ |
-| Illustrator | ExtendScript | macOS/Win | ✅ |
+| Figma | REST API + 浏览器自动化 | Web/macOS/Win | 已支持 |
+| Photoshop | ExtendScript + COM/AppleScript | macOS/Win | 已支持 |
+| Sketch | sketchtool CLI + osascript | macOS | 已支持 |
+| Illustrator | ExtendScript | macOS/Win | 已支持 |
+| InDesign | ExtendScript | macOS/Win | 已支持 |
 
-### CAD 与 BIM 建模（9 个）
+### 3D 动画与建模（7 个）
 
 | 软件 | 控制方式 | 平台 | 状态 |
 |------|---------|------|------|
-| Fusion 360 | Python API | macOS/Win | ✅ |
-| SolidWorks | VBA/COM | Win | ✅ |
-| FreeCAD | Python API | macOS/Win/Linux | ✅ |
-| OpenSCAD | SCAD 脚本 | macOS/Win/Linux | ✅ |
-| Rhino | Python/RhinoScript | macOS/Win | ✅ |
-| Blender | Python bpy | macOS/Win/Linux | ✅ |
-| AutoCAD | AutoLISP | macOS/Win | ✅ |
-| Revit | Dynamo / .NET API | Win | ✅ |
-| SketchUp | Ruby API | macOS/Win | ✅ |
+| Blender | Python bpy | macOS/Win/Linux | 已支持 |
+| Maya | Python API | macOS/Win/Linux | 已支持 |
+| 3ds Max | MaxScript / Python | Win | 已支持 |
+| Cinema 4D | Python API | macOS/Win | 已支持 |
+| SketchUp | Ruby API | macOS/Win | 已支持 |
+| Rhino | Python/RhinoScript | macOS/Win | 已支持 |
+| Meshy | REST API（AI 生成） | Web | 已支持 |
+
+### CAD 与 BIM 建模（6 个）
+
+| 软件 | 控制方式 | 平台 | 状态 |
+|------|---------|------|------|
+| Fusion 360 | Python API | macOS/Win | 已支持 |
+| SolidWorks | VBA/COM | Win | 已支持 |
+| FreeCAD | Python API | macOS/Win/Linux | 已支持 |
+| OpenSCAD | SCAD 脚本 | macOS/Win/Linux | 已支持 |
+| AutoCAD | AutoLISP | macOS/Win | 已支持 |
+| Revit | Dynamo / .NET API | Win | 已支持 |
+
+### 工业设计与 CAM（3 个）
+
+| 软件 | 控制方式 | 平台 | 状态 |
+|------|---------|------|------|
+| 中望3D | Python API | Win | 已支持 |
+| VoxelDance Additive | Python API | Win | 已支持 |
+| Tinkercad | REST API | Web | 已支持 |
+
+### 教育 / 国产 3D 软件（3 个）
+
+| 软件 | 控制方式 | 平台 | 状态 |
+|------|---------|------|------|
+| 3D One 系列 | Python API | Win | 已支持 |
+| Happy3D | Python API | Win | 已支持 |
+| 毛豆科技 3D 建模 | Python API | Win | 已支持 |
 
 ### FDM 切片器（4 个）
 
 | 软件 | 控制方式 | 平台 | 状态 |
 |------|---------|------|------|
-| UltiMaker Cura | CuraEngine CLI | macOS/Win/Linux | ✅ |
-| PrusaSlicer | CLI | macOS/Win/Linux | ✅ |
-| OrcaSlicer | CLI | macOS/Win/Linux | ✅ |
-| Simplify3D | CLI | macOS/Win | ✅ |
+| UltiMaker Cura | CuraEngine CLI | macOS/Win/Linux | 已支持 |
+| PrusaSlicer | CLI | macOS/Win/Linux | 已支持 |
+| OrcaSlicer | CLI | macOS/Win/Linux | 已支持 |
+| Simplify3D | CLI | macOS/Win | 已支持 |
 
 ### 树脂切片器（2 个）
 
 | 软件 | 控制方式 | 平台 | 状态 |
 |------|---------|------|------|
-| ChiTuBox | CLI | macOS/Win | ✅ |
-| Lychee Slicer | CLI | macOS/Win/Linux | ✅ |
+| ChiTuBox | CLI | macOS/Win | 已支持 |
+| Lychee Slicer | CLI | macOS/Win/Linux | 已支持 |
 
-### Web / AI（2 个）
+### 3D 打印配套与管理（7 个）
 
 | 软件 | 控制方式 | 平台 | 状态 |
 |------|---------|------|------|
-| Tinkercad | REST API | Web | ✅ |
-| Meshy | REST API（AI 生成） | Web | ✅ |
+| MakerLab | Python API | Web | 已支持 |
+| Creality Cloud | Python API | Web | 已支持 |
+| FlashPrint | Python API | macOS/Win | 已支持 |
+| Flash Studio | Python API | macOS/Win | 已支持 |
+| Snapmaker Luban | Python API | macOS/Win | 已支持 |
+| Snapmaker Orca | Python API | macOS/Win | 已支持 |
+| Build Planner | Python API | Win | 已支持 |
 
-### 后续计划
+### 专业打印（2 个）
 
-| 软件 | 控制方式 | 平台 |
-|------|---------|------|
-| Maya | Python API | macOS/Win/Linux |
-| 3ds Max | MAXScript | Win |
-| Cinema 4D | Python API | macOS/Win |
-| InDesign | ExtendScript | macOS/Win |
+| 软件 | 控制方式 | 平台 | 状态 |
+|------|---------|------|------|
+| FlashDental | Python API | Win | 已支持 |
+| WaxJetPrint | Python API | Win | 已支持 |
+
+**总计：39 个已支持软件**
 
 ## 开发指南
 
@@ -343,6 +391,8 @@ AI 生成脚本后会展示预览，确认无误后点击执行。执行结果�
 2. 实现 `DesignPlugin` trait（参考 `rust/core/src/traits.rs`）
 3. 在 `rust/Cargo.toml` workspace members 中添加新 crate
 4. Dart 侧通过 `flutter_rust_bridge` 生成绑定
+5. 在 `lib/app.dart` 的 `_builtInPlugins` 中注册
+6. 在 `lib/ui/software_panel.dart` 和 `lib/ui/plugin_marketplace.dart` 中添加对应条目
 
 详见设计文档：[设计规格](docs/superpowers/specs/2026-07-30-ai-design-studio-design.md) | [实现计划](docs/superpowers/plans/2026-07-30-ai-design-studio-plan.md)
 

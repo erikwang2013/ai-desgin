@@ -21,7 +21,7 @@ routes:
   });
 
   test('routes web creative task to opus', () {
-    final model = router.route(domain: DesignCategory.web, task: '设计一个landing page');
+    final model = router.route(domain: DesignCategory.web, task: '创意 layout 方案');
     expect(model, 'claude-opus-4-7');
   });
 

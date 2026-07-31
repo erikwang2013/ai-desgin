@@ -87,6 +87,7 @@ class _MainShellState extends State<_MainShell> {
         '${dir.path}/sessions.db',
         version: 1,
         onCreate: SessionStore.onCreate,
+        onUpgrade: SessionStore.onUpgrade,
       );
       _sessionStore = SessionStore(db);
     } catch (_) {

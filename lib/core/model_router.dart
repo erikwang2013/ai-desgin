@@ -89,7 +89,7 @@ class ModelRouter {
   }
 
   TaskComplexity _inferComplexity(String task) {
-    final creativeKeywords = ['设计', '创意', '方案', '风格', 'layout', 'design', 'create', 'creative', 'generate', '生成', '构思'];
+    final creativeKeywords = ['创意', '方案', '风格', 'layout', 'design', 'create', 'creative', 'generate', '构思'];
     final simpleKeywords = [
       '改名',
       '导出',

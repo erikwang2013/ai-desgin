@@ -37,6 +37,11 @@ class SessionStore {
     await db.execute('CREATE INDEX idx_sessions_software ON sessions(software_name)');
   }
 
+  static Future<void> onUpgrade(Database db, int oldVersion, int newVersion) async {
+    // Future migrations go here. Example:
+    // if (oldVersion < 2) { await db.execute('ALTER TABLE sessions ADD COLUMN ...'); }
+  }
+
   Future<void> save(Session session) async {
     await _db.insert('sessions', {
       'id': session.id,
@@ -128,7 +133,7 @@ class SessionStore {
   List<Session> _deserializeSessionRows(List<Map<String, dynamic>> rows) {
     return rows.map((r) => Session(
       id: r['id'] as String,
-      domain: DesignCategory.values.firstWhere((d) => d.name == r['domain']),
+      domain: DesignCategory.values.firstWhere((d) => d.name == r['domain'], orElse: () => DesignCategory.web),
       softwareName: r['software_name'] as String,
       createdAt: DateTime.parse(r['created_at'] as String),
       context: _parseContext(r['context_json'] as String?),

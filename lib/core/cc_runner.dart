@@ -180,9 +180,22 @@ Output your response as JSON with these fields:
 - "scriptLanguage": the scripting language used
 
 For Figma: use JavaScript (Figma Plugin API)
-For Blender: use Python (bpy API)
-For AutoCAD: use AutoLISP
+For Sketch: use JavaScript (sketchtool)
 For Photoshop: use JavaScript (ExtendScript)
+For Illustrator: use JavaScript (ExtendScript)
+For InDesign: use JavaScript (ExtendScript)
+For Blender: use Python (bpy API)
+For Maya: use Python (maya.cmds / pymel)
+For 3ds Max: use MaxScript or Python (pymxs)
+For Cinema 4D: use Python (c4d module)
+For Fusion 360: use Python (fusion API)
+For AutoCAD: use AutoLISP
+For Revit: use Python (Revit API / pyRevit) or C#
+For SketchUp: use Ruby (SketchUp API)
+For Rhino: use Python (rhinoscriptsyntax)
+For FreeCAD: use Python (FreeCAD API)
+For OpenSCAD: use SCAD language
+For slicing software: use CLI commands or config files
 For general web design: use HTML/CSS/JavaScript
 ''';
   }
