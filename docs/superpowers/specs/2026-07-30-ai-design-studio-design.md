@@ -1,7 +1,7 @@
 # AI Design — 设计规格文档
 
-> 状态：已确认并持续迭代（22 个软件插件，含 CAD/BIM/切片器/AI 生成）
-> 日期：2026-07-30 · 更新：2026-08-01（第四次更新）
+> 状态：已确认并持续迭代（47 个软件插件，含 Adobe Creative Cloud 全系列、CAD/BIM/切片器/AI 生成）
+> 日期：2026-07-30 · 更新：2026-08-01（第五次更新）
 
 ## 当前构建状态 (2026-08-01)
 
@@ -267,10 +267,14 @@ class Session {
 
 ### 新增插件
 
-在原有 4 个设计软件插件基础上，陆续扩展至 21 个软件，覆盖完整的设计与制造工作流：
+在原有 4 个设计软件插件基础上，陆续扩展至 47 个软件，覆盖完整的设计与制造工作流：
 
-**平面/UI 设计**：Figma、Photoshop、Illustrator、Sketch
+**平面/UI 设计**：Figma、Photoshop、Illustrator、Sketch、Adobe XD、Dreamweaver、Adobe Express
+**动态图形/视频**：After Effects、Premiere Pro、Animate、Character Animator、Media Encoder
+**摄影/绘画/文档**：Lightroom、Fresco、Bridge、Acrobat Pro
+**音频/协同**：Audition、InCopy
 **CAD/BIM 建模**：Fusion 360、SolidWorks、FreeCAD、OpenSCAD、Rhino、Blender、AutoCAD、Revit、SketchUp
+**3D/材质**：Dimension、Substance 3D Painter、Substance 3D Designer、Substance 3D Sampler、Substance 3D Stager、Substance 3D Modeler
 **Web/AI**：Tinkercad、Meshy
 **FDM 切片**：Cura、PrusaSlicer、OrcaSlicer、Simplify3D
 **树脂切片**：ChiTuBox、Lychee Slicer
@@ -285,10 +289,15 @@ class Session {
 | VBA/COM | SolidWorks |
 | SCAD 脚本 | OpenSCAD |
 | AutoLISP | AutoCAD |
-| ExtendScript | Photoshop、Illustrator |
+| ExtendScript | Photoshop、Illustrator、InDesign、After Effects、Premiere Pro、Animate、Audition、Dreamweaver、Character Animator、Bridge、Media Encoder、InCopy |
 | Ruby API | SketchUp |
 | sketchtool/JS | Sketch |
 | .NET API | Revit |
+| Lua SDK | Lightroom |
+| JSFL | Animate |
+| JavaScript API | Fresco、Acrobat Pro |
+| REST API | Adobe Express |
+| Python API (Substance) | Substance 3D Painter、Designer、Sampler、Stager、Modeler |
 
 ### 典型 3D 打印工作流
 

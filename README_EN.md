@@ -35,7 +35,7 @@ Rust plugin injects script → Figma executes → returns result
 +------------------------------------------+
 |  Plugin Layer (Built-in Plugins)          |
 |  Figma · Blender · AutoCAD · Photoshop   |
-|  (28 built-in design software plugins)    |
+|  (47 built-in design software plugins)    |
 +------------------------------------------+
 ```
 
@@ -114,11 +114,31 @@ ai-desgin/
 |   +-- ui/                                # UI pages
 +-- rust/
 |   +-- core/                              # Shared traits + types
-|   +-- plugins/                           # 39 software plugins
+|   +-- plugins/                           # 59 software plugins
 |       +-- figma/                         # Figma (REST API)
 |       +-- photoshop/                     # Photoshop (ExtendScript)
 |       +-- illustrator/                   # Illustrator (ExtendScript)
 |       +-- indesign/                      # InDesign (ExtendScript)
+|       +-- aftereffects/                  # After Effects (ExtendScript)
+|       +-- premierepro/                   # Premiere Pro (ExtendScript)
+|       +-- xd/                            # Adobe XD (ExtendScript)
+|       +-- lightroom/                     # Lightroom (Lua)
+|       +-- animate/                       # Animate (JSFL)
+|       +-- audition/                      # Audition (ExtendScript)
+|       +-- dreamweaver/                   # Dreamweaver (ExtendScript)
+|       +-- characteranimator/             # Character Animator (ExtendScript)
+|       +-- fresco/                        # Fresco (JS)
+|       +-- dimension/                     # Dimension (ExtendScript)
+|       +-- bridge/                        # Bridge (ExtendScript)
+|       +-- acrobat/                       # Acrobat Pro (JS)
+|       +-- substancepainter/              # Substance 3D Painter (Python)
+|       +-- substancedesigner/             # Substance 3D Designer (Python)
+|       +-- substancesampler/              # Substance 3D Sampler (Python)
+|       +-- substancestager/               # Substance 3D Stager (Python)
+|       +-- substancemodeler/              # Substance 3D Modeler (Python)
+|       +-- mediaencoder/                  # Media Encoder (ExtendScript)
+|       +-- incopy/                        # InCopy (ExtendScript)
+|       +-- express/                       # Adobe Express (REST)
 |       +-- sketch/                        # Sketch (sketchtool/JS)
 |       +-- blender/                       # Blender (Python)
 |       +-- maya/                          # Maya (Python)
@@ -219,10 +239,10 @@ Open the app and check installed plugins in the Software Panel. Green indicator 
 ### 2. Select Domain
 
 Choose a design domain from the sidebar. The AI will automatically select the optimal model and strategy:
-- **Web** -> Figma, Sketch
-- **Advertising** -> Photoshop, Illustrator, InDesign
+- **Web** -> Figma, Sketch, Adobe XD, Dreamweaver, Express
+- **Advertising** -> Photoshop, Illustrator, InDesign, After Effects, Premiere Pro, Lightroom, Animate, Audition, Character Animator, Fresco, Bridge, Acrobat Pro, Media Encoder, InCopy
 - **Industrial** -> Fusion 360, SolidWorks, ZW3D, VoxelDance Additive
-- **3D** -> Blender, Maya, 3ds Max, Cinema 4D, 3D One, Happy3D, Maodou 3D
+- **3D** -> Blender, Maya, 3ds Max, Cinema 4D, 3D One, Happy3D, Maodou 3D, Dimension, Substance 3D Suite
 - **Architecture** -> AutoCAD, Revit
 - **Interior** -> SketchUp
 
@@ -235,6 +255,10 @@ Type design instructions in natural language:
 > "Set up a room scene in Blender with a floor material and a point light"
 
 > "Change all text layers in the current Photoshop document to use Source Han Sans"
+
+> "Create a logo reveal animation in After Effects with 2-second scale and fade-in, ease curve"
+
+> "Create a rusted metal material for this model in Substance 3D Painter, export 4K PBR textures"
 
 ### 4. Preview & Execute
 
@@ -256,11 +280,19 @@ Browse available plugins in Settings -> Plugin Marketplace. One-click install. N
 
 ### Graphic & UI Design
 
-Automate Figma, Sketch, Photoshop, Illustrator and InDesign operations. AI can create canvases, add layers, apply styles, export assets, and convert designs directly to HTML/CSS code.
+Automate Figma, Sketch, Photoshop, Illustrator, InDesign, Adobe XD and Dreamweaver operations. AI can create canvases, add layers, apply styles, export assets, and convert designs directly to HTML/CSS code.
+
+### Motion Graphics & Video
+
+Automate After Effects, Premiere Pro, Animate, Character Animator, Audition and Media Encoder operations. AI can create compositions, set keyframe animations, apply effects, edit video timelines, mix audio, and batch render outputs.
+
+### Digital Painting & Photography
+
+Automate Lightroom, Fresco, Bridge and Acrobat Pro operations. AI can batch color-grade, apply presets, manage assets, process PDF documents, and perform photo color correction.
 
 ### 3D Modeling & Animation
 
-Covering parametric, polygonal, and NURBS surface modeling. Supports Maya, 3ds Max, and Cinema 4D for rigging, animation, and rendering. AI can auto-create parts, assemblies, generate technical drawings, and export STL/STEP formats for 3D printing.
+Covering parametric, polygonal, and NURBS surface modeling. Supports Maya, 3ds Max, and Cinema 4D for rigging, animation, and rendering. Now includes the full Substance 3D suite (Painter, Designer, Sampler, Stager, Modeler) and Dimension for PBR material authoring, 3D texturing, VR modeling, and product rendering. AI can auto-create parts, assemblies, generate technical drawings, and export STL/STEP formats for 3D printing.
 
 ### 3D Print Slicing & Management
 
@@ -272,7 +304,7 @@ Text-to-3D and image-to-3D generation via Meshy API, with automatic polygon opti
 
 ## Supported Software
 
-### Graphic & UI Design (5)
+### Graphic & UI Design (8)
 
 | Software | Control Method | Platform | Status |
 |----------|---------------|----------|--------|
@@ -281,8 +313,37 @@ Text-to-3D and image-to-3D generation via Meshy API, with automatic polygon opti
 | Sketch | sketchtool CLI + osascript | macOS | Supported |
 | Illustrator | ExtendScript | macOS/Win | Supported |
 | InDesign | ExtendScript | macOS/Win | Supported |
+| Adobe XD | ExtendScript + Plugin API | macOS/Win | Supported |
+| Dreamweaver | ExtendScript | macOS/Win | Supported |
+| Adobe Express | REST API | Web | Supported |
 
-### 3D Animation & Modeling (7)
+### Motion Graphics & Video (5)
+
+| Software | Control Method | Platform | Status |
+|----------|---------------|----------|--------|
+| After Effects | ExtendScript | macOS/Win | Supported |
+| Premiere Pro | ExtendScript | macOS/Win | Supported |
+| Animate | ExtendScript + JSFL | macOS/Win | Supported |
+| Character Animator | ExtendScript | macOS/Win | Supported |
+| Media Encoder | ExtendScript + CLI | macOS/Win | Supported |
+
+### Photography & Digital Art (4)
+
+| Software | Control Method | Platform | Status |
+|----------|---------------|----------|--------|
+| Lightroom | Lua SDK | macOS/Win/iOS | Supported |
+| Fresco | JavaScript API | Win/iOS | Supported |
+| Bridge | ExtendScript | macOS/Win | Supported |
+| Acrobat Pro | JavaScript API | macOS/Win | Supported |
+
+### Collaboration & Audio (2)
+
+| Software | Control Method | Platform | Status |
+|----------|---------------|----------|--------|
+| Audition | ExtendScript | macOS/Win | Supported |
+| InCopy | ExtendScript | macOS/Win | Supported |
+
+### 3D Animation & Modeling (13)
 
 | Software | Control Method | Platform | Status |
 |----------|---------------|----------|--------|
@@ -293,6 +354,12 @@ Text-to-3D and image-to-3D generation via Meshy API, with automatic polygon opti
 | SketchUp | Ruby API | macOS/Win | Supported |
 | Rhino | Python/RhinoScript | macOS/Win | Supported |
 | Meshy | REST API (AI Generation) | Web | Supported |
+| Dimension | ExtendScript | macOS/Win | Supported |
+| Substance 3D Painter | Python API | macOS/Win/Linux | Supported |
+| Substance 3D Designer | Python API | macOS/Win/Linux | Supported |
+| Substance 3D Sampler | Python API | macOS/Win | Supported |
+| Substance 3D Stager | Python API | macOS/Win | Supported |
+| Substance 3D Modeler | Python API | Win | Supported |
 
 ### CAD & BIM Modeling (6)
 
@@ -356,7 +423,7 @@ Text-to-3D and image-to-3D generation via Meshy API, with automatic polygon opti
 | FlashDental | Python API | Win | Supported |
 | WaxJetPrint | Python API | Win | Supported |
 
-**Total: 39 supported software**
+**Total: 59 supported software**
 
 ## Developer Guide
 

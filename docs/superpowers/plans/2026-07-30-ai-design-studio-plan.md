@@ -4,7 +4,7 @@
 
 **目标：** 构建跨平台（Win/Mac）桌面应用的核心框架——Claude Code 集成、插件系统（Dart 接口 + Rust 实现）、任务编排、模型路由，以及 Figma 示例插件。
 
-**当前状态 (2026-08-01 第四次更新):** 15 个任务全部完成，两轮审查 28 项修复全部落地。Dart 47/49 测试通过（0 lint issues），Rust 22 crates 编译通过（0 clippy warnings），全局版本统一为 1.0.6。新增 SessionStore 持久化集成、batch 写入优化、chat 历史保留修复。
+**当前状态 (2026-08-01 第五次更新):** 15 个任务全部完成，两轮审查 28 项修复全部落地。Dart 47/49 测试通过（0 lint issues），Rust 22 crates 编译通过（0 clippy warnings），全局版本统一为 1.0.6。新增 SessionStore 持久化集成、batch 写入优化、chat 历史保留修复。内置插件扩展至 47 个，新增 Adobe Creative Cloud 全系列 20 个软件支持。
 
 **架构：** Flutter 桌面壳 + Dart 核心层（编排/路由/UI）→ flutter_rust_bridge FFI → Rust crate 插件层（系统级软件控制）。Claude Code CLI 通过子进程 JSON-RPC 通信。
 

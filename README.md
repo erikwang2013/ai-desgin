@@ -35,7 +35,7 @@ Rust 插件注入脚本 → Figma 执行 → 返回结果
 +------------------------------------------+
 |  插件层 (Built-in Plugins)                |
 |  Figma · Blender · AutoCAD · Photoshop   |
-|  (28 个内置设计软件插件)                    |
+|  (47 个内置设计软件插件)                    |
 +------------------------------------------+
 ```
 
@@ -136,6 +136,26 @@ ai-desgin/
 |       +-- photoshop/                     # Photoshop (ExtendScript)
 |       +-- illustrator/                   # Illustrator (ExtendScript)
 |       +-- indesign/                      # InDesign (ExtendScript)
+|       +-- aftereffects/                  # After Effects (ExtendScript)
+|       +-- premierepro/                   # Premiere Pro (ExtendScript)
+|       +-- xd/                            # Adobe XD (ExtendScript)
+|       +-- lightroom/                     # Lightroom (Lua)
+|       +-- animate/                       # Animate (JSFL)
+|       +-- audition/                      # Audition (ExtendScript)
+|       +-- dreamweaver/                   # Dreamweaver (ExtendScript)
+|       +-- characteranimator/             # Character Animator (ExtendScript)
+|       +-- fresco/                        # Fresco (JS)
+|       +-- dimension/                     # Dimension (ExtendScript)
+|       +-- bridge/                        # Bridge (ExtendScript)
+|       +-- acrobat/                       # Acrobat Pro (JS)
+|       +-- substancepainter/              # Substance 3D Painter (Python)
+|       +-- substancedesigner/             # Substance 3D Designer (Python)
+|       +-- substancesampler/              # Substance 3D Sampler (Python)
+|       +-- substancestager/               # Substance 3D Stager (Python)
+|       +-- substancemodeler/              # Substance 3D Modeler (Python)
+|       +-- mediaencoder/                  # Media Encoder (ExtendScript)
+|       +-- incopy/                        # InCopy (ExtendScript)
+|       +-- express/                       # Adobe Express (REST)
 |       +-- sketch/                        # Sketch (sketchtool/JS)
 |       +-- blender/                       # Blender (Python)
 |       +-- maya/                          # Maya (Python)
@@ -245,10 +265,10 @@ cd rust && cargo clippy       # Rust lint 检查
 ### 第二步：选择领域
 
 左侧边栏切换设计领域，AI 会根据领域自动选择合适的模型和控制策略：
-- **Web 设计** -> Figma、Sketch
-- **广告设计** -> Photoshop、Illustrator、InDesign
+- **Web 设计** -> Figma、Sketch、Adobe XD、Dreamweaver、Express
+- **广告设计** -> Photoshop、Illustrator、InDesign、After Effects、Premiere Pro、Lightroom、Animate、Audition、Character Animator、Fresco、Bridge、Acrobat Pro、Media Encoder、InCopy
 - **工业设计** -> Fusion 360、SolidWorks、中望3D、VoxelDance Additive
-- **3D 设计** -> Blender、Maya、3ds Max、Cinema 4D、3D One、Happy3D、毛豆科技
+- **3D 设计** -> Blender、Maya、3ds Max、Cinema 4D、3D One、Happy3D、毛豆科技、Dimension、Substance 3D 系列
 - **建筑设计** -> AutoCAD、Revit
 - **装修设计** -> SketchUp
 
@@ -261,6 +281,10 @@ cd rust && cargo clippy       # Rust lint 检查
 > 「在 Blender 中创建一个房间场景，添加地板材质和点光源」
 
 > 「把当前 Photoshop 文档中所有文字图层的字体改为思源黑体」
+
+> 「在 After Effects 中创建一个 Logo 出场动画，2 秒缩放淡入，缓动曲线」
+
+> 「在 Substance 3D Painter 中为这个模型创建锈蚀金属材质，导出 4K PBR 贴图」
 
 ### 第四步：预览执行
 
@@ -282,11 +306,19 @@ AI 生成脚本后会展示预览，确认无误后点击执行。执行结果�
 
 ### 平面与 UI 设计
 
-支持 Figma、Sketch、Photoshop、Illustrator 和 InDesign 的自动化操作。AI 可以创建画布、添加图层、设置样式、导出切图，将设计稿直接转为 HTML/CSS 代码。
+支持 Figma、Sketch、Photoshop、Illustrator、InDesign、Adobe XD 和 Dreamweaver 的自动化操作。AI 可以创建画布、添加图层、设置样式、导出切图，将设计稿直接转为 HTML/CSS 代码。
+
+### 动态图形与视频
+
+支持 After Effects、Premiere Pro、Animate、Character Animator、Audition 和 Media Encoder 的自动化操作。AI 可以创建合成、设置关键帧动画、应用特效、剪辑视频、混音，以及批量渲染输出。
+
+### 数字绘画与摄影
+
+支持 Lightroom、Fresco、Bridge 和 Acrobat Pro 的自动化操作。AI 可以批量调色、应用预设、管理素材、处理 PDF 文档，以及照片色彩校正。
 
 ### 3D 建模与动画
 
-覆盖主流参数化建模、多边形建模和 NURBS 曲面建模软件。支持 Maya、3ds Max、Cinema 4D 的骨骼绑定、动画制作和渲染。AI 可自动创建零件、装配体、生成工程图、导出 STL/STEP 等格式用于 3D 打印。
+覆盖主流参数化建模、多边形建模和 NURBS 曲面建模软件。支持 Maya、3ds Max、Cinema 4D 的骨骼绑定、动画制作和渲染。新增 Substance 3D 全系列（Painter、Designer、Sampler、Stager、Modeler）和 Dimension，覆盖 PBR 材质创作、3D 纹理绘制、VR 建模和产品渲染。AI 可自动创建零件、装配体、生成工程图、导出 STL/STEP 等格式用于 3D 打印。
 
 ### 3D 打印切片与配套
 
@@ -298,7 +330,7 @@ AI 生成脚本后会展示预览，确认无误后点击执行。执行结果�
 
 ## 已支持的软件
 
-### 平面与 UI 设计（5 个）
+### 平面与 UI 设计（8 个）
 
 | 软件 | 控制方式 | 平台 | 状态 |
 |------|---------|------|------|
@@ -307,8 +339,37 @@ AI 生成脚本后会展示预览，确认无误后点击执行。执行结果�
 | Sketch | sketchtool CLI + osascript | macOS | 已支持 |
 | Illustrator | ExtendScript | macOS/Win | 已支持 |
 | InDesign | ExtendScript | macOS/Win | 已支持 |
+| Adobe XD | ExtendScript + 插件API | macOS/Win | 已支持 |
+| Dreamweaver | ExtendScript | macOS/Win | 已支持 |
+| Adobe Express | REST API | Web | 已支持 |
 
-### 3D 动画与建模（7 个）
+### 动态图形与视频编辑（5 个）
+
+| 软件 | 控制方式 | 平台 | 状态 |
+|------|---------|------|------|
+| After Effects | ExtendScript | macOS/Win | 已支持 |
+| Premiere Pro | ExtendScript | macOS/Win | 已支持 |
+| Animate | ExtendScript + JSFL | macOS/Win | 已支持 |
+| Character Animator | ExtendScript | macOS/Win | 已支持 |
+| Media Encoder | ExtendScript + CLI | macOS/Win | 已支持 |
+
+### 摄影与数字绘画（4 个）
+
+| 软件 | 控制方式 | 平台 | 状态 |
+|------|---------|------|------|
+| Lightroom | Lua SDK | macOS/Win/iOS | 已支持 |
+| Fresco | JavaScript API | Win/iOS | 已支持 |
+| Bridge | ExtendScript | macOS/Win | 已支持 |
+| Acrobat Pro | JavaScript API | macOS/Win | 已支持 |
+
+### 协同与音频（2 个）
+
+| 软件 | 控制方式 | 平台 | 状态 |
+|------|---------|------|------|
+| Audition | ExtendScript | macOS/Win | 已支持 |
+| InCopy | ExtendScript | macOS/Win | 已支持 |
+
+### 3D 动画与建模（13 个）
 
 | 软件 | 控制方式 | 平台 | 状态 |
 |------|---------|------|------|
@@ -319,6 +380,12 @@ AI 生成脚本后会展示预览，确认无误后点击执行。执行结果�
 | SketchUp | Ruby API | macOS/Win | 已支持 |
 | Rhino | Python/RhinoScript | macOS/Win | 已支持 |
 | Meshy | REST API（AI 生成） | Web | 已支持 |
+| Dimension | ExtendScript | macOS/Win | 已支持 |
+| Substance 3D Painter | Python API | macOS/Win/Linux | 已支持 |
+| Substance 3D Designer | Python API | macOS/Win/Linux | 已支持 |
+| Substance 3D Sampler | Python API | macOS/Win | 已支持 |
+| Substance 3D Stager | Python API | macOS/Win | 已支持 |
+| Substance 3D Modeler | Python API | Win | 已支持 |
 
 ### CAD 与 BIM 建模（6 个）
 
@@ -382,7 +449,7 @@ AI 生成脚本后会展示预览，确认无误后点击执行。执行结果�
 | FlashDental | Python API | Win | 已支持 |
 | WaxJetPrint | Python API | Win | 已支持 |
 
-**总计：39 个已支持软件**
+**总计：59 个已支持软件**
 
 ## 开发指南
 
