@@ -1,7 +1,7 @@
 [workspace]
-members = ["core", "plugins/figma", "plugins/blender", "plugins/autocad", "plugins/photoshop", "plugins/fusion360", "plugins/solidworks", "plugins/tinkercad", "plugins/meshy", "plugins/chitubox", "plugins/lychee", "plugins/freecad", "plugins/openscad", "plugins/rhino", "plugins/cura", "plugins/prusaslicer", "plugins/orcaslicer", "plugins/simplify3d", "plugins/illustrator", "plugins/sketch", "plugins/revit", "plugins/sketchup"]
+members = ["core", "plugins/figma", "plugins/blender", "plugins/autocad", "plugins/photoshop", "plugins/fusion360", "plugins/solidworks", "plugins/tinkercad", "plugins/meshy", "plugins/chitubox", "plugins/lychee", "plugins/freecad", "plugins/openscad", "plugins/rhino", "plugins/cura", "plugins/prusaslicer", "plugins/orcaslicer", "plugins/simplify3d", "plugins/illustrator", "plugins/sketch", "plugins/revit", "plugins/sketchup", "plugins/maya", "plugins/3dsmax", "plugins/cinema4d", "plugins/indesign", "plugins/zw3d", "plugins/3done", "plugins/voxeldance", "plugins/happy3d", "plugins/maodou3d", "plugins/makerlab", "plugins/crealitycloud", "plugins/flashprint", "plugins/flashstudio", "plugins/snapmakerluban", "plugins/snapmakerorca", "plugins/buildplanner", "plugins/flashdental", "plugins/waxjetprint"]
 resolver = "2"
 
 [workspace.package]
-version = "1.0.7"
+version = "1.0.8"
 edition = "2021"

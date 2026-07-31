@@ -6,7 +6,7 @@ void main() {
   testWidgets('Plugin marketplace shows installed plugins', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: PluginMarketplace()));
     expect(find.text('插件市场'), findsOneWidget);
-    expect(find.text('已安装 (8)'), findsOneWidget);
+    expect(find.text('已安装 (27)'), findsOneWidget);
     expect(find.text('Figma'), findsOneWidget);
     expect(find.text('Sketch'), findsOneWidget);
     expect(find.text('Revit'), findsOneWidget);

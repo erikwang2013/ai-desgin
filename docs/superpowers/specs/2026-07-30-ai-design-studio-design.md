@@ -1,18 +1,19 @@
 # AI Design Studio — 设计规格文档
 
-> 状态：已确认并持续迭代（21 个软件插件，含 CAD/BIM/切片器/AI 生成）
-> 日期：2026-07-30 · 更新：2026-07-31（第三次更新）
+> 状态：已确认并持续迭代（22 个软件插件，含 CAD/BIM/切片器/AI 生成）
+> 日期：2026-07-30 · 更新：2026-08-01（第四次更新）
 
-## 当前构建状态 (2026-07-31)
+## 当前构建状态 (2026-08-01)
 
 | 检查项 | 状态 |
 |--------|------|
-| `flutter analyze` | No issues found |
-| `flutter test` | 49/49 passed |
-| `cargo build` | 18 crates compiled |
+| `dart analyze lib/` | No issues found |
+| `flutter test` | 47/49 passed（2 超时与 CLI 相关） |
+| `cargo check` | 22 crates, 0 warnings |
 | `cargo clippy` | 0 warnings |
+| 版本 | 全局统一 1.0.6（`lib/core/version.dart`） |
 
-详见：[审查报告](../../review-report-2026-07-31.md) | [测试报告](../../test-report-2026-07-31.md)
+详见：[审查报告 v1](../../review-report-2026-07-31.md) | [审查报告 v2](../../review-report-2026-08-01.md) | [测试报告](../../test-report-2026-07-31.md)
 
 ## 一、项目概述
 
