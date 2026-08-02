@@ -1,5 +1,6 @@
 // lib/ui/task_dashboard.dart
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../models/task_record.dart';
 
 class TaskItem {
@@ -30,7 +31,7 @@ class TaskDashboard extends StatefulWidget {
 
 class TaskDashboardState extends State<TaskDashboard> {
   final List<TaskItem> _tasks = [];
-  String _filter = '全部';
+  String _filterKey = 'all';
 
   @override
   void initState() {
@@ -52,14 +53,15 @@ class TaskDashboardState extends State<TaskDashboard> {
   }
 
   List<TaskItem> get _filteredTasks {
-    if (_filter == '全部') return _tasks;
-    if (_filter == '进行中') return _tasks.where((t) => t.status == TaskStatus.running || t.status == TaskStatus.pending).toList();
-    if (_filter == '已完成') return _tasks.where((t) => t.status == TaskStatus.completed).toList();
+    if (_filterKey == 'all') return _tasks;
+    if (_filterKey == 'inProgress') return _tasks.where((t) => t.status == TaskStatus.running || t.status == TaskStatus.pending).toList();
+    if (_filterKey == 'completed') return _tasks.where((t) => t.status == TaskStatus.completed).toList();
     return _tasks;
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     if (_tasks.isEmpty) {
       return Center(
         child: Column(
@@ -67,9 +69,9 @@ class TaskDashboardState extends State<TaskDashboard> {
           children: [
             Icon(Icons.inbox_outlined, size: 64, color: Colors.grey.shade400),
             const SizedBox(height: 16),
-            Text('暂无任务', style: TextStyle(fontSize: 16, color: Colors.grey.shade600)),
+            Text(l10n?.noTasks ?? 'No Tasks', style: TextStyle(fontSize: 16, color: Colors.grey.shade600)),
             const SizedBox(height: 8),
-            Text('在对话面板中输入设计需求，任务将显示在这里', style: TextStyle(fontSize: 13, color: Colors.grey.shade500)),
+            Text(l10n?.noTasksHint ?? 'Enter your design requirements in the chat panel; tasks will appear here.', style: TextStyle(fontSize: 13, color: Colors.grey.shade500)),
           ],
         ),
       );
@@ -91,17 +93,21 @@ class TaskDashboardState extends State<TaskDashboard> {
   }
 
   Widget _buildFilterBar() {
+    final l10n = AppLocalizations.of(context);
+    final allLabel = l10n?.all ?? 'All';
+    final inProgressLabel = l10n?.inProgress ?? 'In Progress';
+    final completedLabel = l10n?.completed ?? 'Completed';
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       child: Row(
         children: [
-          const Text('任务列表', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(l10n?.taskList ?? 'Task List', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const Spacer(),
-          _buildChip('全部', _filter == '全部'),
+          _buildChip(allLabel, _filterKey == 'all'),
           const SizedBox(width: 8),
-          _buildChip('进行中', _filter == '进行中'),
+          _buildChip(inProgressLabel, _filterKey == 'inProgress'),
           const SizedBox(width: 8),
-          _buildChip('已完成', _filter == '已完成'),
+          _buildChip(completedLabel, _filterKey == 'completed'),
         ],
       ),
     );
@@ -111,7 +117,15 @@ class TaskDashboardState extends State<TaskDashboard> {
     return FilterChip(
       label: Text(label, style: const TextStyle(fontSize: 12)),
       selected: selected,
-      onSelected: (_) => setState(() => _filter = label),
+      onSelected: (_) => setState(() {
+        if (label == (AppLocalizations.of(context)?.all ?? 'All')) {
+          _filterKey = 'all';
+        } else if (label == (AppLocalizations.of(context)?.inProgress ?? 'In Progress')) {
+          _filterKey = 'inProgress';
+        } else {
+          _filterKey = 'completed';
+        }
+      }),
       visualDensity: VisualDensity.compact,
     );
   }

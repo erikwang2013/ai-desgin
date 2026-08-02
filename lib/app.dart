@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
+import 'l10n/app_localizations.dart';
 import 'models/session.dart';
 import 'models/task_record.dart';
 import 'core/plugin_manager.dart';
@@ -10,25 +11,53 @@ import 'core/model_router.dart';
 import 'core/task_orchestrator.dart';
 import 'core/session_store.dart';
 import 'core/builtin_plugins.dart';
+import 'core/locale_provider.dart';
 import 'ui/shell.dart';
 import 'ui/chat_view.dart';
 import 'ui/task_dashboard.dart';
 import 'ui/software_panel.dart';
 import 'ui/settings_view.dart';
 
-class AiDesignApp extends StatelessWidget {
+class AiDesignApp extends StatefulWidget {
   const AiDesignApp({super.key});
 
   @override
+  State<AiDesignApp> createState() => _AiDesignAppState();
+}
+
+class _AiDesignAppState extends State<AiDesignApp> {
+  final _localeProvider = LocaleProvider();
+
+  @override
+  void initState() {
+    super.initState();
+    _localeProvider.loadSavedLocale();
+  }
+
+  @override
+  void dispose() {
+    _localeProvider.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'AI Design',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
-        useMaterial3: true,
-      ),
-      home: const _MainShell(),
-      routes: {'/settings': (_) => const SettingsView()},
+    return ListenableBuilder(
+      listenable: _localeProvider,
+      builder: (context, _) {
+        return MaterialApp(
+          title: 'AI Design',
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+            useMaterial3: true,
+          ),
+          locale: _localeProvider.locale,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const _MainShell(),
+          routes: {'/settings': (_) => const SettingsView()},
+        );
+      },
     );
   }
 }
@@ -151,10 +180,12 @@ class _MainShellState extends State<_MainShell> {
       try { await _sessionStore!.save(session); } catch (_) {}
     }
 
+    if (!mounted) return '';
+    final l10n = AppLocalizations.of(context);
     if (result.status == TaskStatus.completed) {
-      return '✅ 任务完成\n\n${result.script ?? '(无输出)'}';
+      return '✅ ${l10n?.taskCompleted ?? 'Task completed'}\n\n${result.script ?? l10n?.noOutput ?? '(no output)'}';
     }
-    return '❌ 任务失败: ${result.error ?? '未知错误'}';
+    return '❌ ${l10n?.taskFailed ?? 'Task failed'}: ${result.error ?? l10n?.unknownError ?? 'Unknown error'}';
   }
 
   String _defaultSoftwareFor(DesignCategory domain) {

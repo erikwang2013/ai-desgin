@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../models/session.dart';
 import '../core/plugin_manager.dart';
 import 'settings_view.dart';
@@ -35,11 +36,7 @@ class _AppShellState extends State<AppShell> {
     (DesignCategory.interior, Icons.chair),
   ];
 
-  static const _tabs = [
-    (Icons.chat, '对话'),
-    (Icons.list_alt, '任务'),
-    (Icons.extension, '插件'),
-  ];
+  static const _tabIcons = [Icons.chat, Icons.list_alt, Icons.extension];
 
   @override
   Widget build(BuildContext context) {
@@ -60,11 +57,11 @@ class _AppShellState extends State<AppShell> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.all(16),
+          Padding(
+            padding: const EdgeInsets.all(16),
             child: Text(
-              'AI Design',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              AppLocalizations.of(context)?.appTitle ?? 'AI Design',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
           const Divider(),
@@ -72,30 +69,30 @@ class _AppShellState extends State<AppShell> {
             child: ListView(
               padding: EdgeInsets.zero,
               children: [
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Text(
-                    '设计领域',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                    AppLocalizations.of(context)?.designDomains ?? 'Design Domains',
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                 ),
                 ..._domains.map(_buildDomainTile),
                 const Divider(),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Text(
-                    '导航',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                    AppLocalizations.of(context)?.navigation ?? 'Navigation',
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                 ),
-                ...List.generate(_tabs.length, _buildNavTile),
+                ...List.generate(_tabIcons.length, _buildNavTile),
               ],
             ),
           ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.settings),
-            title: const Text('设置'),
+            title: Text(AppLocalizations.of(context)?.settings ?? 'Settings'),
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => SettingsView(pluginManager: widget.pluginManager)),
@@ -107,7 +104,10 @@ class _AppShellState extends State<AppShell> {
   }
 
   Widget _buildNavTile(int index) {
-    final (icon, label) = _tabs[index];
+    final icon = _tabIcons[index];
+    final l10n = AppLocalizations.of(context);
+    final labels = [l10n?.tabChat, l10n?.tabTasks, l10n?.tabPlugins];
+    final label = labels[index] ?? ['Chat', 'Tasks', 'Plugins'][index];
     final isSelected = index == widget.selectedTabIndex;
     return ListTile(
       leading: Icon(icon, size: 20),

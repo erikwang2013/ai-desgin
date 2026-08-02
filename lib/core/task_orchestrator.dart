@@ -75,8 +75,8 @@ class TaskOrchestrator {
     }
     _activeCount++;
 
-    final session = _getOrCreateSession(domain, softwareName);
-    final record = TaskRecord(sessionId: session.id, task: task, status: TaskStatus.running);
+    _getOrCreateSession(domain, softwareName);
+    final record = TaskRecord(sessionId: softwareName, task: task, status: TaskStatus.running);
     _tasks[record.id] = record;
 
     try {
@@ -125,7 +125,7 @@ class TaskOrchestrator {
       return updated;
     } catch (e) {
       final failed = TaskRecord(
-        id: record.id, sessionId: session.id, task: task,
+        id: record.id, sessionId: softwareName, task: task,
         status: TaskStatus.failed, error: e.toString(),
         createdAt: record.createdAt, completedAt: DateTime.now(),
       );

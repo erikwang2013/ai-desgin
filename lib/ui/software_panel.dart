@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../models/session.dart';
 import '../core/plugin_manager.dart';
 import '../core/builtin_plugins.dart';
@@ -13,6 +14,7 @@ class SoftwarePanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final plugins = pluginManager.getAll();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -21,11 +23,11 @@ class SoftwarePanel extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              const Text('已安装插件', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(l10n?.installedPlugins ?? 'Installed Plugins', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const Spacer(),
               TextButton.icon(
                 icon: const Icon(Icons.add, size: 18),
-                label: const Text('安装插件'),
+                label: Text(l10n?.installPlugin ?? 'Install Plugin'),
                 onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => PluginMarketplace(pluginManager: pluginManager))),
               ),
             ],
@@ -35,14 +37,14 @@ class SoftwarePanel extends StatelessWidget {
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             itemCount: plugins.length,
-            itemBuilder: (context, index) => _buildSoftwareCard(context, plugins[index]),
+            itemBuilder: (context, index) => _buildSoftwareCard(context, plugins[index], l10n),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildSoftwareCard(BuildContext context, DesignPlugin plugin) {
+  Widget _buildSoftwareCard(BuildContext context, DesignPlugin plugin, AppLocalizations? l10n) {
     final status = connectionStatus?[plugin.id] ?? false;
     final icon = softwareIcons[plugin.id] ?? '🔌';
     return Card(
@@ -67,14 +69,14 @@ class SoftwarePanel extends StatelessWidget {
                 ],
               ),
             ),
-            _buildStatusIndicator(status),
+            _buildStatusIndicator(status, l10n),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildStatusIndicator(bool connected) {
+  Widget _buildStatusIndicator(bool connected, AppLocalizations? l10n) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
@@ -94,7 +96,7 @@ class SoftwarePanel extends StatelessWidget {
           ),
           const SizedBox(width: 6),
           Text(
-            connected ? '已连接' : '未连接',
+            connected ? (l10n?.connected ?? 'Connected') : (l10n?.disconnected ?? 'Disconnected'),
             style: TextStyle(
               fontSize: 12,
               color: connected ? Colors.green.shade700 : Colors.grey.shade600,

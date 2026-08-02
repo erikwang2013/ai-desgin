@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 
 class ChatMessage {
   final String content;
@@ -79,16 +80,18 @@ class _ChatViewState extends State<ChatView> {
         }
       }).catchError((error) {
         if (mounted) {
+          final l10n = AppLocalizations.of(context);
           setState(() {
-            _messages.add(ChatMessage(content: '❌ 错误: $error', isUser: false));
+            _messages.add(ChatMessage(content: '❌ ${l10n?.errorPrefix ?? 'Error'}: $error', isUser: false));
             _isLoading = false;
           });
           _scrollToBottom();
         }
       });
     } else {
+      final l10n = AppLocalizations.of(context);
       setState(() {
-        _messages.add(ChatMessage(content: 'Echo: $text', isUser: false));
+        _messages.add(ChatMessage(content: '${l10n?.echoPrefix ?? 'Echo'}: $text', isUser: false));
         _isLoading = false;
       });
       _scrollToBottom();
@@ -117,6 +120,7 @@ class _ChatViewState extends State<ChatView> {
   }
 
   Widget _buildSoftwareBar() {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
@@ -127,7 +131,7 @@ class _ChatViewState extends State<ChatView> {
         children: [
           const Icon(Icons.memory, size: 16, color: Colors.grey),
           const SizedBox(width: 8),
-          const Text('目标软件:', style: TextStyle(fontSize: 13, color: Colors.grey)),
+          Text(l10n?.targetSoftware ?? 'Target Software:', style: const TextStyle(fontSize: 13, color: Colors.grey)),
           const SizedBox(width: 8),
           Expanded(
             child: DropdownButtonHideUnderline(
@@ -181,9 +185,9 @@ class _ChatViewState extends State<ChatView> {
           Expanded(
             child: TextField(
               controller: _controller,
-              decoration: const InputDecoration(
-                hintText: '描述你想要的设计操作...',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                hintText: AppLocalizations.of(context)?.hintText ?? 'Describe the design operation you want...',
+                border: const OutlineInputBorder(),
                 isDense: true,
               ),
               maxLines: 3,

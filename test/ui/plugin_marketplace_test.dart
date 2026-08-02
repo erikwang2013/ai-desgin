@@ -17,8 +17,8 @@ void main() {
 
   testWidgets('Plugin marketplace shows installed plugins', (tester) async {
     await tester.pumpWidget(MaterialApp(home: PluginMarketplace(pluginManager: pm)));
-    expect(find.text('插件市场'), findsOneWidget);
-    expect(find.text('已安装 (47)'), findsOneWidget);
+    expect(find.text('Plugin Marketplace'), findsOneWidget);
+    expect(find.text('Installed (47)'), findsOneWidget);
     expect(find.text('Figma'), findsOneWidget);
     expect(find.text('Sketch'), findsOneWidget);
     expect(find.text('Photoshop'), findsOneWidget);
@@ -32,13 +32,13 @@ void main() {
 
     final uninstallButton = find.descendant(
       of: sketchTile,
-      matching: find.text('卸载'),
+      matching: find.text('Uninstall'),
     );
     expect(uninstallButton, findsOneWidget);
 
     await tester.tap(uninstallButton);
     await tester.pumpAndSettle();
 
-    expect(find.text('Sketch 已卸载'), findsOneWidget);
+    expect(find.text('Sketch uninstalled'), findsOneWidget);
   });
 }

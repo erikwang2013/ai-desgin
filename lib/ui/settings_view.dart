@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../core/version.dart';
 import '../core/plugin_manager.dart';
 import 'plugin_marketplace.dart';
@@ -10,20 +11,21 @@ class SettingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('设置')),
+      appBar: AppBar(title: Text(l10n?.settings ?? 'Settings')),
       body: ListView(
         children: [
           ListTile(
             leading: const Icon(Icons.api),
-            title: const Text('模型配置'),
-            subtitle: const Text('管理 API endpoint 和密钥'),
-            onTap: () => _showComingSoon(context, '模型配置'),
+            title: Text(l10n?.modelConfig ?? 'Model Config'),
+            subtitle: Text(l10n?.modelConfigDesc ?? 'Manage API endpoint and keys'),
+            onTap: () => _showComingSoon(context, l10n?.modelConfig ?? 'Model Config'),
           ),
           ListTile(
             leading: const Icon(Icons.extension),
-            title: const Text('插件市场'),
-            subtitle: const Text('浏览和安装插件'),
+            title: Text(l10n?.pluginMarket ?? 'Plugin Marketplace'),
+            subtitle: Text(l10n?.pluginMarketDesc ?? 'Browse and install plugins'),
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => PluginMarketplace(pluginManager: pluginManager)),
@@ -31,14 +33,14 @@ class SettingsView extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.wifi),
-            title: const Text('代理设置'),
-            subtitle: const Text('配置网络代理'),
-            onTap: () => _showComingSoon(context, '代理设置'),
+            title: Text(l10n?.proxySettings ?? 'Proxy Settings'),
+            subtitle: Text(l10n?.proxySettingsDesc ?? 'Configure network proxy'),
+            onTap: () => _showComingSoon(context, l10n?.proxySettings ?? 'Proxy Settings'),
           ),
           ListTile(
             leading: const Icon(Icons.info_outline),
-            title: const Text('关于'),
-            subtitle: const Text('AI Design v$appVersion'),
+            title: Text(l10n?.about ?? 'About'),
+            subtitle: Text(l10n?.aboutVersion(appVersion) ?? 'AI Design v$appVersion'),
             onTap: () => _showAboutDialog(context),
           ),
         ],
@@ -47,28 +49,30 @@ class SettingsView extends StatelessWidget {
   }
 
   void _showComingSoon(BuildContext context, String feature) {
+    final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$feature - 即将推出'), duration: const Duration(seconds: 2)),
+      SnackBar(content: Text('$feature - ${l10n?.comingSoon ?? 'Coming Soon'}'), duration: const Duration(seconds: 2)),
     );
   }
 
   void _showAboutDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('AI Design'),
-        content: const Column(
+        title: Text(l10n?.appTitle ?? 'AI Design'),
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('版本: v$appVersion'),
-            SizedBox(height: 8),
-            Text('一款 AI 驱动的设计软件自动化工具。'),
-            SizedBox(height: 8),
-            Text('覆盖 6 大设计领域、47 款主流设计软件的 AI 驱动脚本生成与执行。'),
+            Text(l10n?.aboutVersion(appVersion) ?? 'Version: v$appVersion'),
+            const SizedBox(height: 8),
+            Text(l10n?.aboutDescription1 ?? 'An AI-driven design software automation tool.'),
+            const SizedBox(height: 8),
+            Text(l10n?.aboutDescription2 ?? 'Covers 6 design domains and 47+ mainstream design software with AI-driven script generation and execution.'),
           ],
         ),
-        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('确定'))],
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n?.ok ?? 'OK'))],
       ),
     );
   }

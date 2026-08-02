@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../models/session.dart';
 import '../core/plugin_manager.dart';
 import '../core/version.dart';
@@ -102,16 +103,17 @@ class _PluginMarketplaceState extends State<PluginMarketplace> {
       }
     });
 
+    final l10n = AppLocalizations.of(context);
     if (!plugin.installed) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${plugin.name} 安装成功'), duration: const Duration(seconds: 2)),
+          SnackBar(content: Text(l10n?.installSuccess(plugin.name) ?? '${plugin.name} installed successfully'), duration: const Duration(seconds: 2)),
         );
       }
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${plugin.name} 已卸载'), duration: const Duration(seconds: 2)),
+          SnackBar(content: Text(l10n?.uninstallSuccess(plugin.name) ?? '${plugin.name} uninstalled'), duration: const Duration(seconds: 2)),
         );
       }
     }
@@ -119,20 +121,21 @@ class _PluginMarketplaceState extends State<PluginMarketplace> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final installed = _plugins.where((p) => p.installed).toList();
     final available = _plugins.where((p) => !p.installed).toList();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('插件市场')),
+      appBar: AppBar(title: Text(l10n?.pluginMarket ?? 'Plugin Marketplace')),
       body: ListView(
         children: [
           if (installed.isNotEmpty) ...[
-            _sectionHeader('已安装 (${installed.length})'),
-            ...installed.map(_buildPluginTile),
+            _sectionHeader(l10n?.installed(installed.length) ?? 'Installed (${installed.length})'),
+            ...installed.map((p) => _buildPluginTile(p, l10n)),
           ],
           if (available.isNotEmpty) ...[
-            _sectionHeader('可安装 (${available.length})'),
-            ...available.map(_buildPluginTile),
+            _sectionHeader(l10n?.available(available.length) ?? 'Available (${available.length})'),
+            ...available.map((p) => _buildPluginTile(p, l10n)),
           ],
         ],
       ),
@@ -146,7 +149,7 @@ class _PluginMarketplaceState extends State<PluginMarketplace> {
     );
   }
 
-  Widget _buildPluginTile(PluginInfo plugin) {
+  Widget _buildPluginTile(PluginInfo plugin, AppLocalizations? l10n) {
     return ListTile(
       leading: Text(plugin.icon, style: const TextStyle(fontSize: 28)),
       title: Row(
@@ -172,7 +175,7 @@ class _PluginMarketplaceState extends State<PluginMarketplace> {
           ? OutlinedButton(
               onPressed: () => _toggleInstall(plugin),
               style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('卸载'),
+              child: Text(l10n?.uninstall ?? 'Uninstall'),
             )
           : ElevatedButton(
               onPressed: () => _toggleInstall(plugin),
@@ -180,7 +183,7 @@ class _PluginMarketplaceState extends State<PluginMarketplace> {
                 backgroundColor: Colors.indigo,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('安装'),
+              child: Text(l10n?.install ?? 'Install'),
             ),
     );
   }
