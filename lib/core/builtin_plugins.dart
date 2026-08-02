@@ -97,6 +97,12 @@ const builtInPlugins = [
     capabilities: SoftwareCapabilities(actions: ['牙模导入','模型编辑','支撑生成','切片','导出GCode'], fileFormats: ['stl','3mf','gcode'])),
   BuiltInPlugin(id: 'waxjetprint', name: 'WaxJetPrint', category: DesignCategory.industrial, scriptLanguage: 'python',
     capabilities: SoftwareCapabilities(actions: ['蜡模导入','模型优化','支撑生成','切片','导出GCode'], fileFormats: ['stl','wax','gcode'])),
+  BuiltInPlugin(id: 'kujiale', name: '酷家乐', category: DesignCategory.interior, scriptLanguage: 'javascript',
+    capabilities: SoftwareCapabilities(actions: ['户型绘制','硬装设计','家具布置','效果图渲染','导出全景图'], fileFormats: ['kujiale','json','jpg','png','全景图'])),
+  BuiltInPlugin(id: '3vjia', name: '三维家', category: DesignCategory.interior, scriptLanguage: 'python',
+    capabilities: SoftwareCapabilities(actions: ['户型导入','定制家具','材质编辑','VR渲染','导出CAD'], fileFormats: ['3vjia','json','obj','dwg','jpg'])),
+  BuiltInPlugin(id: 'yuanfang', name: '圆方', category: DesignCategory.interior, scriptLanguage: 'python',
+    capabilities: SoftwareCapabilities(actions: ['空间规划','家具布局','材质替换','效果渲染','导出报价单'], fileFormats: ['yuanfang','dwg','jpg','xls'])),
 ];
 
 const softwareIcons = <String, String>{
@@ -113,7 +119,7 @@ const softwareIcons = <String, String>{
   'happy3d': '😊', 'maodou3d': '🫘', 'makerlab': '🧪', 'crealitycloud': '☁️',
   'flashprint': '⚡', 'flashstudio': '💡', 'snapmakerluban': '🖨️',
   'snapmakerorca': '🐋', 'buildplanner': '📋', 'flashdental': '🦷',
-  'waxjetprint': '🕯️',
+  'waxjetprint': '🕯️', 'kujiale': '🏘️', '3vjia': '🏡', 'yuanfang': '📏',
 };
 
 const softwareDescriptions = <String, String>{
@@ -164,4 +170,7 @@ const softwareDescriptions = <String, String>{
   'buildplanner': '3D打印排布软件插件，支持模型排布、材料估算、时间预估',
   'flashdental': '牙科3D打印软件插件，支持牙模导入、模型编辑、切片',
   'waxjetprint': '蜡模3D打印软件插件，支持蜡模导入、模型优化、切片',
+  'kujiale': '云设计室内装修软件插件，支持户型绘制、硬装定制、家具布置、全景渲染',
+  '3vjia': '3D家居设计软件插件，支持户型导入、定制家具、材质编辑、VR全景渲染',
+  'yuanfang': '室内家具设计软件插件，支持空间规划、家具布局、材质替换、效果图与报价',
 };

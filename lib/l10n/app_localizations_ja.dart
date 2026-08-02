@@ -69,7 +69,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get aboutDescription2 =>
-      '6つのデザイン分野、47以上の主要デザインソフトウェアに対応するAIスクリプト生成と実行。';
+      '6つのデザイン分野、50以上の主要デザインソフトウェアに対応するAIスクリプト生成と実行。';
 
   @override
   String get installedPlugins => 'インストール済みプラグイン';

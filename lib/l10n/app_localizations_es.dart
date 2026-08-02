@@ -70,7 +70,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get aboutDescription2 =>
-      'Cubre 6 dominios de diseño y más de 47 software de diseño con generación de scripts por IA.';
+      'Cubre 6 dominios de diseño y más de 50 software de diseño con generación de scripts por IA.';
 
   @override
   String get installedPlugins => 'Plugins instalados';

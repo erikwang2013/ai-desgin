@@ -70,7 +70,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get aboutDescription2 =>
-      'Couvre 6 domaines de conception et plus de 47 logiciels avec génération de scripts par IA.';
+      'Couvre 6 domaines de conception et plus de 50 logiciels avec génération de scripts par IA.';
 
   @override
   String get installedPlugins => 'Plugins installés';

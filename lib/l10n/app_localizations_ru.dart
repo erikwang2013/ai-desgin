@@ -70,7 +70,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get aboutDescription2 =>
-      'Охватывает 6 областей дизайна и 47+ программ для автоматизированной генерации скриптов.';
+      'Охватывает 6 областей дизайна и 50+ программ для автоматизированной генерации скриптов.';
 
   @override
   String get installedPlugins => 'Установленные плагины';

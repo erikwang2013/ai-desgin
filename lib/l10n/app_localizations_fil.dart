@@ -70,7 +70,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get aboutDescription2 =>
-      'Sakop ang 6 na domain ng disenyo at 47+ pangunahing design software gamit ang AI script generation.';
+      'Sakop ang 6 na domain ng disenyo at 50+ pangunahing design software gamit ang AI script generation.';
 
   @override
   String get installedPlugins => 'Mga Naka-install na Plugin';

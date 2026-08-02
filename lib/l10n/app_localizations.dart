@@ -235,7 +235,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutDescription2.
   ///
   /// In en, this message translates to:
-  /// **'Covers 6 design domains and 47+ mainstream design software with AI-driven script generation and execution.'**
+  /// **'Covers 6 design domains and 50+ mainstream design software with AI-driven script generation and execution.'**
   String get aboutDescription2;
 
   /// No description provided for @installedPlugins.

@@ -20,7 +20,7 @@
   "@aboutVersion": { "placeholders": { "version": {} } },
   "comingSoon": "Coming Soon",
   "aboutDescription1": "An AI-driven design software automation tool.",
-  "aboutDescription2": "Covers 6 design domains and 47+ mainstream design software with AI-driven script generation and execution.",
+  "aboutDescription2": "Covers 6 design domains and 50+ mainstream design software with AI-driven script generation and execution.",
   "installedPlugins": "Installed Plugins",
   "installPlugin": "Install Plugin",
   "connected": "Connected",

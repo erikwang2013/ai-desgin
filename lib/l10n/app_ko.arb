@@ -20,7 +20,7 @@
   "@aboutVersion": { "placeholders": { "version": {} } },
   "comingSoon": "곧 출시",
   "aboutDescription1": "AI 기반 디자인 소프트웨어 자동화 도구.",
-  "aboutDescription2": "6개 디자인 분야와 47개 이상의 주요 디자인 소프트웨어를 위한 AI 스크립트 생성 및 실행.",
+  "aboutDescription2": "6개 디자인 분야와 50개 이상의 주요 디자인 소프트웨어를 위한 AI 스크립트 생성 및 실행.",
   "installedPlugins": "설치된 플러그인",
   "installPlugin": "플러그인 설치",
   "connected": "연결됨",

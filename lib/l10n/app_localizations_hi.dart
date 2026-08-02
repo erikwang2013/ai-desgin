@@ -70,7 +70,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get aboutDescription2 =>
-      '6 डिज़ाइन क्षेत्रों और 47+ प्रमुख डिज़ाइन सॉफ़्टवेयर के लिए AI स्क्रिप्ट जनरेशन और निष्पादन।';
+      '6 डिज़ाइन क्षेत्रों और 50+ प्रमुख डिज़ाइन सॉफ़्टवेयर के लिए AI स्क्रिप्ट जनरेशन और निष्पादन।';
 
   @override
   String get installedPlugins => 'इंस्टॉल किए गए प्लगइन्स';

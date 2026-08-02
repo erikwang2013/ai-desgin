@@ -35,7 +35,7 @@ Rust plugin injects script → Figma executes → returns result
 +------------------------------------------+
 |  Plugin Layer (Built-in Plugins)          |
 |  Figma · Blender · AutoCAD · Photoshop   |
-|  (47 built-in design software plugins)    |
+|  (50 built-in design software plugins)    |
 +------------------------------------------+
 ```
 

@@ -69,7 +69,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get aboutDescription2 =>
-      '6개 디자인 분야와 47개 이상의 주요 디자인 소프트웨어를 위한 AI 스크립트 생성 및 실행.';
+      '6개 디자인 분야와 50개 이상의 주요 디자인 소프트웨어를 위한 AI 스크립트 생성 및 실행.';
 
   @override
   String get installedPlugins => '설치된 플러그인';

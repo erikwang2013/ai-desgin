@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:ai_design_studio/app.dart';
@@ -8,6 +9,6 @@ void main() {
     await tester.pumpWidget(const AiDesignApp());
 
     expect(find.byType(ChatView), findsOneWidget);
-    expect(find.text('描述你想要的设计操作...'), findsOneWidget);
+    expect(find.byType(TextField), findsOneWidget);
   });
 }

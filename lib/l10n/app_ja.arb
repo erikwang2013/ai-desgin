@@ -20,7 +20,7 @@
   "@aboutVersion": { "placeholders": { "version": {} } },
   "comingSoon": "近日公開",
   "aboutDescription1": "AI駆動のデザインソフトウェア自動化ツール。",
-  "aboutDescription2": "6つのデザイン分野、47以上の主要デザインソフトウェアに対応するAIスクリプト生成と実行。",
+  "aboutDescription2": "6つのデザイン分野、50以上の主要デザインソフトウェアに対応するAIスクリプト生成と実行。",
   "installedPlugins": "インストール済みプラグイン",
   "installPlugin": "プラグインをインストール",
   "connected": "接続済み",

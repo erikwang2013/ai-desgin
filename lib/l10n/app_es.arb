@@ -20,7 +20,7 @@
   "@aboutVersion": { "placeholders": { "version": {} } },
   "comingSoon": "Próximamente",
   "aboutDescription1": "Una herramienta de automatización de diseño impulsada por IA.",
-  "aboutDescription2": "Cubre 6 dominios de diseño y más de 47 software de diseño con generación de scripts por IA.",
+  "aboutDescription2": "Cubre 6 dominios de diseño y más de 50 software de diseño con generación de scripts por IA.",
   "installedPlugins": "Plugins instalados",
   "installPlugin": "Instalar plugin",
   "connected": "Conectado",

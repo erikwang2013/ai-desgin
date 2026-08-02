@@ -70,7 +70,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get aboutDescription2 =>
-      'Deckt 6 Designbereiche und über 47 Designprogramme mit KI-Skripterstellung ab.';
+      'Deckt 6 Designbereiche und über 50 Designprogramme mit KI-Skripterstellung ab.';
 
   @override
   String get installedPlugins => 'Installierte Plugins';

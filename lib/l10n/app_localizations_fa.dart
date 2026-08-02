@@ -70,7 +70,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get aboutDescription2 =>
-      'پوشش 6 حوزه طراحی و بیش از 47 نرم‌افزار طراحی با تولید و اجرای اسکریپت هوش مصنوعی.';
+      'پوشش 6 حوزه طراحی و بیش از 50 نرم‌افزار طراحی با تولید و اجرای اسکریپت هوش مصنوعی.';
 
   @override
   String get installedPlugins => 'افزونه‌های نصب شده';

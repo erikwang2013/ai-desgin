@@ -20,7 +20,7 @@
   "@aboutVersion": { "placeholders": { "version": {} } },
   "comingSoon": "Demnächst",
   "aboutDescription1": "Ein KI-gesteuertes Automatisierungstool für Designsoftware.",
-  "aboutDescription2": "Deckt 6 Designbereiche und über 47 Designprogramme mit KI-Skripterstellung ab.",
+  "aboutDescription2": "Deckt 6 Designbereiche und über 50 Designprogramme mit KI-Skripterstellung ab.",
   "installedPlugins": "Installierte Plugins",
   "installPlugin": "Plugin installieren",
   "connected": "Verbunden",

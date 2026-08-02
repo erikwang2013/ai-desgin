@@ -70,7 +70,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get aboutDescription2 =>
-      'تغطي 6 مجالات تصميم وأكثر من 47 برنامج تصميم مع إنشاء وتنفيذ النصوص بالذكاء الاصطناعي.';
+      'تغطي 6 مجالات تصميم وأكثر من 50 برنامج تصميم مع إنشاء وتنفيذ النصوص بالذكاء الاصطناعي.';
 
   @override
   String get installedPlugins => 'الإضافات المثبتة';
