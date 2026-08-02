@@ -1,0 +1,155 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for German (`de`).
+class AppLocalizationsDe extends AppLocalizations {
+  AppLocalizationsDe([String locale = 'de']) : super(locale);
+
+  @override
+  String get appTitle => 'AI Design';
+
+  @override
+  String get designDomains => 'Designbereiche';
+
+  @override
+  String get navigation => 'Navigation';
+
+  @override
+  String get tabChat => 'Chat';
+
+  @override
+  String get tabTasks => 'Aufgaben';
+
+  @override
+  String get tabPlugins => 'Plugins';
+
+  @override
+  String get settings => 'Einstellungen';
+
+  @override
+  String get targetSoftware => 'Zielsoftware:';
+
+  @override
+  String get hintText => 'Beschreiben Sie die gewünschte Design-Operation...';
+
+  @override
+  String get modelConfig => 'Modellkonfiguration';
+
+  @override
+  String get modelConfigDesc => 'API-Endpunkt und Schlüssel verwalten';
+
+  @override
+  String get pluginMarket => 'Plugin-Marktplatz';
+
+  @override
+  String get pluginMarketDesc => 'Plugins durchsuchen und installieren';
+
+  @override
+  String get proxySettings => 'Proxy-Einstellungen';
+
+  @override
+  String get proxySettingsDesc => 'Netzwerk-Proxy konfigurieren';
+
+  @override
+  String get about => 'Über';
+
+  @override
+  String aboutVersion(Object version) {
+    return 'AI Design v$version';
+  }
+
+  @override
+  String get comingSoon => 'Demnächst';
+
+  @override
+  String get aboutDescription1 =>
+      'Ein KI-gesteuertes Automatisierungstool für Designsoftware.';
+
+  @override
+  String get aboutDescription2 =>
+      'Deckt 6 Designbereiche und über 47 Designprogramme mit KI-Skripterstellung ab.';
+
+  @override
+  String get installedPlugins => 'Installierte Plugins';
+
+  @override
+  String get installPlugin => 'Plugin installieren';
+
+  @override
+  String get connected => 'Verbunden';
+
+  @override
+  String get disconnected => 'Nicht verbunden';
+
+  @override
+  String get all => 'Alle';
+
+  @override
+  String get inProgress => 'In Bearbeitung';
+
+  @override
+  String get completed => 'Abgeschlossen';
+
+  @override
+  String get taskList => 'Aufgabenliste';
+
+  @override
+  String get noTasks => 'Keine Aufgaben';
+
+  @override
+  String get noTasksHint =>
+      'Geben Sie Designanforderungen im Chat ein; Aufgaben erscheinen hier.';
+
+  @override
+  String installed(Object count) {
+    return 'Installiert ($count)';
+  }
+
+  @override
+  String available(Object count) {
+    return 'Verfügbar ($count)';
+  }
+
+  @override
+  String get install => 'Installieren';
+
+  @override
+  String get uninstall => 'Deinstallieren';
+
+  @override
+  String installSuccess(Object name) {
+    return '$name erfolgreich installiert';
+  }
+
+  @override
+  String uninstallSuccess(Object name) {
+    return '$name deinstalliert';
+  }
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get errorPrefix => 'Fehler';
+
+  @override
+  String get echoPrefix => 'Echo';
+
+  @override
+  String get taskCompleted => 'Aufgabe abgeschlossen';
+
+  @override
+  String get taskFailed => 'Aufgabe fehlgeschlagen';
+
+  @override
+  String get noOutput => '(keine Ausgabe)';
+
+  @override
+  String get unknownError => 'Unbekannter Fehler';
+
+  @override
+  String get languageInstruction => 'Bitte antworten Sie auf Deutsch.';
+}
