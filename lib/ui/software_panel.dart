@@ -43,7 +43,7 @@ class SoftwarePanel extends StatelessWidget {
   }
 
   Widget _buildSoftwareCard(BuildContext context, DesignPlugin plugin) {
-    final status = connectionStatus?[plugin.id];
+    final status = connectionStatus?[plugin.id] ?? false;
     final icon = softwareIcons[plugin.id] ?? '🔌';
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -74,18 +74,7 @@ class SoftwarePanel extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusIndicator(bool? connected) {
-    if (connected == null) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: Colors.orange.shade50,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.orange.shade200),
-        ),
-        child: Text('检测中...', style: TextStyle(fontSize: 12, color: Colors.orange.shade700)),
-      );
-    }
+  Widget _buildStatusIndicator(bool connected) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(

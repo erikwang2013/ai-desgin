@@ -107,6 +107,7 @@ class CCRunner {
           if (model != null) 'CLAUDE_DEFAULT_MODEL': model,
         },
       );
+      _currentProcess?.kill();
       _currentProcess = process;
 
       process.stdin.write(prompt);

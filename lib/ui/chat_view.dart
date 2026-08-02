@@ -135,9 +135,7 @@ class _ChatViewState extends State<ChatView> {
                 value: widget.selectedSoftware.isNotEmpty &&
                         widget.softwareOptions.any((o) => o.id == widget.selectedSoftware)
                     ? widget.selectedSoftware
-                    : widget.softwareOptions.isNotEmpty
-                        ? widget.softwareOptions.first.id
-                        : null,
+                    : widget.softwareOptions.first.id,
                 isDense: true,
                 style: const TextStyle(fontSize: 13, color: Colors.black87),
                 items: widget.softwareOptions.map((opt) {
