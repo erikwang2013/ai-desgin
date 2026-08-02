@@ -2,6 +2,12 @@
 members = ["core", "plugins/figma", "plugins/blender", "plugins/autocad", "plugins/photoshop", "plugins/fusion360", "plugins/solidworks", "plugins/tinkercad", "plugins/meshy", "plugins/chitubox", "plugins/lychee", "plugins/freecad", "plugins/openscad", "plugins/rhino", "plugins/cura", "plugins/prusaslicer", "plugins/orcaslicer", "plugins/simplify3d", "plugins/illustrator", "plugins/sketch", "plugins/revit", "plugins/sketchup", "plugins/maya", "plugins/3dsmax", "plugins/cinema4d", "plugins/indesign", "plugins/zw3d", "plugins/3done", "plugins/voxeldance", "plugins/happy3d", "plugins/maodou3d", "plugins/makerlab", "plugins/crealitycloud", "plugins/flashprint", "plugins/flashstudio", "plugins/snapmakerluban", "plugins/snapmakerorca", "plugins/buildplanner", "plugins/flashdental", "plugins/waxjetprint"]
 resolver = "2"
 
+# Adobe CC plugins (Dart stub only, Rust crates not yet implemented):
+# aftereffects premierepro xd lightroom animate audition dreamweaver
+# characteranimator fresco dimension bridge acrobat substancepainter
+# substancedesigner substancesampler substancestager substancemodeler
+# mediaencoder incopy express
+
 [workspace.package]
-version = "1.1.9"
+version = "1.2.0"
 edition = "2021"

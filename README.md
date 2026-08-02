@@ -486,6 +486,26 @@ routes:
 | `MESHY_API_KEY` | Meshy AI 3D 模型生成 API 密钥 |
 | `TINKERCAD_ACCESS_TOKEN` | Tinkercad API 访问令牌 |
 
+## 支持项目
+
+如果这个项目对你有帮助，欢迎支持开发者 ☕
+
+<p align="center">
+  <table align="center">
+    <tr>
+      <td align="center" width="200">
+        <img src="docs/alipay.png" width="130" height="130" alt="支付宝"><br>
+        <b>支付宝</b>
+      </td>
+      <td align="center" width="200">
+        <img src="docs/weixinpay.png" width="130" height="130" alt="微信支付"><br>
+        <b>微信支付</b>
+      </td>
+    </tr>
+  </table>
+</p>
+
+
 ## 许可证
 
 MIT

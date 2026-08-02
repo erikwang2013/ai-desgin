@@ -2,11 +2,11 @@
 # scripts/release.sh — Create release packages
 set -e
 
-VERSION=$(grep '^version:' ../pubspec.yaml | awk '{print $2}')
-RELEASE_DIR="../release/$VERSION"
-mkdir -p "$RELEASE_DIR"
-
 cd "$(dirname "$0")/.."
+
+VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}')
+RELEASE_DIR="release/$VERSION"
+mkdir -p "$RELEASE_DIR"
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
     echo "--- Creating macOS .app bundle ---"
