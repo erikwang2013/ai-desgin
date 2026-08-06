@@ -183,30 +183,33 @@ class _MainShellState extends State<_MainShell> {
       // Non-critical; app works without persistence
     }
 
-    for (final p in _pluginManager.getAll()) {
-      _connectionStatus[p.id] = false;
-    }
-
-    final executor = LocalScriptExecutor.instance;
-    if (executor != null) {
-      final probes = <String, Future<bool>>{};
-      for (final p in _pluginManager.getAll()) {
-        if (executor.hasCommand(p.id)) {
-          probes[p.id] = executor.checkAvailable(p.id);
-        }
-      }
-      final results = await Future.wait(probes.values);
-      if (mounted) {
-        setState(() => _connectionStatus.addAll(
-          Map<String, bool>.fromIterables(probes.keys, results),
-        ));
-      }
-    }
+    await _runConnectionProbes();
 
     _currentSoftware = _defaultSoftwareFor(_currentDomain);
     _lastSoftwarePerDomain[_currentDomain] = _currentSoftware;
 
     if (mounted) setState(() => _ready = true);
+  }
+
+  /// Probe CLI availability for every plugin and publish connection status.
+  Future<void> _runConnectionProbes() async {
+    for (final p in _pluginManager.getAll()) {
+      _connectionStatus[p.id] = false;
+    }
+    final executor = LocalScriptExecutor.instance;
+    if (executor == null) return;
+    final probes = <String, Future<bool>>{};
+    for (final p in _pluginManager.getAll()) {
+      if (executor.hasCommand(p.id)) {
+        probes[p.id] = executor.checkAvailable(p.id);
+      }
+    }
+    final results = await Future.wait(probes.values);
+    if (mounted) {
+      setState(() => _connectionStatus.addAll(
+        Map<String, bool>.fromIterables(probes.keys, results),
+      ));
+    }
   }
 
   void _onTabSelected(int tab) => setState(() => _currentTab = tab);
@@ -239,6 +242,17 @@ class _MainShellState extends State<_MainShell> {
     return sw;
   }
 
+  /// Cancel a task and persist the cancellation so it survives a restart.
+  void _cancelAndPersist(String id) {
+    _orchestrator.cancelTask(id);
+    final record = _orchestrator.getTask(id);
+    final session =
+        record == null ? null : _orchestrator.getCurrentSession(record.sessionId);
+    if (session != null && _sessionStore != null) {
+      _sessionStore!.save(session).catchError((_) {});
+    }
+  }
+
   Future<String> _onSubmit(String task) async {
     final sw = _resolveSoftware();
     final result = await _orchestrator.submitTask(
@@ -266,6 +280,9 @@ class _MainShellState extends State<_MainShell> {
     final l10n = AppLocalizations.of(context);
     if (result.status == TaskStatus.completed) {
       return '✅ ${l10n?.taskCompleted ?? 'Task completed'}\n\n${result.script ?? l10n?.noOutput ?? '(no output)'}';
+    }
+    if (result.status == TaskStatus.cancelled) {
+      return '⚠️ ${result.task} — ${l10n?.cancel ?? 'Cancelled'}';
     }
     return '❌ ${l10n?.taskFailed ?? 'Task failed'}: ${result.error ?? l10n?.unknownError ?? 'Unknown error'}';
   }
@@ -317,12 +334,13 @@ class _MainShellState extends State<_MainShell> {
           TaskDashboard(
             key: _dashboardKey,
             sessionStore: _sessionStore,
-            onCancel: _ready ? _orchestrator.cancelTask : null,
+            onCancel: _ready ? _cancelAndPersist : null,
             resolveSoftwareName: (id) => _pluginManager.get(id)?.name ?? id,
           ),
           SoftwarePanel(
             pluginManager: _pluginManager,
             connectionStatus: _connectionStatus,
+            onRefresh: _ready ? _runConnectionProbes : null,
           ),
         ],
       ),

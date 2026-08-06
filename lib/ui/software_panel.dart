@@ -10,8 +10,9 @@ import 'plugin_marketplace.dart';
 class SoftwarePanel extends StatefulWidget {
   final PluginManager pluginManager;
   final Map<String, bool>? connectionStatus;
+  final Future<void> Function()? onRefresh;
 
-  const SoftwarePanel({super.key, required this.pluginManager, this.connectionStatus});
+  const SoftwarePanel({super.key, required this.pluginManager, this.connectionStatus, this.onRefresh});
 
   @override
   State<SoftwarePanel> createState() => _SoftwarePanelState();
@@ -57,6 +58,12 @@ class _SoftwarePanelState extends State<SoftwarePanel> {
             children: [
               Text(l10n?.installedPlugins ?? 'Installed Plugins', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const Spacer(),
+              if (widget.onRefresh != null)
+                IconButton(
+                  icon: const Icon(Icons.refresh, size: 20),
+                  tooltip: 'Refresh connection status',
+                  onPressed: () => widget.onRefresh!(),
+                ),
               TextButton.icon(
                 icon: const Icon(Icons.add, size: 18),
                 label: Text(l10n?.installPlugin ?? 'Install Plugin'),

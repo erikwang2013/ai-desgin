@@ -53,4 +53,26 @@ void main() {
     expect(find.text('Blender'), findsOneWidget);
     expect(find.text('Figma'), findsNothing);
   });
+
+  testWidgets('Software panel refresh button re-runs connection probes', (tester) async {
+    var refreshCalls = 0;
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: SoftwarePanel(
+          pluginManager: _createTestPluginManager(),
+          onRefresh: () async => refreshCalls++,
+        ),
+      ),
+    ));
+
+    expect(find.byIcon(Icons.refresh), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.refresh));
+    await tester.pump();
+    expect(refreshCalls, 1);
+  });
+
+  testWidgets('Software panel hides refresh button without onRefresh', (tester) async {
+    await pumpPanel(tester);
+    expect(find.byIcon(Icons.refresh), findsNothing);
+  });
 }

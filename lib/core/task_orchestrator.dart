@@ -222,6 +222,7 @@ class TaskOrchestrator {
     if (queueIndex >= 0) {
       final queued = _taskQueue.removeAt(queueIndex);
       _tasks[taskId] = cancelled;
+      _recordCancelledInSession(task);
       if (!queued.completer.isCompleted) {
         queued.completer.complete(cancelled);
       }
@@ -232,6 +233,21 @@ class TaskOrchestrator {
       _ccRunner.cancel(key: taskId);
     }
     _tasks[taskId] = cancelled;
+    _recordCancelledInSession(task);
+  }
+
+  /// Persist the cancellation in the session history so cancelled tasks
+  /// survive a restart (running records are only added on completion).
+  void _recordCancelledInSession(TaskRecord task) {
+    final session = _sessions[task.sessionId];
+    if (session == null) return;
+    session.addRecord(
+      task: task.task,
+      script: task.script ?? '',
+      scriptLanguage: task.scriptLanguage ?? 'text',
+      modelUsed: task.modelUsed ?? '',
+      status: TaskStatus.cancelled,
+    );
   }
 
   int get activeTaskCount => _activeCount;

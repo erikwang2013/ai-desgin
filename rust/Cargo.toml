@@ -9,5 +9,5 @@ resolver = "2"
 # mediaencoder incopy express
 
 [workspace.package]
-version = "1.2.8"
+version = "1.2.9"
 edition = "2021"

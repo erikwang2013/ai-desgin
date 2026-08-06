@@ -84,7 +84,7 @@
 | v22 | 卸载插件市场消失 / 启动不恢复 / cancel 无 UI | ✅ v22.1 已修 |
 | v23 | 7 P2 + 6 P3（失败路径按失败处理） | ✅ v23.1 已修 |
 | v24 | Rust 23 处无超时 / 卡片显示软件 id / README 桥接声明 | ✅ v24.1 已修 |
-| 本会话意外 | 版本回归：`pubspec.yaml` 与 `rust/Cargo.toml` 从提交值 1.4.0 被降为 1.2.7（`git log -S` 确认 1.2.7 从未出现在任何提交中，属本会话误改） | ✅ 已恢复 1.4.0，Cargo.lock 重生成后与 HEAD 一致（0 diff） |
+| 本会话意外 | 版本回归：提交 `ed55c02` 误将 `lib/core/version.dart` 降为 1.2.7（与 pubspec/Cargo.toml 的 1.4.0 不一致） | ✅ 提交 `80854bc` 统一为 **1.2.8**：version.dart / pubspec.yaml / Cargo.toml / Cargo.lock 四处一致（HEAD 自洽；Cargo.lock 中仅剩的 1.4.0 属第三方 `cc` crate，正常） |
 
 ### 图片同步（本版本）
 

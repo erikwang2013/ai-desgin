@@ -206,6 +206,26 @@ void main() {
     expect(orchestrator.getTask(running.id)?.status, TaskStatus.cancelled);
   });
 
+  test('cancelTask records cancelled entry in session history', () async {
+    final release = Completer<void>();
+    pluginManager.register(GatedEchoPlugin(release: release));
+    final future = orchestrator.submitTask(domain: DesignCategory.web, softwareName: 'gated', task: 'cancel me');
+    await pumpEventQueue();
+    final running = orchestrator.tasks.firstWhere((t) => t.task == 'cancel me');
+    expect(running.status, TaskStatus.running);
+
+    orchestrator.cancelTask(running.id);
+    release.complete();
+    final result = await future;
+    expect(result.status, TaskStatus.cancelled);
+
+    final session = orchestrator.getCurrentSession('gated');
+    expect(session, isNotNull);
+    final cancelledRecords = session!.history.where((r) => r.status == TaskStatus.cancelled);
+    expect(cancelledRecords, hasLength(1));
+    expect(cancelledRecords.first.task, 'cancel me');
+  });
+
   test('cancelling a running task skips local script execution', () async {
     final counting = CountingEchoPlugin();
     pluginManager.register(counting);
