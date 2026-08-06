@@ -17,10 +17,14 @@
   "proxySettingsDesc": "ネットワークプロキシを設定",
   "about": "について",
   "aboutVersion": "AI Design v{version}",
-  "@aboutVersion": { "placeholders": { "version": {} } },
+  "@aboutVersion": {
+    "placeholders": {
+      "version": {}
+    }
+  },
   "comingSoon": "近日公開",
   "aboutDescription1": "AI駆動のデザインソフトウェア自動化ツール。",
-  "aboutDescription2": "6つのデザイン分野、50以上の主要デザインソフトウェアに対応するAIスクリプト生成と実行。",
+  "aboutDescription2": "6つのデザイン分野、62以上の主要デザインソフトウェアに対応するAIスクリプト生成と実行。",
   "installedPlugins": "インストール済みプラグイン",
   "installPlugin": "プラグインをインストール",
   "connected": "接続済み",
@@ -32,15 +36,31 @@
   "noTasks": "タスクなし",
   "noTasksHint": "チャットパネルにデザイン要件を入力すると、タスクがここに表示されます。",
   "installed": "インストール済み ({count})",
-  "@installed": { "placeholders": { "count": {} } },
+  "@installed": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "available": "インストール可能 ({count})",
-  "@available": { "placeholders": { "count": {} } },
+  "@available": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "install": "インストール",
   "uninstall": "アンインストール",
   "installSuccess": "{name} インストール成功",
-  "@installSuccess": { "placeholders": { "name": {} } },
+  "@installSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "uninstallSuccess": "{name} アンインストール済み",
-  "@uninstallSuccess": { "placeholders": { "name": {} } },
+  "@uninstallSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "ok": "OK",
   "errorPrefix": "エラー",
   "echoPrefix": "Echo",
@@ -48,5 +68,38 @@
   "taskFailed": "タスク失敗",
   "noOutput": "(出力なし)",
   "unknownError": "不明なエラー",
-  "languageInstruction": "日本語で返信してください。"
+  "languageInstruction": "日本語で返信してください。",
+  "language": "言語",
+  "apiEndpoint": "API エンドポイント",
+  "apiKey": "API キー",
+  "defaultModel": "デフォルトモデル",
+  "save": "保存",
+  "proxyHost": "プロキシホスト",
+  "proxyPort": "プロキシポート",
+  "saveSuccess": "保存しました",
+  "history": "履歴",
+  "searchPlugins": "プラグインを検索...",
+  "@searchPlugins": {
+    "description": "Localized label for searchPlugins"
+  },
+  "autoExecute": "自動",
+  "@autoExecute": {
+    "description": "Localized label for autoExecute"
+  },
+  "manualExecute": "手動",
+  "@manualExecute": {
+    "description": "Localized label for manualExecute"
+  },
+  "copied": "コピーしました",
+  "@copied": {
+    "description": "Localized label for copied"
+  },
+  "copy": "コピー",
+  "@copy": {
+    "description": "Localized label for copy"
+  },
+  "close": "閉じる",
+  "@close": {
+    "description": "Localized label for close"
+  }
 }

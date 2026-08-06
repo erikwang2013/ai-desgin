@@ -17,10 +17,14 @@
   "proxySettingsDesc": "네트워크 프록시 구성",
   "about": "정보",
   "aboutVersion": "AI Design v{version}",
-  "@aboutVersion": { "placeholders": { "version": {} } },
+  "@aboutVersion": {
+    "placeholders": {
+      "version": {}
+    }
+  },
   "comingSoon": "곧 출시",
   "aboutDescription1": "AI 기반 디자인 소프트웨어 자동화 도구.",
-  "aboutDescription2": "6개 디자인 분야와 50개 이상의 주요 디자인 소프트웨어를 위한 AI 스크립트 생성 및 실행.",
+  "aboutDescription2": "6개 디자인 분야와 62개 이상의 주요 디자인 소프트웨어를 위한 AI 스크립트 생성 및 실행.",
   "installedPlugins": "설치된 플러그인",
   "installPlugin": "플러그인 설치",
   "connected": "연결됨",
@@ -32,15 +36,31 @@
   "noTasks": "작업 없음",
   "noTasksHint": "채팅 패널에 디자인 요구사항을 입력하면 작업이 여기에 표시됩니다.",
   "installed": "설치됨 ({count})",
-  "@installed": { "placeholders": { "count": {} } },
+  "@installed": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "available": "설치 가능 ({count})",
-  "@available": { "placeholders": { "count": {} } },
+  "@available": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "install": "설치",
   "uninstall": "제거",
   "installSuccess": "{name} 설치 성공",
-  "@installSuccess": { "placeholders": { "name": {} } },
+  "@installSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "uninstallSuccess": "{name} 제거됨",
-  "@uninstallSuccess": { "placeholders": { "name": {} } },
+  "@uninstallSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "ok": "확인",
   "errorPrefix": "오류",
   "echoPrefix": "Echo",
@@ -48,5 +68,38 @@
   "taskFailed": "작업 실패",
   "noOutput": "(출력 없음)",
   "unknownError": "알 수 없는 오류",
-  "languageInstruction": "한국어로 답변해 주세요."
+  "languageInstruction": "한국어로 답변해 주세요.",
+  "language": "언어",
+  "apiEndpoint": "API 엔드포인트",
+  "apiKey": "API 키",
+  "defaultModel": "기본 모델",
+  "save": "저장",
+  "proxyHost": "프록시 호스트",
+  "proxyPort": "프록시 포트",
+  "saveSuccess": "저장됨",
+  "history": "기록",
+  "searchPlugins": "플러그인 검색...",
+  "@searchPlugins": {
+    "description": "Localized label for searchPlugins"
+  },
+  "autoExecute": "자동",
+  "@autoExecute": {
+    "description": "Localized label for autoExecute"
+  },
+  "manualExecute": "수동",
+  "@manualExecute": {
+    "description": "Localized label for manualExecute"
+  },
+  "copied": "복사됨",
+  "@copied": {
+    "description": "Localized label for copied"
+  },
+  "copy": "복사",
+  "@copy": {
+    "description": "Localized label for copy"
+  },
+  "close": "닫기",
+  "@close": {
+    "description": "Localized label for close"
+  }
 }

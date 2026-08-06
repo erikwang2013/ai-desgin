@@ -70,7 +70,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get aboutDescription2 =>
-      'پوشش 6 حوزه طراحی و بیش از 50 نرم‌افزار طراحی با تولید و اجرای اسکریپت هوش مصنوعی.';
+      'پوشش 6 حوزه طراحی و بیش از 62 نرم‌افزار طراحی با تولید و اجرای اسکریپت هوش مصنوعی.';
 
   @override
   String get installedPlugins => 'افزونه‌های نصب شده';
@@ -152,4 +152,49 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get languageInstruction => 'لطفاً به فارسی پاسخ دهید.';
+
+  @override
+  String get language => 'زبان';
+
+  @override
+  String get apiEndpoint => 'نقطه پایانی API';
+
+  @override
+  String get apiKey => 'کلید API';
+
+  @override
+  String get defaultModel => 'مدل پیش‌فرض';
+
+  @override
+  String get save => 'ذخیره';
+
+  @override
+  String get proxyHost => 'میزبان پروکسی';
+
+  @override
+  String get proxyPort => 'پورت پروکسی';
+
+  @override
+  String get saveSuccess => 'با موفقیت ذخیره شد';
+
+  @override
+  String get history => 'تاریخچه';
+
+  @override
+  String get searchPlugins => 'جستجوی افزونهها...';
+
+  @override
+  String get autoExecute => 'خودکار';
+
+  @override
+  String get manualExecute => 'دستی';
+
+  @override
+  String get copied => 'کپی شد';
+
+  @override
+  String get copy => 'کپی';
+
+  @override
+  String get close => 'بستن';
 }

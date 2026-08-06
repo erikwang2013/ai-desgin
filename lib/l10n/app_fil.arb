@@ -17,10 +17,14 @@
   "proxySettingsDesc": "I-configure ang network proxy",
   "about": "Tungkol Sa",
   "aboutVersion": "AI Design v{version}",
-  "@aboutVersion": { "placeholders": { "version": {} } },
+  "@aboutVersion": {
+    "placeholders": {
+      "version": {}
+    }
+  },
   "comingSoon": "Malapit Na",
   "aboutDescription1": "Isang AI-driven na tool sa automation ng design software.",
-  "aboutDescription2": "Sakop ang 6 na domain ng disenyo at 50+ pangunahing design software gamit ang AI script generation.",
+  "aboutDescription2": "Sakop ang 6 na domain ng disenyo at 62+ pangunahing design software gamit ang AI script generation.",
   "installedPlugins": "Mga Naka-install na Plugin",
   "installPlugin": "Mag-install ng Plugin",
   "connected": "Nakakonekta",
@@ -32,15 +36,31 @@
   "noTasks": "Walang Gawain",
   "noTasksHint": "Ilagay ang mga kinakailangan sa disenyo sa chat panel; lalabas dito ang mga gawain.",
   "installed": "Naka-install ({count})",
-  "@installed": { "placeholders": { "count": {} } },
+  "@installed": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "available": "Available ({count})",
-  "@available": { "placeholders": { "count": {} } },
+  "@available": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "install": "I-install",
   "uninstall": "I-uninstall",
   "installSuccess": "Matagumpay na na-install ang {name}",
-  "@installSuccess": { "placeholders": { "name": {} } },
+  "@installSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "uninstallSuccess": "Na-uninstall ang {name}",
-  "@uninstallSuccess": { "placeholders": { "name": {} } },
+  "@uninstallSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "ok": "OK",
   "errorPrefix": "Error",
   "echoPrefix": "Echo",
@@ -48,5 +68,38 @@
   "taskFailed": "Nabigo ang gawain",
   "noOutput": "(walang output)",
   "unknownError": "Hindi kilalang error",
-  "languageInstruction": "Mangyaring tumugon sa wikang Filipino."
+  "languageInstruction": "Mangyaring tumugon sa wikang Filipino.",
+  "language": "Wika",
+  "apiEndpoint": "API Endpoint",
+  "apiKey": "API Key",
+  "defaultModel": "Default na Modelo",
+  "save": "I-save",
+  "proxyHost": "Proxy Host",
+  "proxyPort": "Proxy Port",
+  "saveSuccess": "Matagumpay na na-save",
+  "history": "Kasaysayan",
+  "searchPlugins": "Maghanap ng mga plugin...",
+  "@searchPlugins": {
+    "description": "Localized label for searchPlugins"
+  },
+  "autoExecute": "Auto",
+  "@autoExecute": {
+    "description": "Localized label for autoExecute"
+  },
+  "manualExecute": "Manual",
+  "@manualExecute": {
+    "description": "Localized label for manualExecute"
+  },
+  "copied": "Nakopya",
+  "@copied": {
+    "description": "Localized label for copied"
+  },
+  "copy": "Kopyahin",
+  "@copy": {
+    "description": "Localized label for copy"
+  },
+  "close": "Isara",
+  "@close": {
+    "description": "Localized label for close"
+  }
 }

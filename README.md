@@ -17,7 +17,8 @@ AI Design是一个支持 **Windows** 和 **macOS** 的桌面应用，通过内�
   ↓
 Claude Code 分析任务 → 选择最优模型 → 生成 Figma JavaScript 脚本
   ↓
-Rust 插件注入脚本 → Figma 执行 → 返回结果
+执行层 (LocalScriptExecutor / CLI) → 设计软件执行 → 返回结果
+  （无 CLI 的软件：生成脚本并提示手动执行）
 ```
 
 ## 架构设计
@@ -35,7 +36,7 @@ Rust 插件注入脚本 → Figma 执行 → 返回结果
 +------------------------------------------+
 |  插件层 (Built-in Plugins)                |
 |  Figma · Blender · AutoCAD · Photoshop   |
-|  (50 个内置设计软件插件)                    |
+|  (62 个内置设计软件插件)                    |
 +------------------------------------------+
 ```
 
@@ -71,16 +72,20 @@ Rust 插件注入脚本 → Figma 执行 → 返回结果
 
 ### 插件架构
 
-每个设计软件作为内置 `BuiltInPlugin` 实例，实现统一的 `DesignPlugin` 接口：
+每个设计软件作为内置 `BuiltInPlugin` 实例，实现统一的 `DesignPlugin` 接口。脚本生成后由执行层分发：
 
 ```
 Dart (接口定义)  →  PluginManager  →  BuiltInPlugin (脚本生成)
                                                     |
-                 +------------------------------+--------------------------+
-                 v                              v                          v
-           figma_plugin                  blender_plugin              autocad_plugin
-            (REST API)                    (Python bpy)                (AutoLISP)
+                          +-------------------------+--------------------------+
+                          v                         v                          v
+                 LocalScriptExecutor          CLI 直接执行               手动执行提示
+                 (Blender/FreeCAD/           (3 个 headless 插件)        (无 CLI 的软件：
+                  OpenSCAD 脚本执行)                                      生成脚本供复制)
 ```
+
+- CLI 直接执行（Blender、FreeCAD、OpenSCAD）：`LocalScriptExecutor` 自动检测可执行文件并直接运行脚本，软件面板显示 Auto 徽标与实时连接状态。
+- 手动执行（Figma、Photoshop、切片器等 59 个）：诚实回退 —— 生成脚本并提示在软件中手动执行，软件面板显示 Manual 徽标。切片器 CLI 只接受模型文件而非脚本，故不列入自动执行。
 
 ### 模型路由
 
@@ -113,8 +118,10 @@ ai-desgin/
 |   |   +-- model_router.dart              # 模型路由引擎
 |   |   +-- cc_process_manager.dart        # Claude Code 会话管理
 |   |   +-- cc_runner.dart                 # Claude Code 子进程通信
+|   |   +-- local_script_executor.dart     # 本地 CLI 脚本执行层
 |   |   +-- task_orchestrator.dart         # 任务编排引擎
 |   |   +-- session_store.dart             # SQLite 会话持久化
+|   |   +-- locale_provider.dart           # 12 语言切换与持久化
 |   |   +-- builtin_plugins.dart             # 内置插件注册表（单一数据源）
 |   +-- ui/
 |       +-- shell.dart                     # 侧边栏 + 页面布局
@@ -176,12 +183,12 @@ ai-desgin/
 |       +-- voxeldance/                    # VoxelDance Additive
 |       +-- happy3d/                       # Happy3D (Python)
 |       +-- maodou3d/                      # 毛豆科技3D建模 (Python)
-|       +-- cura/                          # Cura (CLI)
-|       +-- prusaslicer/                   # PrusaSlicer (CLI)
-|       +-- orcaslicer/                    # OrcaSlicer (CLI)
-|       +-- simplify3d/                    # Simplify3D (CLI)
-|       +-- chitubox/                      # ChiTuBox (CLI)
-|       +-- lychee/                        # Lychee (CLI)
+|       +-- cura/                          # Cura (CLI，仅模型文件 — 脚本手动执行)
+|       +-- prusaslicer/                   # PrusaSlicer (CLI，仅模型文件 — 脚本手动执行)
+|       +-- orcaslicer/                    # OrcaSlicer (CLI，仅模型文件 — 脚本手动执行)
+|       +-- simplify3d/                    # Simplify3D (CLI，仅模型文件 — 脚本手动执行)
+|       +-- chitubox/                      # ChiTuBox (CLI，仅模型文件 — 脚本手动执行)
+|       +-- lychee/                        # Lychee (CLI，仅模型文件 — 脚本手动执行)
 |       +-- makerlab/                      # MakerLab (Python)
 |       +-- crealitycloud/                 # Creality Cloud (Python)
 |       +-- flashprint/                    # FlashPrint (Python)
@@ -197,7 +204,7 @@ ai-desgin/
 |   +-- build.sh                           # Unix 构建
 |   +-- build_windows.bat                  # Windows 构建
 |   +-- release.sh                         # 发布打包
-+-- test/                                  # Dart 测试 (39 tests)
++-- test/                                  # Dart 测试 (72 tests)
 +-- docs/
     +-- test-report-2026-07-31.md          # 测试报告
     +-- review-report-2026-07-31.md        # 审查报告
@@ -250,11 +257,11 @@ cd rust && cargo clippy       # Rust lint 检查
 | 检查项 | 状态 |
 |--------|------|
 | `flutter analyze` | No issues found |
-| `flutter test` | 49 tests passed |
-| `cargo build` | 40 crates compiled |
+| `flutter test` | 72 tests passed |
+| `cargo check` | 40 crates compiled |
 | `cargo clippy` | 0 warnings |
 
-详细报告：[审查报告 v5](docs/review-report-2026-07-31-v5.md) | [审查报告 v4](docs/review-report-2026-07-31-v4.md) | [测试报告](docs/test-report-2026-07-31.md)
+详细报告：[审查报告 v18](docs/review-report-2026-08-06-v18.md) | [审查报告 v17](docs/review-report-2026-08-06-v17.md) | [测试报告](docs/test-report-2026-07-31.md)
 
 ## 使用教程
 
@@ -267,10 +274,10 @@ cd rust && cargo clippy       # Rust lint 检查
 左侧边栏切换设计领域，AI 会根据领域自动选择合适的模型和控制策略：
 - **Web 设计** -> Figma、Sketch、Adobe XD、Dreamweaver、Express
 - **广告设计** -> Photoshop、Illustrator、InDesign、After Effects、Premiere Pro、Lightroom、Animate、Audition、Character Animator、Fresco、Bridge、Acrobat Pro、Media Encoder、InCopy
-- **工业设计** -> Fusion 360、SolidWorks、中望3D、VoxelDance Additive
-- **3D 设计** -> Blender、Maya、3ds Max、Cinema 4D、3D One、Happy3D、毛豆科技、Dimension、Substance 3D 系列
+- **工业设计** -> Fusion 360、SolidWorks、FreeCAD、OpenSCAD、Rhino、Tinkercad、中望3D、切片器系列
+- **3D 设计** -> Blender、Maya、3ds Max、Cinema 4D、3D One、Happy3D、毛豆科技、Meshy、Dimension、Substance 3D 系列
 - **建筑设计** -> AutoCAD、Revit
-- **装修设计** -> SketchUp
+- **装修设计** -> SketchUp、酷家乐、三维家、圆方
 
 ### 第三步：描述需求
 
@@ -449,7 +456,15 @@ AI 生成脚本后会展示预览，确认无误后点击执行。执行结果�
 | FlashDental | Python API | Win | 已支持 |
 | WaxJetPrint | Python API | Win | 已支持 |
 
-**总计：59 个已支持软件**
+### 装修设计（3 个）
+
+| 软件 | 控制方式 | 平台 | 状态 |
+|------|---------|------|------|
+| 酷家乐 | JavaScript API | Web | 已支持 |
+| 三维家 | Python API | Web | 已支持 |
+| 圆方 | Python API | Win | 已支持 |
+
+**总计：62 个已支持软件**
 
 ## 开发指南
 

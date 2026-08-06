@@ -235,7 +235,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutDescription2.
   ///
   /// In en, this message translates to:
-  /// **'Covers 6 design domains and 50+ mainstream design software with AI-driven script generation and execution.'**
+  /// **'Covers 6 design domains and 62+ mainstream design software with AI-driven script generation and execution.'**
   String get aboutDescription2;
 
   /// No description provided for @installedPlugins.
@@ -381,6 +381,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please respond in English.'**
   String get languageInstruction;
+
+  /// No description provided for @language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get language;
+
+  /// No description provided for @apiEndpoint.
+  ///
+  /// In en, this message translates to:
+  /// **'API Endpoint'**
+  String get apiEndpoint;
+
+  /// No description provided for @apiKey.
+  ///
+  /// In en, this message translates to:
+  /// **'API Key'**
+  String get apiKey;
+
+  /// No description provided for @defaultModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Default Model'**
+  String get defaultModel;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @proxyHost.
+  ///
+  /// In en, this message translates to:
+  /// **'Proxy Host'**
+  String get proxyHost;
+
+  /// No description provided for @proxyPort.
+  ///
+  /// In en, this message translates to:
+  /// **'Proxy Port'**
+  String get proxyPort;
+
+  /// No description provided for @saveSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved successfully'**
+  String get saveSuccess;
+
+  /// No description provided for @history.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get history;
+
+  /// Localized label for searchPlugins
+  ///
+  /// In en, this message translates to:
+  /// **'Search plugins...'**
+  String get searchPlugins;
+
+  /// Localized label for autoExecute
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get autoExecute;
+
+  /// Localized label for manualExecute
+  ///
+  /// In en, this message translates to:
+  /// **'Manual'**
+  String get manualExecute;
+
+  /// Localized label for copied
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get copied;
+
+  /// Localized label for copy
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get copy;
+
+  /// Localized label for close
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
 }
 
 class _AppLocalizationsDelegate

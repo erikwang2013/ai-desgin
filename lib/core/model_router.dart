@@ -77,6 +77,12 @@ class ModelRouter {
     }
   }
 
+  String get defaultModel => _defaultModel;
+
+  void setDefaultModel(String model) {
+    _defaultModel = model;
+  }
+
   String route({
     required DesignCategory domain,
     required String task,

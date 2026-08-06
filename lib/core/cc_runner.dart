@@ -40,8 +40,20 @@ class CCResult {
 }
 
 class CCRunner {
+  /// Proxy env vars (e.g. HTTP_PROXY/HTTPS_PROXY) applied to CLI subprocesses.
+  static Map<String, String>? proxyEnvironment;
+
+  /// Optional Anthropic-compatible API base URL (overrides CLI defaults).
+  static String? apiBaseUrl;
+
+  /// Optional API key (ANTHROPIC_AUTH_TOKEN) for the configured endpoint.
+  static String? apiAuthToken;
+
+  /// Response-language instruction injected into prompts (from locale).
+  static String? responseLanguage;
+
   final String? claudeCliPath;
-  Process? _currentProcess;
+  final Map<String, Process> _processes = {};
   bool? _cachedAvailable;
   DateTime? _lastAvailabilityCheck;
 
@@ -51,9 +63,16 @@ class CCRunner {
 
   String get _cliPath => claudeCliPath ?? 'claude';
 
-  void cancel() {
-    _currentProcess?.kill();
-    _currentProcess = null;
+  /// Kill the process for [key]; without a key, kill all tracked processes.
+  void cancel({String? key}) {
+    if (key != null) {
+      _processes.remove(key)?.kill();
+      return;
+    }
+    for (final p in _processes.values) {
+      p.kill();
+    }
+    _processes.clear();
   }
 
   /// Check if Claude Code CLI is available (cached for 60s)
@@ -80,7 +99,8 @@ class CCRunner {
     return _cachedAvailable!;
   }
 
-  /// Send a design task to Claude Code and get back a generated script
+  /// Send a design task to Claude Code and get back a generated script.
+  /// [key] identifies the task so it can be cancelled independently.
   Future<CCResult> execute({
     required String task,
     required String software,
@@ -88,6 +108,7 @@ class CCRunner {
     required Map<String, dynamic> state,
     String? model,
     String? scriptLanguage,
+    String? key,
   }) async {
     final prompt = _buildPrompt(
       task: task,
@@ -105,10 +126,14 @@ class CCRunner {
         environment: {
           ...Platform.environment,
           if (model != null) 'CLAUDE_DEFAULT_MODEL': model,
+          if (apiBaseUrl != null && apiBaseUrl!.isNotEmpty) 'ANTHROPIC_BASE_URL': apiBaseUrl!,
+          if (apiAuthToken != null && apiAuthToken!.isNotEmpty) 'ANTHROPIC_AUTH_TOKEN': apiAuthToken!,
+          ...?proxyEnvironment,
         },
       );
-      _currentProcess?.kill();
-      _currentProcess = process;
+      final taskKey = key ?? 'default';
+      _processes.remove(taskKey)?.kill();
+      _processes[taskKey] = process;
 
       process.stdin.write(prompt);
       await process.stdin.flush();
@@ -118,7 +143,7 @@ class CCRunner {
         process.stdout.transform(utf8.decoder).join(),
         process.stderr.transform(utf8.decoder).join(),
       ]).timeout(const Duration(seconds: 120));
-      _currentProcess = null;
+      _processes.remove(taskKey);
       final output = results[0];
       final errors = results[1];
 
@@ -158,7 +183,8 @@ class CCRunner {
 
       return CCResult.failure('No output from Claude Code');
     } catch (e) {
-      _currentProcess = null;
+      // Kill the subprocess on timeout/error to avoid orphaned Claude CLI processes
+      _processes.remove(key ?? 'default')?.kill();
       _log.severe('Claude Code execution failed: $e');
       return CCResult.failure('Claude Code execution failed: $e');
     }
@@ -194,6 +220,9 @@ class CCRunner {
     final currentState = jsonEncode(state);
     final modelHint = model != null ? '\nMODEL: $model' : '';
     final langHint = _describeLanguage(scriptLanguage);
+    final languageHint = responseLanguage != null && responseLanguage!.isNotEmpty
+        ? '\n$responseLanguage'
+        : '';
 
     return '''
 You are controlling $software design software. Generate a script to accomplish the following task.
@@ -219,6 +248,7 @@ Output your response as JSON with these fields:
 - "script": the actual script code to execute
 - "explanation": brief explanation of what the script does (in Chinese)
 - "scriptLanguage": the scripting language used
+$languageHint
 ''';
   }
 
@@ -234,6 +264,14 @@ Output your response as JSON with these fields:
         return 'Ruby (SketchUp API)';
       case 'lua':
         return 'Lua (Lightroom SDK)';
+      case 'vba':
+        return 'VBA (SolidWorks / Office macro automation)';
+      case 'scad':
+        return 'OpenSCAD script (CSG modeling)';
+      case 'rest':
+        return 'REST API (web service automation)';
+      case 'cli':
+        return 'CLI command (slicer / headless automation)';
       default:
         return lang;
     }

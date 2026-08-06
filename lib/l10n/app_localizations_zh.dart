@@ -68,7 +68,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aboutDescription1 => '一款 AI 驱动的设计软件自动化工具。';
 
   @override
-  String get aboutDescription2 => '覆盖 6 大设计领域、50 款主流设计软件的 AI 驱动脚本生成与执行。';
+  String get aboutDescription2 => '覆盖 6 大设计领域、62 款主流设计软件的 AI 驱动脚本生成与执行。';
 
   @override
   String get installedPlugins => '已安装插件';
@@ -149,4 +149,49 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get languageInstruction => '请使用中文回复。';
+
+  @override
+  String get language => '语言';
+
+  @override
+  String get apiEndpoint => 'API 端点';
+
+  @override
+  String get apiKey => 'API 密钥';
+
+  @override
+  String get defaultModel => '默认模型';
+
+  @override
+  String get save => '保存';
+
+  @override
+  String get proxyHost => '代理主机';
+
+  @override
+  String get proxyPort => '代理端口';
+
+  @override
+  String get saveSuccess => '保存成功';
+
+  @override
+  String get history => '历史';
+
+  @override
+  String get searchPlugins => '搜索插件...';
+
+  @override
+  String get autoExecute => '自动执行';
+
+  @override
+  String get manualExecute => '手动执行';
+
+  @override
+  String get copied => '已复制';
+
+  @override
+  String get copy => '复制';
+
+  @override
+  String get close => '关闭';
 }

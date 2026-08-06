@@ -17,7 +17,8 @@ User: "Change all blue rectangles on the canvas to red"
   ↓
 Claude Code analyzes task → selects optimal model → generates Figma JS script
   ↓
-Rust plugin injects script → Figma executes → returns result
+Execution layer (LocalScriptExecutor / CLI) → software executes → returns result
+  (Software without CLI: script generated with manual-execution hint)
 ```
 
 ## Architecture
@@ -35,7 +36,7 @@ Rust plugin injects script → Figma executes → returns result
 +------------------------------------------+
 |  Plugin Layer (Built-in Plugins)          |
 |  Figma · Blender · AutoCAD · Photoshop   |
-|  (50 built-in design software plugins)    |
+|  (62 built-in design software plugins)    |
 +------------------------------------------+
 ```
 
@@ -71,16 +72,20 @@ User Input → TaskOrchestrator → CCProcessManager → Claude Code CLI
 
 ### Plugin Architecture
 
-Each design software is a built-in `BuiltInPlugin` instance implementing the unified `DesignPlugin` interface:
+Each design software is a built-in `BuiltInPlugin` instance implementing the unified `DesignPlugin` interface. Generated scripts are dispatched by the execution layer:
 
 ```
 Dart (interface)  →  PluginManager  →  BuiltInPlugin (script generation)
                                                     |
-                 +------------------------------+--------------------------+
-                 v                              v                          v
-           figma_plugin                  blender_plugin              autocad_plugin
-              (REST API)                    (Python bpy)                (AutoLISP)
+                          +-------------------------+--------------------------+
+                          v                         v                          v
+                 LocalScriptExecutor          CLI direct execution       manual-execution hint
+                 (Blender/FreeCAD/           (3 headless plugins)        (software without CLI:
+                  OpenSCAD script runs)                                   generate script to copy)
 ```
+
+- CLI direct execution (Blender, FreeCAD, OpenSCAD): `LocalScriptExecutor` auto-detects the executable and runs the script directly; the software panel shows an Auto badge with live connection status.
+- Manual execution (Figma, Photoshop, slicers, and 56 more — 59 plugins total): honest fallback — script generated with a manual-execution hint; the software panel shows a Manual badge. Slicer CLIs only accept model files rather than scripts, so they are not listed for automatic execution.
 
 ### Model Routing
 
@@ -114,7 +119,7 @@ ai-desgin/
 |   +-- ui/                                # UI pages
 +-- rust/
 |   +-- core/                              # Shared traits + types
-|   +-- plugins/                           # 59 software plugins
+|   +-- plugins/                           # 62 software plugins
 |       +-- figma/                         # Figma (REST API)
 |       +-- photoshop/                     # Photoshop (ExtendScript)
 |       +-- illustrator/                   # Illustrator (ExtendScript)
@@ -159,12 +164,12 @@ ai-desgin/
 |       +-- voxeldance/                    # VoxelDance Additive
 |       +-- happy3d/                       # Happy3D (Python)
 |       +-- maodou3d/                      # Maodou 3D (Python)
-|       +-- cura/                          # Cura (CLI)
-|       +-- prusaslicer/                   # PrusaSlicer (CLI)
-|       +-- orcaslicer/                    # OrcaSlicer (CLI)
-|       +-- simplify3d/                    # Simplify3D (CLI)
-|       +-- chitubox/                      # ChiTuBox (CLI)
-|       +-- lychee/                        # Lychee (CLI)
+|       +-- cura/                          # Cura (CLI, model files only — script runs manually)
+|       +-- prusaslicer/                   # PrusaSlicer (CLI, model files only — script runs manually)
+|       +-- orcaslicer/                    # OrcaSlicer (CLI, model files only — script runs manually)
+|       +-- simplify3d/                    # Simplify3D (CLI, model files only — script runs manually)
+|       +-- chitubox/                      # ChiTuBox (CLI, model files only — script runs manually)
+|       +-- lychee/                        # Lychee (CLI, model files only — script runs manually)
 |       +-- makerlab/                      # MakerLab (Python)
 |       +-- crealitycloud/                 # Creality Cloud (Python)
 |       +-- flashprint/                    # FlashPrint (Python)
@@ -224,11 +229,11 @@ cd rust && cargo clippy           # Rust lint check
 | Check | Status |
 |-------|--------|
 | `flutter analyze` | No issues found |
-| `flutter test` | 49 tests passed |
+| `flutter test` | 72 tests passed |
 | `cargo build` | 40 crates compiled |
 | `cargo clippy` | 0 warnings |
 
-Detailed reports: [Review v5](docs/review-report-2026-07-31-v5.md) | [Review v4](docs/review-report-2026-07-31-v4.md) | [Test](docs/test-report-2026-07-31.md)
+Detailed reports: [Review v18](docs/review-report-2026-08-06-v18.md) | [Review v17](docs/review-report-2026-08-06-v17.md) | [Test](docs/test-report-2026-07-31.md)
 
 ## Usage
 
@@ -241,10 +246,10 @@ Open the app and check installed plugins in the Software Panel. Green indicator 
 Choose a design domain from the sidebar. The AI will automatically select the optimal model and strategy:
 - **Web** -> Figma, Sketch, Adobe XD, Dreamweaver, Express
 - **Advertising** -> Photoshop, Illustrator, InDesign, After Effects, Premiere Pro, Lightroom, Animate, Audition, Character Animator, Fresco, Bridge, Acrobat Pro, Media Encoder, InCopy
-- **Industrial** -> Fusion 360, SolidWorks, ZW3D, VoxelDance Additive
-- **3D** -> Blender, Maya, 3ds Max, Cinema 4D, 3D One, Happy3D, Maodou 3D, Dimension, Substance 3D Suite
+- **Industrial** -> Fusion 360, SolidWorks, FreeCAD, OpenSCAD, Rhino, Tinkercad, ZW3D, slicers
+- **3D** -> Blender, Maya, 3ds Max, Cinema 4D, 3D One, Happy3D, Maodou 3D, Meshy, Dimension, Substance 3D Suite
 - **Architecture** -> AutoCAD, Revit
-- **Interior** -> SketchUp
+- **Interior** -> SketchUp, Kujiale, 3Vjia, Yuanfang
 
 ### 3. Describe Your Task
 
@@ -423,7 +428,15 @@ Text-to-3D and image-to-3D generation via Meshy API, with automatic polygon opti
 | FlashDental | Python API | Win | Supported |
 | WaxJetPrint | Python API | Win | Supported |
 
-**Total: 59 supported software**
+### Interior Design (3)
+
+| Software | Control Method | Platform | Status |
+|----------|---------------|----------|--------|
+| Kujiale | JavaScript API | Web | Supported |
+| 3Vjia | Python API | Web | Supported |
+| Yuanfang | Python API | Win | Supported |
+
+**Total: 62 supported software**
 
 ## Developer Guide
 

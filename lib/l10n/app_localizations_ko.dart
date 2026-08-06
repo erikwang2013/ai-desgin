@@ -69,7 +69,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get aboutDescription2 =>
-      '6개 디자인 분야와 50개 이상의 주요 디자인 소프트웨어를 위한 AI 스크립트 생성 및 실행.';
+      '6개 디자인 분야와 62개 이상의 주요 디자인 소프트웨어를 위한 AI 스크립트 생성 및 실행.';
 
   @override
   String get installedPlugins => '설치된 플러그인';
@@ -150,4 +150,49 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get languageInstruction => '한국어로 답변해 주세요.';
+
+  @override
+  String get language => '언어';
+
+  @override
+  String get apiEndpoint => 'API 엔드포인트';
+
+  @override
+  String get apiKey => 'API 키';
+
+  @override
+  String get defaultModel => '기본 모델';
+
+  @override
+  String get save => '저장';
+
+  @override
+  String get proxyHost => '프록시 호스트';
+
+  @override
+  String get proxyPort => '프록시 포트';
+
+  @override
+  String get saveSuccess => '저장됨';
+
+  @override
+  String get history => '기록';
+
+  @override
+  String get searchPlugins => '플러그인 검색...';
+
+  @override
+  String get autoExecute => '자동';
+
+  @override
+  String get manualExecute => '수동';
+
+  @override
+  String get copied => '복사됨';
+
+  @override
+  String get copy => '복사';
+
+  @override
+  String get close => '닫기';
 }

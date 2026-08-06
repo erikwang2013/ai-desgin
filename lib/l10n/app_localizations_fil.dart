@@ -70,7 +70,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get aboutDescription2 =>
-      'Sakop ang 6 na domain ng disenyo at 50+ pangunahing design software gamit ang AI script generation.';
+      'Sakop ang 6 na domain ng disenyo at 62+ pangunahing design software gamit ang AI script generation.';
 
   @override
   String get installedPlugins => 'Mga Naka-install na Plugin';
@@ -152,4 +152,49 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get languageInstruction => 'Mangyaring tumugon sa wikang Filipino.';
+
+  @override
+  String get language => 'Wika';
+
+  @override
+  String get apiEndpoint => 'API Endpoint';
+
+  @override
+  String get apiKey => 'API Key';
+
+  @override
+  String get defaultModel => 'Default na Modelo';
+
+  @override
+  String get save => 'I-save';
+
+  @override
+  String get proxyHost => 'Proxy Host';
+
+  @override
+  String get proxyPort => 'Proxy Port';
+
+  @override
+  String get saveSuccess => 'Matagumpay na na-save';
+
+  @override
+  String get history => 'Kasaysayan';
+
+  @override
+  String get searchPlugins => 'Maghanap ng mga plugin...';
+
+  @override
+  String get autoExecute => 'Auto';
+
+  @override
+  String get manualExecute => 'Manual';
+
+  @override
+  String get copied => 'Nakopya';
+
+  @override
+  String get copy => 'Kopyahin';
+
+  @override
+  String get close => 'Isara';
 }

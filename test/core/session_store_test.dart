@@ -46,6 +46,24 @@ void main() {
     expect(figmas.length, 2);
   });
 
+  test('listRecent returns sessions with history newest first', () async {
+    final s1 = Session(domain: DesignCategory.web, softwareName: 'figma');
+    s1.addRecord(task: 'task one', script: '', scriptLanguage: '', modelUsed: 'haiku');
+    await store.save(s1);
+    final s2 = Session(domain: DesignCategory.threeD, softwareName: 'blender');
+    s2.addRecord(task: 'task two', script: '', scriptLanguage: '', modelUsed: 'opus');
+    await store.save(s2);
+
+    final recent = await store.listRecent(limit: 10);
+    expect(recent.length, 2);
+    final ids = recent.map((s) => s.id).toList();
+    expect(ids.contains(s1.id), isTrue);
+    expect(ids.contains(s2.id), isTrue);
+    expect(recent.first.softwareName, s2.softwareName);
+    expect(recent.first.history.single.task, 'task two');
+    expect(recent.first.history.single.modelUsed, 'opus');
+  });
+
   test('search finds sessions by task content', () async {
     final s = Session(domain: DesignCategory.web, softwareName: 'figma');
     s.addRecord(task: 'create a blue login button', script: '', scriptLanguage: '', modelUsed: '');

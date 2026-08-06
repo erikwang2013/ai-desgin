@@ -90,6 +90,7 @@ class CCProcessManager {
     required String model,
     CCRunner? runner,
     String? scriptLanguage,
+    String? taskKey,
   }) async {
     final session = _sessions[sessionId];
     if (session == null) {
@@ -104,6 +105,7 @@ class CCProcessManager {
       state: session.state.toJson(),
       model: model,
       scriptLanguage: scriptLanguage,
+      key: taskKey,
     );
 
     session.lastActivity = DateTime.now();

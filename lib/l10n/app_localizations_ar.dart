@@ -70,7 +70,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get aboutDescription2 =>
-      'تغطي 6 مجالات تصميم وأكثر من 50 برنامج تصميم مع إنشاء وتنفيذ النصوص بالذكاء الاصطناعي.';
+      'تغطي 6 مجالات تصميم وأكثر من 62 برنامج تصميم مع إنشاء وتنفيذ النصوص بالذكاء الاصطناعي.';
 
   @override
   String get installedPlugins => 'الإضافات المثبتة';
@@ -152,4 +152,49 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get languageInstruction => 'الرجاء الرد باللغة العربية.';
+
+  @override
+  String get language => 'اللغة';
+
+  @override
+  String get apiEndpoint => 'نقطة نهاية API';
+
+  @override
+  String get apiKey => 'مفتاح API';
+
+  @override
+  String get defaultModel => 'النموذج الافتراضي';
+
+  @override
+  String get save => 'حفظ';
+
+  @override
+  String get proxyHost => 'مضيف الوكيل';
+
+  @override
+  String get proxyPort => 'منفذ الوكيل';
+
+  @override
+  String get saveSuccess => 'تم الحفظ بنجاح';
+
+  @override
+  String get history => 'السجل';
+
+  @override
+  String get searchPlugins => 'ابحث عن الإضافات...';
+
+  @override
+  String get autoExecute => 'تلقائي';
+
+  @override
+  String get manualExecute => 'يدوي';
+
+  @override
+  String get copied => 'تم النسخ';
+
+  @override
+  String get copy => 'نسخ';
+
+  @override
+  String get close => 'إغلاق';
 }

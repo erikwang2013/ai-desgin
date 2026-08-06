@@ -70,7 +70,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get aboutDescription2 =>
-      '6 डिज़ाइन क्षेत्रों और 50+ प्रमुख डिज़ाइन सॉफ़्टवेयर के लिए AI स्क्रिप्ट जनरेशन और निष्पादन।';
+      '6 डिज़ाइन क्षेत्रों और 62+ प्रमुख डिज़ाइन सॉफ़्टवेयर के लिए AI स्क्रिप्ट जनरेशन और निष्पादन।';
 
   @override
   String get installedPlugins => 'इंस्टॉल किए गए प्लगइन्स';
@@ -152,4 +152,49 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get languageInstruction => 'कृपया हिंदी में उत्तर दें।';
+
+  @override
+  String get language => 'भाषा';
+
+  @override
+  String get apiEndpoint => 'API एंडपॉइंट';
+
+  @override
+  String get apiKey => 'API कुंजी';
+
+  @override
+  String get defaultModel => 'डिफ़ॉल्ट मॉडल';
+
+  @override
+  String get save => 'सहेजें';
+
+  @override
+  String get proxyHost => 'प्रॉक्सी होस्ट';
+
+  @override
+  String get proxyPort => 'प्रॉक्सी पोर्ट';
+
+  @override
+  String get saveSuccess => 'सफलतापूर्वक सहेजा गया';
+
+  @override
+  String get history => 'इतिहास';
+
+  @override
+  String get searchPlugins => 'प्लगइन खोजें...';
+
+  @override
+  String get autoExecute => 'स्वचालित';
+
+  @override
+  String get manualExecute => 'मैन्युअल';
+
+  @override
+  String get copied => 'कॉपी हो गया';
+
+  @override
+  String get copy => 'कॉपी करें';
+
+  @override
+  String get close => 'बंद करें';
 }

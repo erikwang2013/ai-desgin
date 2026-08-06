@@ -70,7 +70,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get aboutDescription2 =>
-      'Охватывает 6 областей дизайна и 50+ программ для автоматизированной генерации скриптов.';
+      'Охватывает 6 областей дизайна и 62+ программ для автоматизированной генерации скриптов.';
 
   @override
   String get installedPlugins => 'Установленные плагины';
@@ -151,4 +151,49 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get languageInstruction => 'Пожалуйста, отвечайте на русском языке.';
+
+  @override
+  String get language => 'Язык';
+
+  @override
+  String get apiEndpoint => 'Конечная точка API';
+
+  @override
+  String get apiKey => 'API-ключ';
+
+  @override
+  String get defaultModel => 'Модель по умолчанию';
+
+  @override
+  String get save => 'Сохранить';
+
+  @override
+  String get proxyHost => 'Прокси-хост';
+
+  @override
+  String get proxyPort => 'Прокси-порт';
+
+  @override
+  String get saveSuccess => 'Сохранено';
+
+  @override
+  String get history => 'История';
+
+  @override
+  String get searchPlugins => 'Поиск плагинов...';
+
+  @override
+  String get autoExecute => 'Авто';
+
+  @override
+  String get manualExecute => 'Вручную';
+
+  @override
+  String get copied => 'Скопировано';
+
+  @override
+  String get copy => 'Копировать';
+
+  @override
+  String get close => 'Закрыть';
 }

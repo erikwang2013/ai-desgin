@@ -17,10 +17,14 @@
   "proxySettingsDesc": "नेटवर्क प्रॉक्सी कॉन्फ़िगर करें",
   "about": "के बारे में",
   "aboutVersion": "AI Design v{version}",
-  "@aboutVersion": { "placeholders": { "version": {} } },
+  "@aboutVersion": {
+    "placeholders": {
+      "version": {}
+    }
+  },
   "comingSoon": "जल्द आ रहा है",
   "aboutDescription1": "एक AI-संचालित डिज़ाइन सॉफ़्टवेयर स्वचालन उपकरण।",
-  "aboutDescription2": "6 डिज़ाइन क्षेत्रों और 50+ प्रमुख डिज़ाइन सॉफ़्टवेयर के लिए AI स्क्रिप्ट जनरेशन और निष्पादन।",
+  "aboutDescription2": "6 डिज़ाइन क्षेत्रों और 62+ प्रमुख डिज़ाइन सॉफ़्टवेयर के लिए AI स्क्रिप्ट जनरेशन और निष्पादन।",
   "installedPlugins": "इंस्टॉल किए गए प्लगइन्स",
   "installPlugin": "प्लगइन इंस्टॉल करें",
   "connected": "कनेक्टेड",
@@ -32,15 +36,31 @@
   "noTasks": "कोई कार्य नहीं",
   "noTasksHint": "चैट पैनल में डिज़ाइन आवश्यकताएँ दर्ज करें; कार्य यहाँ दिखाई देंगे।",
   "installed": "इंस्टॉल किया गया ({count})",
-  "@installed": { "placeholders": { "count": {} } },
+  "@installed": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "available": "उपलब्ध ({count})",
-  "@available": { "placeholders": { "count": {} } },
+  "@available": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "install": "इंस्टॉल करें",
   "uninstall": "अनइंस्टॉल करें",
   "installSuccess": "{name} सफलतापूर्वक इंस्टॉल हुआ",
-  "@installSuccess": { "placeholders": { "name": {} } },
+  "@installSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "uninstallSuccess": "{name} अनइंस्टॉल किया गया",
-  "@uninstallSuccess": { "placeholders": { "name": {} } },
+  "@uninstallSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "ok": "ठीक है",
   "errorPrefix": "त्रुटि",
   "echoPrefix": "Echo",
@@ -48,5 +68,38 @@
   "taskFailed": "कार्य विफल",
   "noOutput": "(कोई आउटपुट नहीं)",
   "unknownError": "अज्ञात त्रुटि",
-  "languageInstruction": "कृपया हिंदी में उत्तर दें।"
+  "languageInstruction": "कृपया हिंदी में उत्तर दें।",
+  "language": "भाषा",
+  "apiEndpoint": "API एंडपॉइंट",
+  "apiKey": "API कुंजी",
+  "defaultModel": "डिफ़ॉल्ट मॉडल",
+  "save": "सहेजें",
+  "proxyHost": "प्रॉक्सी होस्ट",
+  "proxyPort": "प्रॉक्सी पोर्ट",
+  "saveSuccess": "सफलतापूर्वक सहेजा गया",
+  "history": "इतिहास",
+  "searchPlugins": "प्लगइन खोजें...",
+  "@searchPlugins": {
+    "description": "Localized label for searchPlugins"
+  },
+  "autoExecute": "स्वचालित",
+  "@autoExecute": {
+    "description": "Localized label for autoExecute"
+  },
+  "manualExecute": "मैन्युअल",
+  "@manualExecute": {
+    "description": "Localized label for manualExecute"
+  },
+  "copied": "कॉपी हो गया",
+  "@copied": {
+    "description": "Localized label for copied"
+  },
+  "copy": "कॉपी करें",
+  "@copy": {
+    "description": "Localized label for copy"
+  },
+  "close": "बंद करें",
+  "@close": {
+    "description": "Localized label for close"
+  }
 }

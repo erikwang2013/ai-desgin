@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ai_design_studio/core/plugin_manager.dart';
 import 'package:ai_design_studio/core/builtin_plugins.dart';
 import 'package:ai_design_studio/ui/plugin_marketplace.dart';
@@ -18,7 +19,7 @@ void main() {
   testWidgets('Plugin marketplace shows installed plugins', (tester) async {
     await tester.pumpWidget(MaterialApp(home: PluginMarketplace(pluginManager: pm)));
     expect(find.text('Plugin Marketplace'), findsOneWidget);
-    expect(find.text('Installed (50)'), findsOneWidget);
+    expect(find.text('Installed (62)'), findsOneWidget);
     expect(find.text('Figma'), findsOneWidget);
     expect(find.text('Sketch'), findsOneWidget);
     expect(find.text('Photoshop'), findsOneWidget);
@@ -40,5 +41,27 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Sketch uninstalled'), findsOneWidget);
+  });
+
+  testWidgets('Uninstall persists across marketplace instances', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    await tester.pumpWidget(MaterialApp(
+      home: PluginMarketplace(pluginManager: _createTestPluginManager()),
+    ));
+
+    await tester.tap(find.descendant(
+      of: find.widgetWithText(ListTile, 'Sketch'),
+      matching: find.text('Uninstall'),
+    ));
+    await tester.pumpAndSettle();
+
+    // Fresh manager + fresh marketplace should re-apply the saved state.
+    await tester.pumpWidget(MaterialApp(
+      home: PluginMarketplace(pluginManager: _createTestPluginManager()),
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Installed (61)'), findsOneWidget);
+    expect(find.text('Sketch'), findsNothing);
   });
 }

@@ -38,4 +38,30 @@ void main() {
     expect(result.success, false);
     expect(result.error, 'timeout');
   });
+
+  test('prompt includes response language instruction when set', () {
+    CCRunner.responseLanguage = '请使用中文回复。';
+    final runner = CCRunner();
+
+    final prompt = runner.buildPromptForTest(
+      task: 'create a button',
+      software: 'figma',
+      capabilities: const {'actions': ['创建按钮']},
+      state: const {},
+    );
+
+    expect(prompt, contains('请使用中文回复。'));
+    CCRunner.responseLanguage = null;
+  });
+
+  test('prompt omits language instruction when not set', () {
+    CCRunner.responseLanguage = null;
+    final prompt = CCRunner().buildPromptForTest(
+      task: 'create a button',
+      software: 'figma',
+      capabilities: const {},
+      state: const {},
+    );
+    expect(prompt.contains('请使用中文回复。'), isFalse);
+  });
 }

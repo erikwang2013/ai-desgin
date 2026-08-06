@@ -1,7 +1,9 @@
 // lib/ui/task_dashboard.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../l10n/app_localizations.dart';
 import '../models/task_record.dart';
+import '../core/session_store.dart';
 
 class TaskItem {
   final String id;
@@ -10,6 +12,7 @@ class TaskItem {
   final TaskStatus status;
   final DateTime createdAt;
   final String? modelUsed;
+  final String? script;
 
   TaskItem({
     required this.id,
@@ -18,12 +21,14 @@ class TaskItem {
     required this.status,
     required this.createdAt,
     this.modelUsed,
+    this.script,
   });
 }
 
 class TaskDashboard extends StatefulWidget {
   final List<TaskItem>? initialTasks;
-  const TaskDashboard({super.key, this.initialTasks});
+  final SessionStore? sessionStore;
+  const TaskDashboard({super.key, this.initialTasks, this.sessionStore});
 
   @override
   State<TaskDashboard> createState() => TaskDashboardState();
@@ -33,15 +38,45 @@ class TaskDashboardState extends State<TaskDashboard> {
   final List<TaskItem> _tasks = [];
   String _filterKey = 'all';
 
+  static const _maxTasks = 500;
+
   @override
   void initState() {
     super.initState();
     if (widget.initialTasks != null) {
       _tasks.addAll(widget.initialTasks!);
     }
+    _restoreHistory();
   }
 
-  static const _maxTasks = 500;
+  Future<void> _restoreHistory() async {
+    final store = widget.sessionStore;
+    if (store == null) return;
+    try {
+      final sessions = await store.listRecent(limit: _maxTasks);
+      final items = sessions
+          .expand((s) => s.history.map((r) => TaskItem(
+                id: r.id,
+                title: r.task,
+                software: s.softwareName,
+                status: r.status,
+                createdAt: r.createdAt,
+                modelUsed: r.modelUsed,
+                script: r.script,
+              )))
+          .toList();
+      if (items.isEmpty || !mounted) return;
+      setState(() {
+        _tasks.addAll(items);
+        _tasks.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        while (_tasks.length > _maxTasks) {
+          _tasks.removeLast();
+        }
+      });
+    } catch (_) {
+      // History restore is non-critical; dashboard still works
+    }
+  }
 
   void addTask(TaskItem task) {
     setState(() {
@@ -103,29 +138,21 @@ class TaskDashboardState extends State<TaskDashboard> {
         children: [
           Text(l10n?.taskList ?? 'Task List', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const Spacer(),
-          _buildChip(allLabel, _filterKey == 'all'),
+          _buildChip(allLabel, 'all', _filterKey == 'all'),
           const SizedBox(width: 8),
-          _buildChip(inProgressLabel, _filterKey == 'inProgress'),
+          _buildChip(inProgressLabel, 'inProgress', _filterKey == 'inProgress'),
           const SizedBox(width: 8),
-          _buildChip(completedLabel, _filterKey == 'completed'),
+          _buildChip(completedLabel, 'completed', _filterKey == 'completed'),
         ],
       ),
     );
   }
 
-  Widget _buildChip(String label, bool selected) {
+  Widget _buildChip(String label, String key, bool selected) {
     return FilterChip(
       label: Text(label, style: const TextStyle(fontSize: 12)),
       selected: selected,
-      onSelected: (_) => setState(() {
-        if (label == (AppLocalizations.of(context)?.all ?? 'All')) {
-          _filterKey = 'all';
-        } else if (label == (AppLocalizations.of(context)?.inProgress ?? 'In Progress')) {
-          _filterKey = 'inProgress';
-        } else {
-          _filterKey = 'completed';
-        }
-      }),
+      onSelected: (_) => setState(() => _filterKey = key),
       visualDensity: VisualDensity.compact,
     );
   }
@@ -166,6 +193,47 @@ class TaskDashboardState extends State<TaskDashboard> {
           ],
         ),
         trailing: Text(timeStr, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+        onTap: task.script == null ? null : () => _showTaskDetail(task),
+      ),
+    );
+  }
+
+  void _showTaskDetail(TaskItem task) {
+    final l10n = AppLocalizations.of(context);
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(task.title, maxLines: 2, overflow: TextOverflow.ellipsis),
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480, maxHeight: 320),
+          child: SingleChildScrollView(
+            child: SelectableText(
+              task.script ?? '',
+              style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              final script = task.script;
+              if (script != null) {
+                Clipboard.setData(ClipboardData(text: script));
+              }
+              ScaffoldMessenger.of(dialogContext).showSnackBar(
+                SnackBar(
+                  content: Text(l10n?.copied ?? 'Copied'),
+                  duration: const Duration(seconds: 1),
+                ),
+              );
+            },
+            child: Text(l10n?.copy ?? 'Copy'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(l10n?.close ?? 'Close'),
+          ),
+        ],
       ),
     );
   }

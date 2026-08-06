@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../l10n/app_localizations.dart';
 import '../core/version.dart';
 import '../core/plugin_manager.dart';
+import '../core/model_router.dart';
+import '../core/locale_provider.dart';
+import '../core/cc_runner.dart';
 import 'plugin_marketplace.dart';
 
 class SettingsView extends StatelessWidget {
   final PluginManager? pluginManager;
+  final LocaleProvider? localeProvider;
+  final ModelRouter? modelRouter;
 
-  const SettingsView({super.key, this.pluginManager});
+  const SettingsView({super.key, this.pluginManager, this.localeProvider, this.modelRouter});
 
   @override
   Widget build(BuildContext context) {
@@ -17,10 +23,21 @@ class SettingsView extends StatelessWidget {
       body: ListView(
         children: [
           ListTile(
+            leading: const Icon(Icons.language),
+            title: Text(l10n?.language ?? 'Language'),
+            subtitle: Text(LocaleProvider.languageNames[
+                    localeProvider?.locale.languageCode ?? 'zh'] ??
+                '中文'),
+            onTap: () => _showLanguagePicker(context),
+          ),
+          ListTile(
             leading: const Icon(Icons.api),
             title: Text(l10n?.modelConfig ?? 'Model Config'),
             subtitle: Text(l10n?.modelConfigDesc ?? 'Manage API endpoint and keys'),
-            onTap: () => _showComingSoon(context, l10n?.modelConfig ?? 'Model Config'),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => ModelConfigPage(modelRouter: modelRouter)),
+            ),
           ),
           ListTile(
             leading: const Icon(Icons.extension),
@@ -35,7 +52,10 @@ class SettingsView extends StatelessWidget {
             leading: const Icon(Icons.wifi),
             title: Text(l10n?.proxySettings ?? 'Proxy Settings'),
             subtitle: Text(l10n?.proxySettingsDesc ?? 'Configure network proxy'),
-            onTap: () => _showComingSoon(context, l10n?.proxySettings ?? 'Proxy Settings'),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProxySettingsPage()),
+            ),
           ),
           ListTile(
             leading: const Icon(Icons.info_outline),
@@ -48,10 +68,31 @@ class SettingsView extends StatelessWidget {
     );
   }
 
-  void _showComingSoon(BuildContext context, String feature) {
-    final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$feature - ${l10n?.comingSoon ?? 'Coming Soon'}'), duration: const Duration(seconds: 2)),
+  void _showLanguagePicker(BuildContext context) {
+    final provider = localeProvider;
+    if (provider == null) return;
+    showDialog(
+      context: context,
+      builder: (dialogContext) => SimpleDialog(
+        title: Text(AppLocalizations.of(dialogContext)?.language ?? 'Language'),
+        children: [
+          for (final locale in LocaleProvider.supportedLocales)
+            SimpleDialogOption(
+              onPressed: () {
+                provider.setLocale(locale);
+                CCRunner.responseLanguage = provider.languageInstruction;
+                Navigator.pop(dialogContext);
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Text(
+                  LocaleProvider.languageNames[locale.languageCode] ?? locale.languageCode,
+                  style: const TextStyle(fontSize: 15),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 
@@ -69,10 +110,213 @@ class SettingsView extends StatelessWidget {
             const SizedBox(height: 8),
             Text(l10n?.aboutDescription1 ?? 'An AI-driven design software automation tool.'),
             const SizedBox(height: 8),
-            Text(l10n?.aboutDescription2 ?? 'Covers 6 design domains and 47+ mainstream design software with AI-driven script generation and execution.'),
+            Text(l10n?.aboutDescription2 ?? 'Covers 6 design domains and 62+ mainstream design software with AI-driven script generation and execution.'),
           ],
         ),
         actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n?.ok ?? 'OK'))],
+      ),
+    );
+  }
+}
+
+class ModelConfigPage extends StatefulWidget {
+  final ModelRouter? modelRouter;
+
+  const ModelConfigPage({super.key, this.modelRouter});
+
+  @override
+  State<ModelConfigPage> createState() => _ModelConfigPageState();
+}
+
+class _ModelConfigPageState extends State<ModelConfigPage> {
+  static const _endpointKey = 'api_endpoint';
+  static const _apiKeyKey = 'api_key';
+  static const _modelKey = 'default_model';
+
+  final _endpointCtrl = TextEditingController();
+  final _apiKeyCtrl = TextEditingController();
+  final _modelCtrl = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSaved();
+  }
+
+  @override
+  void dispose() {
+    _endpointCtrl.dispose();
+    _apiKeyCtrl.dispose();
+    _modelCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadSaved() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _endpointCtrl.text = prefs.getString(_endpointKey) ?? '';
+      _apiKeyCtrl.text = prefs.getString(_apiKeyKey) ?? '';
+      _modelCtrl.text = prefs.getString(_modelKey) ?? '';
+    } catch (_) {}
+  }
+
+  Future<void> _save() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_endpointKey, _endpointCtrl.text.trim());
+      await prefs.setString(_apiKeyKey, _apiKeyCtrl.text.trim());
+      await prefs.setString(_modelKey, _modelCtrl.text.trim());
+    } catch (_) {}
+    CCRunner.apiBaseUrl = _endpointCtrl.text.trim();
+    CCRunner.apiAuthToken = _apiKeyCtrl.text.trim();
+    final model = _modelCtrl.text.trim();
+    if (model.isNotEmpty) widget.modelRouter?.setDefaultModel(model);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)?.saveSuccess ?? 'Saved successfully'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Scaffold(
+      appBar: AppBar(title: Text(l10n?.modelConfig ?? 'Model Config')),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          TextField(
+            controller: _endpointCtrl,
+            decoration: InputDecoration(
+              labelText: l10n?.apiEndpoint ?? 'API Endpoint',
+              hintText: 'https://api.example.com/v1',
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _apiKeyCtrl,
+            obscureText: true,
+            decoration: InputDecoration(
+              labelText: l10n?.apiKey ?? 'API Key',
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _modelCtrl,
+            decoration: InputDecoration(
+              labelText: l10n?.defaultModel ?? 'Default Model',
+              hintText: 'claude-sonnet-4-6',
+            ),
+          ),
+          const SizedBox(height: 24),
+          FilledButton.icon(
+            onPressed: _save,
+            icon: const Icon(Icons.save_outlined),
+            label: Text(l10n?.save ?? 'Save'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ProxySettingsPage extends StatefulWidget {
+  const ProxySettingsPage({super.key});
+
+  @override
+  State<ProxySettingsPage> createState() => _ProxySettingsPageState();
+}
+
+class _ProxySettingsPageState extends State<ProxySettingsPage> {
+  static const _hostKey = 'proxy_host';
+  static const _portKey = 'proxy_port';
+
+  final _hostCtrl = TextEditingController();
+  final _portCtrl = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSaved();
+  }
+
+  @override
+  void dispose() {
+    _hostCtrl.dispose();
+    _portCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadSaved() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _hostCtrl.text = prefs.getString(_hostKey) ?? '';
+      _portCtrl.text = prefs.getString(_portKey) ?? '';
+    } catch (_) {}
+  }
+
+  Future<void> _save() async {
+    final host = _hostCtrl.text.trim();
+    final port = _portCtrl.text.trim();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_hostKey, host);
+      await prefs.setString(_portKey, port);
+    } catch (_) {}
+    if (host.isEmpty) {
+      CCRunner.proxyEnvironment = null;
+    } else {
+      final base = port.isEmpty ? 'http://$host' : 'http://$host:$port';
+      CCRunner.proxyEnvironment = {
+        'HTTP_PROXY': base,
+        'HTTPS_PROXY': base,
+      };
+    }
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)?.saveSuccess ?? 'Saved successfully'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Scaffold(
+      appBar: AppBar(title: Text(l10n?.proxySettings ?? 'Proxy Settings')),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          TextField(
+            controller: _hostCtrl,
+            decoration: InputDecoration(
+              labelText: l10n?.proxyHost ?? 'Proxy Host',
+              hintText: '127.0.0.1',
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _portCtrl,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              labelText: l10n?.proxyPort ?? 'Proxy Port',
+              hintText: '7890',
+            ),
+          ),
+          const SizedBox(height: 24),
+          FilledButton.icon(
+            onPressed: _save,
+            icon: const Icon(Icons.save_outlined),
+            label: Text(l10n?.save ?? 'Save'),
+          ),
+        ],
       ),
     );
   }

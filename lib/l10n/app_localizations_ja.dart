@@ -69,7 +69,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get aboutDescription2 =>
-      '6つのデザイン分野、50以上の主要デザインソフトウェアに対応するAIスクリプト生成と実行。';
+      '6つのデザイン分野、62以上の主要デザインソフトウェアに対応するAIスクリプト生成と実行。';
 
   @override
   String get installedPlugins => 'インストール済みプラグイン';
@@ -150,4 +150,49 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get languageInstruction => '日本語で返信してください。';
+
+  @override
+  String get language => '言語';
+
+  @override
+  String get apiEndpoint => 'API エンドポイント';
+
+  @override
+  String get apiKey => 'API キー';
+
+  @override
+  String get defaultModel => 'デフォルトモデル';
+
+  @override
+  String get save => '保存';
+
+  @override
+  String get proxyHost => 'プロキシホスト';
+
+  @override
+  String get proxyPort => 'プロキシポート';
+
+  @override
+  String get saveSuccess => '保存しました';
+
+  @override
+  String get history => '履歴';
+
+  @override
+  String get searchPlugins => 'プラグインを検索...';
+
+  @override
+  String get autoExecute => '自動';
+
+  @override
+  String get manualExecute => '手動';
+
+  @override
+  String get copied => 'コピーしました';
+
+  @override
+  String get copy => 'コピー';
+
+  @override
+  String get close => '閉じる';
 }

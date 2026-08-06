@@ -50,4 +50,11 @@ routes:
     );
     expect(model, 'gemini-pro');
   });
+
+  test('setDefaultModel overrides routing fallback', () {
+    router.setDefaultModel('custom-model');
+    expect(router.defaultModel, 'custom-model');
+    final model = router.route(domain: DesignCategory.web, task: 'some task');
+    expect(model, 'custom-model');
+  });
 }

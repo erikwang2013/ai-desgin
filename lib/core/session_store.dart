@@ -111,6 +111,15 @@ class SessionStore {
     );
   }
 
+  Future<List<Session>> listRecent({int limit = 50}) async {
+    final rows = await _db.query(
+      'sessions',
+      orderBy: 'created_at DESC',
+      limit: limit,
+    );
+    return _loadSessionRowsWithHistory(rows);
+  }
+
   Future<List<Session>> listBySoftware(String softwareName) async {
     final rows = await _db.query(
       'sessions',

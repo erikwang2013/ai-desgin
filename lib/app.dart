@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 import 'l10n/app_localizations.dart';
@@ -11,6 +13,7 @@ import 'core/model_router.dart';
 import 'core/task_orchestrator.dart';
 import 'core/session_store.dart';
 import 'core/builtin_plugins.dart';
+import 'core/local_script_executor.dart';
 import 'core/locale_provider.dart';
 import 'ui/shell.dart';
 import 'ui/chat_view.dart';
@@ -54,8 +57,8 @@ class _AiDesignAppState extends State<AiDesignApp> {
           locale: _localeProvider.locale,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: const _MainShell(),
-          routes: {'/settings': (_) => const SettingsView()},
+          home: _MainShell(localeProvider: _localeProvider),
+          routes: {'/settings': (_) => SettingsView(localeProvider: _localeProvider)},
         );
       },
     );
@@ -63,7 +66,8 @@ class _AiDesignAppState extends State<AiDesignApp> {
 }
 
 class _MainShell extends StatefulWidget {
-  const _MainShell();
+  final LocaleProvider localeProvider;
+  const _MainShell({required this.localeProvider});
   @override
   State<_MainShell> createState() => _MainShellState();
 }
@@ -98,7 +102,9 @@ class _MainShellState extends State<_MainShell> {
       _pluginManager.register(p);
     }
 
-    await modelRouter.loadConfigFromString('''
+    LocalScriptExecutor.instance ??= LocalScriptExecutor();
+
+    const inlineRouting = '''
     default: claude-sonnet-4-6
     routes:
       - complexity: simple
@@ -108,7 +114,36 @@ class _MainShellState extends State<_MainShell> {
         model: claude-opus-4-7
       - domains: [industrial, threeD, arch, interior]
         model: claude-opus-4-7
-    ''');
+    ''';
+    try {
+      final yaml = await rootBundle.loadString('config/model-routing.yaml');
+      await modelRouter.loadConfigFromString(yaml);
+    } catch (_) {
+      await modelRouter.loadConfigFromString(inlineRouting);
+    }
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedModel = prefs.getString('default_model');
+      if (savedModel != null && savedModel.isNotEmpty) {
+        modelRouter.setDefaultModel(savedModel);
+      }
+      final proxyHost = prefs.getString('proxy_host');
+      final proxyPort = prefs.getString('proxy_port');
+      if (proxyHost != null && proxyHost.isNotEmpty) {
+        final base = proxyPort != null && proxyPort.isNotEmpty
+            ? 'http://$proxyHost:$proxyPort'
+            : 'http://$proxyHost';
+        CCRunner.proxyEnvironment = {
+          'HTTP_PROXY': base,
+          'HTTPS_PROXY': base,
+        };
+      }
+      CCRunner.apiBaseUrl = prefs.getString('api_endpoint');
+      CCRunner.apiAuthToken = prefs.getString('api_key');
+    } catch (_) {
+      // Saved settings are optional; defaults apply otherwise
+    }
+    CCRunner.responseLanguage = widget.localeProvider.languageInstruction;
     _orchestrator = TaskOrchestrator(
       pluginManager: _pluginManager,
       ccManager: ccManager,
@@ -131,6 +166,22 @@ class _MainShellState extends State<_MainShell> {
 
     for (final p in _pluginManager.getAll()) {
       _connectionStatus[p.id] = false;
+    }
+
+    final executor = LocalScriptExecutor.instance;
+    if (executor != null) {
+      final probes = <String, Future<bool>>{};
+      for (final p in _pluginManager.getAll()) {
+        if (executor.hasCommand(p.id)) {
+          probes[p.id] = executor.checkAvailable(p.id);
+        }
+      }
+      final results = await Future.wait(probes.values);
+      if (mounted) {
+        setState(() => _connectionStatus.addAll(
+          Map<String, bool>.fromIterables(probes.keys, results),
+        ));
+      }
     }
 
     _currentSoftware = _defaultSoftwareFor(_currentDomain);
@@ -158,8 +209,19 @@ class _MainShellState extends State<_MainShell> {
     setState(() => _currentSoftware = id);
   }
 
+  /// Resolve the effective software, falling back to the first available
+  /// plugin of the current domain if the selected one was uninstalled.
+  String _resolveSoftware() {
+    var sw = _currentSoftware.isNotEmpty ? _currentSoftware : _defaultSoftwareFor(_currentDomain);
+    if (_pluginManager.get(sw) == null) {
+      final domainPlugins = _pluginManager.getByCategory(_currentDomain);
+      sw = domainPlugins.isNotEmpty ? domainPlugins.first.id : '';
+    }
+    return sw;
+  }
+
   Future<String> _onSubmit(String task) async {
-    final sw = _currentSoftware.isNotEmpty ? _currentSoftware : _defaultSoftwareFor(_currentDomain);
+    final sw = _resolveSoftware();
     final result = await _orchestrator.submitTask(
       domain: _currentDomain,
       softwareName: sw,
@@ -173,6 +235,7 @@ class _MainShellState extends State<_MainShell> {
       status: result.status,
       createdAt: result.createdAt,
       modelUsed: result.modelUsed,
+      script: result.script,
     ));
 
     final session = _orchestrator.getCurrentSession(sw);
@@ -215,6 +278,8 @@ class _MainShellState extends State<_MainShell> {
       onDomainChanged: _onDomainChanged,
       onTabSelected: _onTabSelected,
       pluginManager: _pluginManager,
+      localeProvider: widget.localeProvider,
+      modelRouter: _ready ? _orchestrator.modelRouter : null,
       child: IndexedStack(
         index: _currentTab,
         children: [
@@ -224,7 +289,7 @@ class _MainShellState extends State<_MainShell> {
             selectedSoftware: _currentSoftware,
             onSoftwareChanged: _onSoftwareChanged,
           ),
-          TaskDashboard(key: _dashboardKey),
+          TaskDashboard(key: _dashboardKey, sessionStore: _sessionStore),
           SoftwarePanel(
             pluginManager: _pluginManager,
             connectionStatus: _connectionStatus,

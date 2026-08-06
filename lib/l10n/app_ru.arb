@@ -17,10 +17,14 @@
   "proxySettingsDesc": "Настройка сетевого прокси",
   "about": "О программе",
   "aboutVersion": "AI Design v{version}",
-  "@aboutVersion": { "placeholders": { "version": {} } },
+  "@aboutVersion": {
+    "placeholders": {
+      "version": {}
+    }
+  },
   "comingSoon": "Скоро",
   "aboutDescription1": "Инструмент автоматизации дизайна на основе ИИ.",
-  "aboutDescription2": "Охватывает 6 областей дизайна и 50+ программ для автоматизированной генерации скриптов.",
+  "aboutDescription2": "Охватывает 6 областей дизайна и 62+ программ для автоматизированной генерации скриптов.",
   "installedPlugins": "Установленные плагины",
   "installPlugin": "Установить плагин",
   "connected": "Подключено",
@@ -32,15 +36,31 @@
   "noTasks": "Нет задач",
   "noTasksHint": "Введите требования в чате; задачи появятся здесь.",
   "installed": "Установлено ({count})",
-  "@installed": { "placeholders": { "count": {} } },
+  "@installed": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "available": "Доступно ({count})",
-  "@available": { "placeholders": { "count": {} } },
+  "@available": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "install": "Установить",
   "uninstall": "Удалить",
   "installSuccess": "{name} успешно установлен",
-  "@installSuccess": { "placeholders": { "name": {} } },
+  "@installSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "uninstallSuccess": "{name} удалён",
-  "@uninstallSuccess": { "placeholders": { "name": {} } },
+  "@uninstallSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "ok": "OK",
   "errorPrefix": "Ошибка",
   "echoPrefix": "Echo",
@@ -48,5 +68,38 @@
   "taskFailed": "Ошибка задачи",
   "noOutput": "(нет вывода)",
   "unknownError": "Неизвестная ошибка",
-  "languageInstruction": "Пожалуйста, отвечайте на русском языке."
+  "languageInstruction": "Пожалуйста, отвечайте на русском языке.",
+  "language": "Язык",
+  "apiEndpoint": "Конечная точка API",
+  "apiKey": "API-ключ",
+  "defaultModel": "Модель по умолчанию",
+  "save": "Сохранить",
+  "proxyHost": "Прокси-хост",
+  "proxyPort": "Прокси-порт",
+  "saveSuccess": "Сохранено",
+  "history": "История",
+  "searchPlugins": "Поиск плагинов...",
+  "@searchPlugins": {
+    "description": "Localized label for searchPlugins"
+  },
+  "autoExecute": "Авто",
+  "@autoExecute": {
+    "description": "Localized label for autoExecute"
+  },
+  "manualExecute": "Вручную",
+  "@manualExecute": {
+    "description": "Localized label for manualExecute"
+  },
+  "copied": "Скопировано",
+  "@copied": {
+    "description": "Localized label for copied"
+  },
+  "copy": "Копировать",
+  "@copy": {
+    "description": "Localized label for copy"
+  },
+  "close": "Закрыть",
+  "@close": {
+    "description": "Localized label for close"
+  }
 }

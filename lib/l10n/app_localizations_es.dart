@@ -70,7 +70,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get aboutDescription2 =>
-      'Cubre 6 dominios de diseño y más de 50 software de diseño con generación de scripts por IA.';
+      'Cubre 6 dominios de diseño y más de 62 software de diseño con generación de scripts por IA.';
 
   @override
   String get installedPlugins => 'Plugins instalados';
@@ -152,4 +152,49 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get languageInstruction => 'Por favor, responde en español.';
+
+  @override
+  String get language => 'Idioma';
+
+  @override
+  String get apiEndpoint => 'Punto de conexión API';
+
+  @override
+  String get apiKey => 'Clave API';
+
+  @override
+  String get defaultModel => 'Modelo predeterminado';
+
+  @override
+  String get save => 'Guardar';
+
+  @override
+  String get proxyHost => 'Host del proxy';
+
+  @override
+  String get proxyPort => 'Puerto del proxy';
+
+  @override
+  String get saveSuccess => 'Guardado correctamente';
+
+  @override
+  String get history => 'Historial';
+
+  @override
+  String get searchPlugins => 'Buscar complementos...';
+
+  @override
+  String get autoExecute => 'Auto';
+
+  @override
+  String get manualExecute => 'Manual';
+
+  @override
+  String get copied => 'Copiado';
+
+  @override
+  String get copy => 'Copiar';
+
+  @override
+  String get close => 'Cerrar';
 }

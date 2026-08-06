@@ -17,10 +17,14 @@
   "proxySettingsDesc": "پیکربندی پروکسی شبکه",
   "about": "درباره",
   "aboutVersion": "AI Design v{version}",
-  "@aboutVersion": { "placeholders": { "version": {} } },
+  "@aboutVersion": {
+    "placeholders": {
+      "version": {}
+    }
+  },
   "comingSoon": "به زودی",
   "aboutDescription1": "ابزار خودکارسازی نرم‌افزار طراحی مبتنی بر هوش مصنوعی.",
-  "aboutDescription2": "پوشش 6 حوزه طراحی و بیش از 50 نرم‌افزار طراحی با تولید و اجرای اسکریپت هوش مصنوعی.",
+  "aboutDescription2": "پوشش 6 حوزه طراحی و بیش از 62 نرم‌افزار طراحی با تولید و اجرای اسکریپت هوش مصنوعی.",
   "installedPlugins": "افزونه‌های نصب شده",
   "installPlugin": "نصب افزونه",
   "connected": "متصل",
@@ -32,15 +36,31 @@
   "noTasks": "بدون وظیفه",
   "noTasksHint": "نیازمندی‌های طراحی را در پنل گفتگو وارد کنید؛ وظایف در اینجا نمایش داده می‌شوند.",
   "installed": "نصب شده ({count})",
-  "@installed": { "placeholders": { "count": {} } },
+  "@installed": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "available": "در دسترس ({count})",
-  "@available": { "placeholders": { "count": {} } },
+  "@available": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "install": "نصب",
   "uninstall": "حذف",
   "installSuccess": "{name} با موفقیت نصب شد",
-  "@installSuccess": { "placeholders": { "name": {} } },
+  "@installSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "uninstallSuccess": "{name} حذف شد",
-  "@uninstallSuccess": { "placeholders": { "name": {} } },
+  "@uninstallSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "ok": "تأیید",
   "errorPrefix": "خطا",
   "echoPrefix": "Echo",
@@ -48,5 +68,38 @@
   "taskFailed": "وظیفه ناموفق بود",
   "noOutput": "(بدون خروجی)",
   "unknownError": "خطای ناشناخته",
-  "languageInstruction": "لطفاً به فارسی پاسخ دهید."
+  "languageInstruction": "لطفاً به فارسی پاسخ دهید.",
+  "language": "زبان",
+  "apiEndpoint": "نقطه پایانی API",
+  "apiKey": "کلید API",
+  "defaultModel": "مدل پیش‌فرض",
+  "save": "ذخیره",
+  "proxyHost": "میزبان پروکسی",
+  "proxyPort": "پورت پروکسی",
+  "saveSuccess": "با موفقیت ذخیره شد",
+  "history": "تاریخچه",
+  "searchPlugins": "جستجوی افزونهها...",
+  "@searchPlugins": {
+    "description": "Localized label for searchPlugins"
+  },
+  "autoExecute": "خودکار",
+  "@autoExecute": {
+    "description": "Localized label for autoExecute"
+  },
+  "manualExecute": "دستی",
+  "@manualExecute": {
+    "description": "Localized label for manualExecute"
+  },
+  "copied": "کپی شد",
+  "@copied": {
+    "description": "Localized label for copied"
+  },
+  "copy": "کپی",
+  "@copy": {
+    "description": "Localized label for copy"
+  },
+  "close": "بستن",
+  "@close": {
+    "description": "Localized label for close"
+  }
 }

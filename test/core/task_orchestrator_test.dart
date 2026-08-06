@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ai_design_studio/core/task_orchestrator.dart';
 import 'package:ai_design_studio/core/plugin_manager.dart';
@@ -44,8 +45,25 @@ class FakeCCRunner extends CCRunner {
     required Map<String, dynamic> state,
     String? model,
     String? scriptLanguage,
+    String? key,
   }) async {
     return CCResult(script: 'echo "$task"', explanation: 'fake', modelUsed: model ?? 'fake-model');
+  }
+}
+
+/// Plugin whose execute() blocks until [release] completes — lets tests
+/// observe and cancel a task while it is mid-flight.
+class GatedEchoPlugin extends EchoPlugin {
+  final Completer<void> release;
+  GatedEchoPlugin({required this.release});
+
+  @override
+  String get id => 'gated';
+
+  @override
+  Future<ScriptResult> execute(String script, {ProgressCallback? onProgress}) async {
+    await release.future;
+    return super.execute(script, onProgress: onProgress);
   }
 }
 
@@ -89,11 +107,53 @@ void main() {
     expect(session!.history.length, 1);
   });
 
-  test('cancelTask cancels a pending task', () async {
-    final task = await orchestrator.submitTask(domain: DesignCategory.web, softwareName: 'echo', task: 'cancel me');
+  test('cancelTask removes a queued task and completes its future', () async {
+    final release = Completer<void>();
+    pluginManager.register(GatedEchoPlugin(release: release));
+    final tight = TaskOrchestrator(
+      pluginManager: pluginManager,
+      ccManager: ccManager,
+      modelRouter: modelRouter,
+      ccRunner: FakeCCRunner(),
+      maxConcurrent: 1,
+    );
+    final t1 = tight.submitTask(domain: DesignCategory.web, softwareName: 'gated', task: 'first');
+    final t2 = tight.submitTask(domain: DesignCategory.web, softwareName: 'echo', task: 'second');
+
+    final pending = tight.tasks.firstWhere((t) => t.task == 'second');
+    expect(pending.status, TaskStatus.pending);
+
+    tight.cancelTask(pending.id);
+    final r2 = await t2;
+    expect(r2.status, TaskStatus.cancelled);
+    expect(tight.getTask(pending.id)?.status, TaskStatus.cancelled);
+    // 队列不再执行被取消的任务，且无幽灵记录
+    expect(tight.tasks.where((t) => t.task == 'second'), hasLength(1));
+
+    release.complete();
+    await t1;
+  });
+
+  test('cancelTask cancels a running task without overwriting its record', () async {
+    final release = Completer<void>();
+    pluginManager.register(GatedEchoPlugin(release: release));
+    final future = orchestrator.submitTask(domain: DesignCategory.web, softwareName: 'gated', task: 'long task');
+    await pumpEventQueue();
+    final running = orchestrator.tasks.firstWhere((t) => t.task == 'long task');
+    expect(running.status, TaskStatus.running);
+
+    orchestrator.cancelTask(running.id);
+    release.complete();
+    final result = await future;
+    expect(result.status, TaskStatus.cancelled);
+    expect(orchestrator.getTask(running.id)?.status, TaskStatus.cancelled);
+  });
+
+  test('cancelTask does not overwrite completed history', () async {
+    final task = await orchestrator.submitTask(domain: DesignCategory.web, softwareName: 'echo', task: 'done task');
+    expect(task.status, TaskStatus.completed);
     orchestrator.cancelTask(task.id);
-    final cancelled = orchestrator.getTask(task.id);
-    expect(cancelled?.status, TaskStatus.cancelled);
+    expect(orchestrator.getTask(task.id)?.status, TaskStatus.completed);
   });
 
   test('getTask returns null for unknown id', () {

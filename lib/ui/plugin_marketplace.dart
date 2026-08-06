@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../l10n/app_localizations.dart';
 import '../models/session.dart';
 import '../core/plugin_manager.dart';
@@ -45,6 +46,8 @@ class PluginMarketplace extends StatefulWidget {
 }
 
 class _PluginMarketplaceState extends State<PluginMarketplace> {
+  static const _prefsKey = 'uninstalled_plugin_ids';
+
   late final List<PluginInfo> _plugins;
   final Map<String, DesignPlugin> _removedPlugins = {};
 
@@ -52,6 +55,35 @@ class _PluginMarketplaceState extends State<PluginMarketplace> {
   void initState() {
     super.initState();
     _plugins = _buildPluginsFromManager();
+    _loadUninstalled();
+  }
+
+  Future<void> _loadUninstalled() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final ids = prefs.getStringList(_prefsKey) ?? const [];
+      for (final id in ids) {
+        final existing = widget.pluginManager.get(id);
+        if (existing != null) {
+          _removedPlugins[id] = existing;
+          widget.pluginManager.unregister(id);
+        }
+      }
+      if (ids.isNotEmpty && mounted) {
+        setState(() {
+          _plugins = _buildPluginsFromManager();
+        });
+      }
+    } catch (_) {
+      // No persistence available (tests, restricted env); in-memory only
+    }
+  }
+
+  Future<void> _persistUninstalled() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList(_prefsKey, _removedPlugins.keys.toList());
+    } catch (_) {}
   }
 
   List<PluginInfo> _buildPluginsFromManager() {
@@ -102,6 +134,7 @@ class _PluginMarketplaceState extends State<PluginMarketplace> {
         );
       }
     });
+    _persistUninstalled();
 
     final l10n = AppLocalizations.of(context);
     if (!plugin.installed) {

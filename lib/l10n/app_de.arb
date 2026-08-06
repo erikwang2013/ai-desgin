@@ -17,10 +17,14 @@
   "proxySettingsDesc": "Netzwerk-Proxy konfigurieren",
   "about": "Über",
   "aboutVersion": "AI Design v{version}",
-  "@aboutVersion": { "placeholders": { "version": {} } },
+  "@aboutVersion": {
+    "placeholders": {
+      "version": {}
+    }
+  },
   "comingSoon": "Demnächst",
   "aboutDescription1": "Ein KI-gesteuertes Automatisierungstool für Designsoftware.",
-  "aboutDescription2": "Deckt 6 Designbereiche und über 50 Designprogramme mit KI-Skripterstellung ab.",
+  "aboutDescription2": "Deckt 6 Designbereiche und über 62 Designprogramme mit KI-Skripterstellung ab.",
   "installedPlugins": "Installierte Plugins",
   "installPlugin": "Plugin installieren",
   "connected": "Verbunden",
@@ -32,15 +36,31 @@
   "noTasks": "Keine Aufgaben",
   "noTasksHint": "Geben Sie Designanforderungen im Chat ein; Aufgaben erscheinen hier.",
   "installed": "Installiert ({count})",
-  "@installed": { "placeholders": { "count": {} } },
+  "@installed": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "available": "Verfügbar ({count})",
-  "@available": { "placeholders": { "count": {} } },
+  "@available": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "install": "Installieren",
   "uninstall": "Deinstallieren",
   "installSuccess": "{name} erfolgreich installiert",
-  "@installSuccess": { "placeholders": { "name": {} } },
+  "@installSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "uninstallSuccess": "{name} deinstalliert",
-  "@uninstallSuccess": { "placeholders": { "name": {} } },
+  "@uninstallSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "ok": "OK",
   "errorPrefix": "Fehler",
   "echoPrefix": "Echo",
@@ -48,5 +68,38 @@
   "taskFailed": "Aufgabe fehlgeschlagen",
   "noOutput": "(keine Ausgabe)",
   "unknownError": "Unbekannter Fehler",
-  "languageInstruction": "Bitte antworten Sie auf Deutsch."
+  "languageInstruction": "Bitte antworten Sie auf Deutsch.",
+  "language": "Sprache",
+  "apiEndpoint": "API-Endpunkt",
+  "apiKey": "API-Schlüssel",
+  "defaultModel": "Standardmodell",
+  "save": "Speichern",
+  "proxyHost": "Proxy-Host",
+  "proxyPort": "Proxy-Port",
+  "saveSuccess": "Erfolgreich gespeichert",
+  "history": "Verlauf",
+  "searchPlugins": "Plugins suchen...",
+  "@searchPlugins": {
+    "description": "Localized label for searchPlugins"
+  },
+  "autoExecute": "Auto",
+  "@autoExecute": {
+    "description": "Localized label for autoExecute"
+  },
+  "manualExecute": "Manuell",
+  "@manualExecute": {
+    "description": "Localized label for manualExecute"
+  },
+  "copied": "Kopiert",
+  "@copied": {
+    "description": "Localized label for copied"
+  },
+  "copy": "Kopieren",
+  "@copy": {
+    "description": "Localized label for copy"
+  },
+  "close": "Schließen",
+  "@close": {
+    "description": "Localized label for close"
+  }
 }

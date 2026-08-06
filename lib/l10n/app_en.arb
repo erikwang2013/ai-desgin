@@ -17,10 +17,14 @@
   "proxySettingsDesc": "Configure network proxy",
   "about": "About",
   "aboutVersion": "AI Design v{version}",
-  "@aboutVersion": { "placeholders": { "version": {} } },
+  "@aboutVersion": {
+    "placeholders": {
+      "version": {}
+    }
+  },
   "comingSoon": "Coming Soon",
   "aboutDescription1": "An AI-driven design software automation tool.",
-  "aboutDescription2": "Covers 6 design domains and 50+ mainstream design software with AI-driven script generation and execution.",
+  "aboutDescription2": "Covers 6 design domains and 62+ mainstream design software with AI-driven script generation and execution.",
   "installedPlugins": "Installed Plugins",
   "installPlugin": "Install Plugin",
   "connected": "Connected",
@@ -32,15 +36,31 @@
   "noTasks": "No Tasks",
   "noTasksHint": "Enter your design requirements in the chat panel; tasks will appear here.",
   "installed": "Installed ({count})",
-  "@installed": { "placeholders": { "count": {} } },
+  "@installed": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "available": "Available ({count})",
-  "@available": { "placeholders": { "count": {} } },
+  "@available": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "install": "Install",
   "uninstall": "Uninstall",
   "installSuccess": "{name} installed successfully",
-  "@installSuccess": { "placeholders": { "name": {} } },
+  "@installSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "uninstallSuccess": "{name} uninstalled",
-  "@uninstallSuccess": { "placeholders": { "name": {} } },
+  "@uninstallSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "ok": "OK",
   "errorPrefix": "Error",
   "echoPrefix": "Echo",
@@ -48,5 +68,38 @@
   "taskFailed": "Task failed",
   "noOutput": "(no output)",
   "unknownError": "Unknown error",
-  "languageInstruction": "Please respond in English."
+  "languageInstruction": "Please respond in English.",
+  "language": "Language",
+  "apiEndpoint": "API Endpoint",
+  "apiKey": "API Key",
+  "defaultModel": "Default Model",
+  "save": "Save",
+  "proxyHost": "Proxy Host",
+  "proxyPort": "Proxy Port",
+  "saveSuccess": "Saved successfully",
+  "history": "History",
+  "searchPlugins": "Search plugins...",
+  "@searchPlugins": {
+    "description": "Localized label for searchPlugins"
+  },
+  "autoExecute": "Auto",
+  "@autoExecute": {
+    "description": "Localized label for autoExecute"
+  },
+  "manualExecute": "Manual",
+  "@manualExecute": {
+    "description": "Localized label for manualExecute"
+  },
+  "copied": "Copied",
+  "@copied": {
+    "description": "Localized label for copied"
+  },
+  "copy": "Copy",
+  "@copy": {
+    "description": "Localized label for copy"
+  },
+  "close": "Close",
+  "@close": {
+    "description": "Localized label for close"
+  }
 }

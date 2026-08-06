@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../models/session.dart';
 import '../core/plugin_manager.dart';
+import '../core/model_router.dart';
+import '../core/locale_provider.dart';
 import 'settings_view.dart';
 
 class AppShell extends StatefulWidget {
@@ -11,6 +13,8 @@ class AppShell extends StatefulWidget {
   final ValueChanged<DesignCategory>? onDomainChanged;
   final ValueChanged<int>? onTabSelected;
   final PluginManager? pluginManager;
+  final LocaleProvider? localeProvider;
+  final ModelRouter? modelRouter;
 
   const AppShell({
     super.key,
@@ -20,6 +24,8 @@ class AppShell extends StatefulWidget {
     this.onDomainChanged,
     this.onTabSelected,
     this.pluginManager,
+    this.localeProvider,
+    this.modelRouter,
   });
 
   @override
@@ -95,7 +101,13 @@ class _AppShellState extends State<AppShell> {
             title: Text(AppLocalizations.of(context)?.settings ?? 'Settings'),
             onTap: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => SettingsView(pluginManager: widget.pluginManager)),
+              MaterialPageRoute(
+                builder: (_) => SettingsView(
+                  pluginManager: widget.pluginManager,
+                  localeProvider: widget.localeProvider,
+                  modelRouter: widget.modelRouter,
+                ),
+              ),
             ),
           ),
         ],

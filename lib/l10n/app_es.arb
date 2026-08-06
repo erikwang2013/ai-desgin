@@ -17,10 +17,14 @@
   "proxySettingsDesc": "Configurar proxy de red",
   "about": "Acerca de",
   "aboutVersion": "AI Design v{version}",
-  "@aboutVersion": { "placeholders": { "version": {} } },
+  "@aboutVersion": {
+    "placeholders": {
+      "version": {}
+    }
+  },
   "comingSoon": "Próximamente",
   "aboutDescription1": "Una herramienta de automatización de diseño impulsada por IA.",
-  "aboutDescription2": "Cubre 6 dominios de diseño y más de 50 software de diseño con generación de scripts por IA.",
+  "aboutDescription2": "Cubre 6 dominios de diseño y más de 62 software de diseño con generación de scripts por IA.",
   "installedPlugins": "Plugins instalados",
   "installPlugin": "Instalar plugin",
   "connected": "Conectado",
@@ -32,15 +36,31 @@
   "noTasks": "Sin tareas",
   "noTasksHint": "Ingresa los requisitos de diseño en el chat; las tareas aparecerán aquí.",
   "installed": "Instalado ({count})",
-  "@installed": { "placeholders": { "count": {} } },
+  "@installed": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "available": "Disponible ({count})",
-  "@available": { "placeholders": { "count": {} } },
+  "@available": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "install": "Instalar",
   "uninstall": "Desinstalar",
   "installSuccess": "{name} instalado correctamente",
-  "@installSuccess": { "placeholders": { "name": {} } },
+  "@installSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "uninstallSuccess": "{name} desinstalado",
-  "@uninstallSuccess": { "placeholders": { "name": {} } },
+  "@uninstallSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "ok": "OK",
   "errorPrefix": "Error",
   "echoPrefix": "Echo",
@@ -48,5 +68,38 @@
   "taskFailed": "Error en la tarea",
   "noOutput": "(sin salida)",
   "unknownError": "Error desconocido",
-  "languageInstruction": "Por favor, responde en español."
+  "languageInstruction": "Por favor, responde en español.",
+  "language": "Idioma",
+  "apiEndpoint": "Punto de conexión API",
+  "apiKey": "Clave API",
+  "defaultModel": "Modelo predeterminado",
+  "save": "Guardar",
+  "proxyHost": "Host del proxy",
+  "proxyPort": "Puerto del proxy",
+  "saveSuccess": "Guardado correctamente",
+  "history": "Historial",
+  "searchPlugins": "Buscar complementos...",
+  "@searchPlugins": {
+    "description": "Localized label for searchPlugins"
+  },
+  "autoExecute": "Auto",
+  "@autoExecute": {
+    "description": "Localized label for autoExecute"
+  },
+  "manualExecute": "Manual",
+  "@manualExecute": {
+    "description": "Localized label for manualExecute"
+  },
+  "copied": "Copiado",
+  "@copied": {
+    "description": "Localized label for copied"
+  },
+  "copy": "Copiar",
+  "@copy": {
+    "description": "Localized label for copy"
+  },
+  "close": "Cerrar",
+  "@close": {
+    "description": "Localized label for close"
+  }
 }

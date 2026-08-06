@@ -17,10 +17,14 @@
   "proxySettingsDesc": "配置网络代理",
   "about": "关于",
   "aboutVersion": "AI Design v{version}",
-  "@aboutVersion": { "placeholders": { "version": {} } },
+  "@aboutVersion": {
+    "placeholders": {
+      "version": {}
+    }
+  },
   "comingSoon": "即将推出",
   "aboutDescription1": "一款 AI 驱动的设计软件自动化工具。",
-  "aboutDescription2": "覆盖 6 大设计领域、50 款主流设计软件的 AI 驱动脚本生成与执行。",
+  "aboutDescription2": "覆盖 6 大设计领域、62 款主流设计软件的 AI 驱动脚本生成与执行。",
   "installedPlugins": "已安装插件",
   "installPlugin": "安装插件",
   "connected": "已连接",
@@ -32,15 +36,31 @@
   "noTasks": "暂无任务",
   "noTasksHint": "在对话面板中输入设计需求，任务将显示在这里",
   "installed": "已安装 ({count})",
-  "@installed": { "placeholders": { "count": {} } },
+  "@installed": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "available": "可安装 ({count})",
-  "@available": { "placeholders": { "count": {} } },
+  "@available": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "install": "安装",
   "uninstall": "卸载",
   "installSuccess": "{name} 安装成功",
-  "@installSuccess": { "placeholders": { "name": {} } },
+  "@installSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "uninstallSuccess": "{name} 已卸载",
-  "@uninstallSuccess": { "placeholders": { "name": {} } },
+  "@uninstallSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "ok": "确定",
   "errorPrefix": "错误",
   "echoPrefix": "Echo",
@@ -48,5 +68,38 @@
   "taskFailed": "任务失败",
   "noOutput": "(无输出)",
   "unknownError": "未知错误",
-  "languageInstruction": "请使用中文回复。"
+  "languageInstruction": "请使用中文回复。",
+  "language": "语言",
+  "apiEndpoint": "API 端点",
+  "apiKey": "API 密钥",
+  "defaultModel": "默认模型",
+  "save": "保存",
+  "proxyHost": "代理主机",
+  "proxyPort": "代理端口",
+  "saveSuccess": "保存成功",
+  "history": "历史",
+  "searchPlugins": "搜索插件...",
+  "@searchPlugins": {
+    "description": "Localized label for searchPlugins"
+  },
+  "autoExecute": "自动执行",
+  "@autoExecute": {
+    "description": "Localized label for autoExecute"
+  },
+  "manualExecute": "手动执行",
+  "@manualExecute": {
+    "description": "Localized label for manualExecute"
+  },
+  "copied": "已复制",
+  "@copied": {
+    "description": "Localized label for copied"
+  },
+  "copy": "复制",
+  "@copy": {
+    "description": "Localized label for copy"
+  },
+  "close": "关闭",
+  "@close": {
+    "description": "Localized label for close"
+  }
 }

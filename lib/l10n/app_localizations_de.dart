@@ -70,7 +70,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get aboutDescription2 =>
-      'Deckt 6 Designbereiche und über 50 Designprogramme mit KI-Skripterstellung ab.';
+      'Deckt 6 Designbereiche und über 62 Designprogramme mit KI-Skripterstellung ab.';
 
   @override
   String get installedPlugins => 'Installierte Plugins';
@@ -152,4 +152,49 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get languageInstruction => 'Bitte antworten Sie auf Deutsch.';
+
+  @override
+  String get language => 'Sprache';
+
+  @override
+  String get apiEndpoint => 'API-Endpunkt';
+
+  @override
+  String get apiKey => 'API-Schlüssel';
+
+  @override
+  String get defaultModel => 'Standardmodell';
+
+  @override
+  String get save => 'Speichern';
+
+  @override
+  String get proxyHost => 'Proxy-Host';
+
+  @override
+  String get proxyPort => 'Proxy-Port';
+
+  @override
+  String get saveSuccess => 'Erfolgreich gespeichert';
+
+  @override
+  String get history => 'Verlauf';
+
+  @override
+  String get searchPlugins => 'Plugins suchen...';
+
+  @override
+  String get autoExecute => 'Auto';
+
+  @override
+  String get manualExecute => 'Manuell';
+
+  @override
+  String get copied => 'Kopiert';
+
+  @override
+  String get copy => 'Kopieren';
+
+  @override
+  String get close => 'Schließen';
 }

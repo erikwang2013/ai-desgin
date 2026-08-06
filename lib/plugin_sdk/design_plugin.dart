@@ -2,6 +2,7 @@ import '../models/plugin.dart';
 import '../models/software_capabilities.dart';
 import '../models/session.dart';
 import '../core/version.dart';
+import '../core/local_script_executor.dart';
 
 typedef ProgressCallback = void Function(double progress);
 
@@ -59,13 +60,24 @@ class BuiltInPlugin implements DesignPlugin {
   Future<void> dispose() async {}
 
   @override
-  Future<ConnectionStatus> checkConnection() async => ConnectionStatus.disconnected;
+  Future<ConnectionStatus> checkConnection() async {
+    final executor = LocalScriptExecutor.instance;
+    if (executor != null && executor.hasCommand(id)) {
+      final available = await executor.checkAvailable(id);
+      return available ? ConnectionStatus.connected : ConnectionStatus.disconnected;
+    }
+    return ConnectionStatus.disconnected;
+  }
 
   @override
   Future<bool> connect(ConnectionConfig config) async => false;
 
   @override
   Future<ScriptResult> execute(String script, {ProgressCallback? onProgress}) async {
+    final executor = LocalScriptExecutor.instance;
+    if (executor != null && executor.hasCommand(id)) {
+      return executor.execute(id, name, script);
+    }
     return ScriptResult.success(
       output: '脚本已生成，请在实际软件中执行:\n\n$script',
     );

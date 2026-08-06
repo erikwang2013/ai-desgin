@@ -11,6 +11,7 @@ class _QueuedTask {
   final String softwareName;
   final String task;
   final String? overrideModel;
+  final String pendingId;
   final Completer<TaskRecord> completer;
 
   _QueuedTask({
@@ -18,6 +19,7 @@ class _QueuedTask {
     required this.softwareName,
     required this.task,
     this.overrideModel,
+    required this.pendingId,
   }) : completer = Completer<TaskRecord>();
 }
 
@@ -33,6 +35,8 @@ class TaskOrchestrator {
   final Map<String, TaskRecord> _tasks = {};
   int _activeCount = 0;
   final List<_QueuedTask> _taskQueue = [];
+
+  ModelRouter get modelRouter => _modelRouter;
 
   TaskOrchestrator({
     required PluginManager pluginManager,
@@ -51,6 +55,7 @@ class TaskOrchestrator {
     required String softwareName,
     required String task,
     String? overrideModel,
+    String? taskId,
   }) async {
     final plugin = _pluginManager.get(softwareName);
     if (plugin == null) {
@@ -66,17 +71,23 @@ class TaskOrchestrator {
         _tasks[record.id] = record;
         return record;
       }
-      final queued = _QueuedTask(domain: domain, softwareName: softwareName, task: task, overrideModel: overrideModel);
-      _taskQueue.add(queued);
       final pending = TaskRecord(sessionId: softwareName, task: task, status: TaskStatus.pending);
       _tasks[pending.id] = pending;
+      final queued = _QueuedTask(
+        domain: domain,
+        softwareName: softwareName,
+        task: task,
+        overrideModel: overrideModel,
+        pendingId: pending.id,
+      );
+      _taskQueue.add(queued);
       _processQueue();
       return queued.completer.future;
     }
     _activeCount++;
 
     _getOrCreateSession(domain, softwareName);
-    final record = TaskRecord(sessionId: softwareName, task: task, status: TaskStatus.running);
+    final record = TaskRecord(id: taskId, sessionId: softwareName, task: task, status: TaskStatus.running);
     _tasks[record.id] = record;
 
     try {
@@ -90,6 +101,7 @@ class TaskOrchestrator {
           final generated = await _ccManager.executeWithClaude(
             sessionId: ccSession.id, task: task, model: model,
             runner: _ccRunner, scriptLanguage: plugin.scriptLanguage,
+            taskKey: record.id,
           );
           generatedScript = (generated['script'] as String?) ?? task;
         } catch (_) {
@@ -99,6 +111,9 @@ class TaskOrchestrator {
 
       final result = await plugin.execute(generatedScript);
       _ccManager.closeSession(ccSession.id);
+      if (_tasks[record.id]?.status == TaskStatus.cancelled) {
+        return _tasks[record.id]!;
+      }
 
       final scriptContent = result.output ?? '';
 
@@ -124,6 +139,8 @@ class TaskOrchestrator {
 
       return updated;
     } catch (e) {
+      final existing = _tasks[record.id];
+      if (existing?.status == TaskStatus.cancelled) return existing!;
       final failed = TaskRecord(
         id: record.id, sessionId: softwareName, task: task,
         status: TaskStatus.failed, error: e.toString(),
@@ -134,6 +151,7 @@ class TaskOrchestrator {
     } finally {
       _activeCount--;
       _processQueue();
+      pruneTasks();
     }
   }
 
@@ -141,25 +159,43 @@ class TaskOrchestrator {
 
   TaskRecord? getTask(String taskId) => _tasks[taskId];
 
+  /// All task records (for dashboards and testing).
+  Iterable<TaskRecord> get tasks => _tasks.values;
+
+  /// Cancel a queued or running task. Completed/failed records are kept as-is.
   void cancelTask(String taskId) {
     final task = _tasks[taskId];
-    if (task != null && task.status != TaskStatus.cancelled) {
-      _ccRunner.cancel();
+    if (task == null || task.status == TaskStatus.cancelled) return;
+    if (task.status == TaskStatus.completed || task.status == TaskStatus.failed) return;
 
-      _tasks[taskId] = TaskRecord(
-        id: task.id,
-        sessionId: task.sessionId,
-        task: task.task,
-        script: task.script,
-        scriptLanguage: task.scriptLanguage,
-        modelUsed: task.modelUsed,
-        status: TaskStatus.cancelled,
-        error: task.error,
-        artifacts: task.artifacts,
-        createdAt: task.createdAt,
-        completedAt: DateTime.now(),
-      );
+    final cancelled = TaskRecord(
+      id: task.id,
+      sessionId: task.sessionId,
+      task: task.task,
+      script: task.script,
+      scriptLanguage: task.scriptLanguage,
+      modelUsed: task.modelUsed,
+      status: TaskStatus.cancelled,
+      error: task.error,
+      artifacts: task.artifacts,
+      createdAt: task.createdAt,
+      completedAt: DateTime.now(),
+    );
+
+    final queueIndex = _taskQueue.indexWhere((q) => q.pendingId == taskId);
+    if (queueIndex >= 0) {
+      final queued = _taskQueue.removeAt(queueIndex);
+      _tasks[taskId] = cancelled;
+      if (!queued.completer.isCompleted) {
+        queued.completer.complete(cancelled);
+      }
+      return;
     }
+
+    if (task.status == TaskStatus.running) {
+      _ccRunner.cancel(key: taskId);
+    }
+    _tasks[taskId] = cancelled;
   }
 
   int get activeTaskCount => _activeCount;
@@ -177,6 +213,7 @@ class TaskOrchestrator {
       softwareName: queued.softwareName,
       task: queued.task,
       overrideModel: queued.overrideModel,
+      taskId: queued.pendingId,
     ).then((result) {
       if (!queued.completer.isCompleted) {
         queued.completer.complete(result);
@@ -188,13 +225,20 @@ class TaskOrchestrator {
     });
   }
 
-  /// Evict old task records to prevent unbounded memory growth
-  void pruneTasks({int keep = 100}) {
+  /// Evict old finished task records to prevent unbounded memory growth.
+  /// Running/pending tasks are never pruned.
+  void pruneTasks({int keep = 200}) {
     if (_tasks.length <= keep) return;
-    final sorted = _tasks.entries.toList()
+    final terminal = _tasks.entries
+        .where((e) => e.value.status != TaskStatus.running &&
+            e.value.status != TaskStatus.pending)
+        .toList()
       ..sort((a, b) => a.value.createdAt.compareTo(b.value.createdAt));
-    for (var i = 0; i < sorted.length - keep; i++) {
-      _tasks.remove(sorted[i].key);
+    var excess = _tasks.length - keep;
+    for (final entry in terminal) {
+      if (excess <= 0) break;
+      _tasks.remove(entry.key);
+      excess--;
     }
   }
 }
