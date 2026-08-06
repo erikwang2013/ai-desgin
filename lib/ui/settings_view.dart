@@ -161,15 +161,24 @@ class _ModelConfigPageState extends State<ModelConfigPage> {
   }
 
   Future<void> _save() async {
+    final endpoint = _endpointCtrl.text.trim();
+    final apiKey = _apiKeyCtrl.text.trim();
+    final model = _modelCtrl.text.trim();
+
+    final error = _validate(endpoint: endpoint, model: model);
+    if (error != null) {
+      _showError(error);
+      return;
+    }
+
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_endpointKey, _endpointCtrl.text.trim());
-      await prefs.setString(_apiKeyKey, _apiKeyCtrl.text.trim());
-      await prefs.setString(_modelKey, _modelCtrl.text.trim());
+      await prefs.setString(_endpointKey, endpoint);
+      await prefs.setString(_apiKeyKey, apiKey);
+      await prefs.setString(_modelKey, model);
     } catch (_) {}
-    CCRunner.apiBaseUrl = _endpointCtrl.text.trim();
-    CCRunner.apiAuthToken = _apiKeyCtrl.text.trim();
-    final model = _modelCtrl.text.trim();
+    CCRunner.apiBaseUrl = endpoint;
+    CCRunner.apiAuthToken = apiKey;
     if (model.isNotEmpty) widget.modelRouter?.setDefaultModel(model);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -179,6 +188,34 @@ class _ModelConfigPageState extends State<ModelConfigPage> {
         ),
       );
     }
+  }
+
+  /// Empty API key is allowed (unauthenticated local environments);
+  /// the endpoint must be a valid http(s) URL when provided.
+  String? _validate({required String endpoint, required String model}) {
+    if (endpoint.isNotEmpty) {
+      final uri = Uri.tryParse(endpoint);
+      if (uri == null ||
+          !(uri.isScheme('http') || uri.isScheme('https')) ||
+          uri.host.isEmpty) {
+        return 'Invalid endpoint URL (e.g. https://api.example.com/v1)';
+      }
+    }
+    if (model.isNotEmpty && !RegExp(r'^[a-zA-Z0-9._-]+$').hasMatch(model)) {
+      return 'Invalid model name (letters, digits, dot, dash, underscore only)';
+    }
+    return null;
+  }
+
+  void _showError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Theme.of(context).colorScheme.error,
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
 
   @override
@@ -262,15 +299,24 @@ class _ProxySettingsPageState extends State<ProxySettingsPage> {
   Future<void> _save() async {
     final host = _hostCtrl.text.trim();
     final port = _portCtrl.text.trim();
+
+    final error = _validate(host: host, port: port);
+    if (error != null) {
+      _showError(error);
+      return;
+    }
+
+    // Accept a scheme-prefixed host, store it bare and rebuild the scheme.
+    final normalized = host.replaceFirst(RegExp(r'^https?://'), '');
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_hostKey, host);
+      await prefs.setString(_hostKey, normalized);
       await prefs.setString(_portKey, port);
     } catch (_) {}
-    if (host.isEmpty) {
+    if (normalized.isEmpty) {
       CCRunner.proxyEnvironment = null;
     } else {
-      final base = port.isEmpty ? 'http://$host' : 'http://$host:$port';
+      final base = port.isEmpty ? 'http://$normalized' : 'http://$normalized:$port';
       CCRunner.proxyEnvironment = {
         'HTTP_PROXY': base,
         'HTTPS_PROXY': base,
@@ -284,6 +330,34 @@ class _ProxySettingsPageState extends State<ProxySettingsPage> {
         ),
       );
     }
+  }
+
+  /// Empty host clears the proxy; a port requires a host and must be 1-65535.
+  String? _validate({required String host, required String port}) {
+    if (host.contains(' ')) {
+      return 'Invalid proxy host (no spaces allowed)';
+    }
+    if (port.isNotEmpty) {
+      final value = int.tryParse(port);
+      if (value == null || value < 1 || value > 65535) {
+        return 'Invalid proxy port (1-65535)';
+      }
+      if (host.isEmpty) {
+        return 'Proxy host is required when a port is set';
+      }
+    }
+    return null;
+  }
+
+  void _showError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Theme.of(context).colorScheme.error,
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
 
   @override

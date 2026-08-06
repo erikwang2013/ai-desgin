@@ -91,4 +91,45 @@ void main() {
     final alive = await Process.run('kill', ['-0', '$pid']);
     expect(alive.exitCode, isNot(0), reason: 'subprocess should have been killed');
   });
+
+  test('cancel without a key kills all tracked processes', () async {
+    final dir = Directory.systemTemp.createTempSync('cc_runner_cancelall_');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    final pidFile = File('${dir.path}/pids');
+    final fakeCli = File('${dir.path}/fake_claude.sh');
+    fakeCli.writeAsStringSync(
+        '#!/bin/sh\necho \$\$ >> ${pidFile.path}\nexec sleep 30\n');
+    Process.runSync('chmod', ['+x', fakeCli.path]);
+
+    final runner = CCRunner(
+      claudeCliPath: fakeCli.path,
+      timeout: const Duration(seconds: 30),
+    );
+    final exec1 = runner.execute(
+      task: 'a', software: 'figma', capabilities: const {}, state: const {}, key: 'k1');
+    final exec2 = runner.execute(
+      task: 'b', software: 'figma', capabilities: const {}, state: const {}, key: 'k2');
+
+    // Wait until both spawned processes have written their PIDs.
+    final deadline = DateTime.now().add(const Duration(seconds: 5));
+    var pidCount = 0;
+    while (pidCount < 2) {
+      if (DateTime.now().isAfter(deadline)) fail('spawned processes did not start');
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      if (pidFile.existsSync()) {
+        pidCount = pidFile.readAsStringSync().trim().split('\n').where((l) => l.isNotEmpty).length;
+      }
+    }
+
+    runner.cancel();
+    final pids = pidFile.readAsStringSync().trim().split('\n')
+        .map((l) => int.parse(l.trim()))
+        .toList();
+    expect(pids.length, 2);
+    for (final pid in pids) {
+      final alive = await Process.run('kill', ['-0', '$pid']);
+      expect(alive.exitCode, isNot(0), reason: 'process $pid should have been killed');
+    }
+    await Future.wait([exec1, exec2]);
+  });
 }
