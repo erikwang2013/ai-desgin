@@ -195,4 +195,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get close => '닫기';
+
+  @override
+  String get cancel => '취소';
 }

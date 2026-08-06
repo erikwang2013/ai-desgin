@@ -99,7 +99,11 @@
     "description": "Localized label for copy"
   },
   "close": "बंद करें",
-  "@close": {
+    "cancel": "रद्द करें",
+  "@cancel": {
+    "description": "Localized label for cancel"
+  },
+"@close": {
     "description": "Localized label for close"
   }
 }

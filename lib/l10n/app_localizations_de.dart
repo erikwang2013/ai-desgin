@@ -197,4 +197,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get close => 'Schließen';
+
+  @override
+  String get cancel => 'Abbrechen';
 }

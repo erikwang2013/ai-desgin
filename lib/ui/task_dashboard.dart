@@ -28,7 +28,8 @@ class TaskItem {
 class TaskDashboard extends StatefulWidget {
   final List<TaskItem>? initialTasks;
   final SessionStore? sessionStore;
-  const TaskDashboard({super.key, this.initialTasks, this.sessionStore});
+  final ValueChanged<String>? onCancel;
+  const TaskDashboard({super.key, this.initialTasks, this.sessionStore, this.onCancel});
 
   @override
   State<TaskDashboard> createState() => TaskDashboardState();
@@ -158,6 +159,7 @@ class TaskDashboardState extends State<TaskDashboard> {
   }
 
   Widget _buildTaskCard(TaskItem task) {
+    final l10n = AppLocalizations.of(context);
     final statusIcon = switch (task.status) {
       TaskStatus.completed => Icons.check_circle,
       TaskStatus.failed => Icons.error,
@@ -192,10 +194,39 @@ class TaskDashboardState extends State<TaskDashboard> {
               ),
           ],
         ),
-        trailing: Text(timeStr, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (widget.onCancel != null &&
+                (task.status == TaskStatus.running || task.status == TaskStatus.pending))
+              IconButton(
+                icon: const Icon(Icons.close, size: 18),
+                tooltip: l10n?.cancel ?? 'Cancel',
+                onPressed: () => _cancelTask(task),
+              ),
+            Text(timeStr, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+          ],
+        ),
         onTap: task.script == null ? null : () => _showTaskDetail(task),
       ),
     );
+  }
+
+  void _cancelTask(TaskItem task) {
+    widget.onCancel?.call(task.id);
+    final idx = _tasks.indexWhere((t) => t.id == task.id);
+    if (idx < 0) return;
+    setState(() {
+      _tasks[idx] = TaskItem(
+        id: task.id,
+        title: task.title,
+        software: task.software,
+        status: TaskStatus.cancelled,
+        createdAt: task.createdAt,
+        modelUsed: task.modelUsed,
+        script: task.script,
+      );
+    });
   }
 
   void _showTaskDetail(TaskItem task) {

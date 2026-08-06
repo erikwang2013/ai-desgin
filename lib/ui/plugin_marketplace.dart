@@ -87,18 +87,27 @@ class _PluginMarketplaceState extends State<PluginMarketplace> {
   }
 
   List<PluginInfo> _buildPluginsFromManager() {
-    return widget.pluginManager.getAll().map((p) {
-      final icon = softwareIcons[p.id] ?? '🔌';
-      return PluginInfo(
-        id: p.id,
-        name: p.name,
-        description: softwareDescriptions[p.id] ?? '${p.name} 插件',
-        icon: icon,
-        category: p.category.label,
-        installed: !_removedPlugins.containsKey(p.id),
-        version: p.version,
-      );
-    }).toList();
+    PluginInfo infoFor(DesignPlugin p, {required bool installed}) => PluginInfo(
+      id: p.id,
+      name: p.name,
+      description: softwareDescriptions[p.id] ?? '${p.name} 插件',
+      icon: softwareIcons[p.id] ?? '🔌',
+      category: p.category.label,
+      installed: installed,
+      version: p.version,
+    );
+    final byId = <String, PluginInfo>{};
+    for (final p in widget.pluginManager.getAll()) {
+      byId[p.id] = infoFor(p, installed: !_removedPlugins.containsKey(p.id));
+    }
+    // 卸载的插件保持可列出（Available 区），重启后也能重新安装。
+    for (final p in _removedPlugins.values) {
+      byId.putIfAbsent(p.id, () => infoFor(p, installed: false));
+    }
+    for (final p in builtInPlugins) {
+      byId.putIfAbsent(p.id, () => infoFor(p, installed: false));
+    }
+    return byId.values.toList();
   }
 
   void _toggleInstall(PluginInfo plugin) {

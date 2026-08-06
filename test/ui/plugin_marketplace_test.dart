@@ -55,13 +55,34 @@ void main() {
     ));
     await tester.pumpAndSettle();
 
-    // Fresh manager + fresh marketplace should re-apply the saved state.
+    // Fresh manager + fresh marketplace should re-apply the saved state,
+    // keeping the uninstalled plugin listable in the Available section.
     await tester.pumpWidget(MaterialApp(
       home: PluginMarketplace(pluginManager: _createTestPluginManager()),
     ));
     await tester.pumpAndSettle();
 
     expect(find.text('Installed (61)'), findsOneWidget);
-    expect(find.text('Sketch'), findsNothing);
+
+    // The Available section sits below 61 installed tiles; scroll to it.
+    final scrollable = find.byType(Scrollable).first;
+    await tester.scrollUntilVisible(find.text('Sketch'), 300, scrollable: scrollable);
+    expect(find.text('Available (1)'), findsOneWidget);
+    expect(find.text('Sketch'), findsOneWidget);
+
+    // Let the 'Sketch uninstalled' snackbar expire: it covers the bottom of
+    // the viewport where the Install button sits, which would make the tap
+    // miss its target.
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
+
+    // Reinstall restores the plugin to the Installed section.
+    await tester.tap(find.descendant(
+      of: find.widgetWithText(ListTile, 'Sketch'),
+      matching: find.text('Install'),
+    ));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('Installed (62)'), -300, scrollable: scrollable);
+    expect(find.text('Installed (62)'), findsOneWidget);
   });
 }

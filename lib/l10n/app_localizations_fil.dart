@@ -197,4 +197,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get close => 'Isara';
+
+  @override
+  String get cancel => 'Kanselahin';
 }

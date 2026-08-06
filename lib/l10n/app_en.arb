@@ -99,7 +99,11 @@
     "description": "Localized label for copy"
   },
   "close": "Close",
-  "@close": {
+    "cancel": "Cancel",
+  "@cancel": {
+    "description": "Localized label for cancel"
+  },
+"@close": {
     "description": "Localized label for close"
   }
 }

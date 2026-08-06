@@ -197,4 +197,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get close => 'बंद करें';
+
+  @override
+  String get cancel => 'रद्द करें';
 }

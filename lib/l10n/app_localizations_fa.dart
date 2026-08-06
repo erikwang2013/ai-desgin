@@ -197,4 +197,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get close => 'بستن';
+
+  @override
+  String get cancel => 'لغو';
 }

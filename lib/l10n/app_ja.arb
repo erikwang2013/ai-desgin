@@ -99,7 +99,11 @@
     "description": "Localized label for copy"
   },
   "close": "閉じる",
-  "@close": {
+    "cancel": "キャンセル",
+  "@cancel": {
+    "description": "Localized label for cancel"
+  },
+"@close": {
     "description": "Localized label for close"
   }
 }

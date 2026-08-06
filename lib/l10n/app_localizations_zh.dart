@@ -194,4 +194,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get close => '关闭';
+
+  @override
+  String get cancel => '取消';
 }

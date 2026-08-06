@@ -107,7 +107,17 @@ class _MainShellState extends State<_MainShell> {
     final modelRouter = ModelRouter();
     final ccRunner = CCRunner();
 
+    // 市场卸载的插件跨重启保持卸载状态，启动时不注册。
+    final uninstalledIds = <String>{};
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      uninstalledIds.addAll(prefs.getStringList('uninstalled_plugin_ids') ?? const []);
+    } catch (_) {
+      // No persistence available; all plugins default to installed
+    }
+
     for (final p in builtInPlugins) {
+      if (uninstalledIds.contains(p.id)) continue;
       _pluginManager.register(p);
     }
 
@@ -304,7 +314,11 @@ class _MainShellState extends State<_MainShell> {
             selectedSoftware: _currentSoftware,
             onSoftwareChanged: _onSoftwareChanged,
           ),
-          TaskDashboard(key: _dashboardKey, sessionStore: _sessionStore),
+          TaskDashboard(
+            key: _dashboardKey,
+            sessionStore: _sessionStore,
+            onCancel: _ready ? _orchestrator.cancelTask : null,
+          ),
           SoftwarePanel(
             pluginManager: _pluginManager,
             connectionStatus: _connectionStatus,

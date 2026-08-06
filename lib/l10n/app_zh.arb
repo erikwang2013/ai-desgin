@@ -99,7 +99,11 @@
     "description": "Localized label for copy"
   },
   "close": "关闭",
-  "@close": {
+    "cancel": "取消",
+  "@cancel": {
+    "description": "Localized label for cancel"
+  },
+"@close": {
     "description": "Localized label for close"
   }
 }
