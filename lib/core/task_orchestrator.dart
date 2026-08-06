@@ -109,8 +109,18 @@ class TaskOrchestrator {
         }
       }
 
+      // A cancel during Claude generation kills the CLI process; do not
+      // run the local script for a task the user already cancelled.
+      if (_tasks[record.id]?.status == TaskStatus.cancelled) {
+        _ccManager.closeSession(ccSession.id);
+        return _tasks[record.id]!;
+      }
+
       final result = await plugin.execute(generatedScript);
       _ccManager.closeSession(ccSession.id);
+
+      // A cancel during local execution must not overwrite the cancelled
+      // record (cancelTask already marked it cancelled).
       if (_tasks[record.id]?.status == TaskStatus.cancelled) {
         return _tasks[record.id]!;
       }

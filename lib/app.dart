@@ -85,6 +85,7 @@ class _MainShellState extends State<_MainShell> {
   final Map<String, bool> _connectionStatus = {};
   final Map<DesignCategory, String> _lastSoftwarePerDomain = {};
   final Map<DesignCategory, List<SoftwareOption>> _cachedOptions = {};
+  final Map<DesignCategory, String> _cachedOptionsSignature = {};
   bool _ready = false;
 
   @override
@@ -271,11 +272,17 @@ class _MainShellState extends State<_MainShell> {
   }
 
   List<SoftwareOption> _buildSoftwareOptions() {
-    return _cachedOptions.putIfAbsent(_currentDomain, () {
-      return _pluginManager.getByCategory(_currentDomain).map((p) {
+    // Invalidate the per-domain cache when the plugin set changes
+    // (e.g. uninstall/install from the marketplace).
+    final plugins = _pluginManager.getByCategory(_currentDomain);
+    final signature = plugins.map((p) => p.id).join(',');
+    if (_cachedOptionsSignature[_currentDomain] != signature) {
+      _cachedOptionsSignature[_currentDomain] = signature;
+      _cachedOptions[_currentDomain] = plugins.map((p) {
         return SoftwareOption(id: p.id, name: p.name, icon: softwareIcons[p.id] ?? '🔌');
       }).toList();
-    });
+    }
+    return _cachedOptions[_currentDomain] ?? const [];
   }
 
   @override

@@ -67,6 +67,45 @@ class GatedEchoPlugin extends EchoPlugin {
   }
 }
 
+/// Plugin that counts local script executions.
+class CountingEchoPlugin extends EchoPlugin {
+  int executeCalls = 0;
+
+  @override
+  Future<ScriptResult> execute(String script, {ProgressCallback? onProgress}) async {
+    executeCalls++;
+    return super.execute(script, onProgress: onProgress);
+  }
+}
+
+/// Runner whose generation blocks until [gate] completes, then reports
+/// failure (as when the CLI process is killed by a cancel).
+class GatedFakeCCRunner extends FakeCCRunner {
+  final Completer<void> gate = Completer<void>();
+  final List<String> cancelledKeys = [];
+
+  GatedFakeCCRunner() : super(available: true);
+
+  @override
+  Future<CCResult> execute({
+    required String task,
+    required String software,
+    required Map<String, dynamic> capabilities,
+    required Map<String, dynamic> state,
+    String? model,
+    String? scriptLanguage,
+    String? key,
+  }) async {
+    await gate.future;
+    return CCResult.failure('killed by cancel');
+  }
+
+  @override
+  void cancel({String? key}) {
+    if (key != null) cancelledKeys.add(key);
+  }
+}
+
 void main() {
   late TaskOrchestrator orchestrator;
   late PluginManager pluginManager;
@@ -147,6 +186,28 @@ void main() {
     final result = await future;
     expect(result.status, TaskStatus.cancelled);
     expect(orchestrator.getTask(running.id)?.status, TaskStatus.cancelled);
+  });
+
+  test('cancelling a running task skips local script execution', () async {
+    final counting = CountingEchoPlugin();
+    pluginManager.register(counting);
+    final runner = GatedFakeCCRunner();
+    final orch = TaskOrchestrator(
+      pluginManager: pluginManager,
+      ccManager: ccManager,
+      modelRouter: modelRouter,
+      ccRunner: runner,
+      maxConcurrent: 1,
+    );
+    final future = orch.submitTask(domain: DesignCategory.web, softwareName: 'echo', task: 'slow');
+    await pumpEventQueue();
+    final running = orch.tasks.firstWhere((t) => t.task == 'slow');
+    orch.cancelTask(running.id);
+    expect(runner.cancelledKeys, contains(running.id));
+    runner.gate.complete();
+    final result = await future;
+    expect(result.status, TaskStatus.cancelled);
+    expect(counting.executeCalls, 0);
   });
 
   test('cancelTask does not overwrite completed history', () async {
