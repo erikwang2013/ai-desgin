@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import '../models/plugin.dart';
 
@@ -59,34 +60,42 @@ class LocalScriptExecutor {
     }
 
     Directory? tempDir;
+    Process? process;
     try {
       tempDir = await Directory.systemTemp.createTemp('ai_design_');
       final scriptPath = await _writeScriptFile(tempDir, pluginId, script);
       final args = _buildArgs(pluginId, scriptPath, tempDir);
 
-      final result = await Process.run(
+      process = await Process.start(
         exe,
         args,
         environment: {...Platform.environment, 'AI_DESIGN_SCRIPT': scriptPath},
         runInShell: Platform.isWindows,
-      ).timeout(_executeTimeout);
-
-      final output = result.stdout.toString().trim();
-      final stderr = result.stderr.toString().trim();
-      if (result.exitCode == 0) {
+      );
+      // 启动即并发消费 stdout/stderr，超时 kill 后管道随即关闭。
+      final stdoutFuture = process.stdout.transform(utf8.decoder).join();
+      final stderrFuture = process.stderr.transform(utf8.decoder).join();
+      final exitCode = await process.exitCode.timeout(_executeTimeout);
+      final output = (await stdoutFuture).trim();
+      final stderr = (await stderrFuture).trim();
+      if (exitCode == 0) {
         return ScriptResult.success(
           output: '$pluginName 脚本执行成功\n${output.isEmpty ? stderr : output}',
         );
       }
       return ScriptResult.failure(
-        error: '$pluginName 脚本执行失败 (exit ${result.exitCode})\n$stderr',
+        error: '$pluginName 脚本执行失败 (exit $exitCode)\n$stderr',
       );
     } on ProcessException catch (e) {
       _availableCache[pluginId] = false;
+      // 与 checkAvailable 的 TTL 计算保持一致。
+      _lastCacheCheck = DateTime.now();
       return ScriptResult.success(
         output: _fallbackMessage(pluginName, script, detail: e.message),
       );
     } on TimeoutException {
+      // 超时是放弃 Future 而非杀进程，挂死的 Blender/FreeCAD 会继续运行。
+      process?.kill();
       return ScriptResult.failure(
         error: '$pluginName 脚本执行超时（${_executeTimeout.inSeconds}s）',
       );

@@ -5,6 +5,7 @@ import 'cc_runner.dart';
 import 'model_router.dart';
 import '../models/session.dart';
 import '../models/task_record.dart';
+import '../models/plugin.dart';
 
 class _QueuedTask {
   final DesignCategory domain;
@@ -95,6 +96,21 @@ class TaskOrchestrator {
       final state = await plugin.getCurrentState();
       final ccSession = _ccManager.createSession(software: softwareName, capabilities: plugin.capabilities, state: state);
 
+      // 生成失败（API 报错、无脚本、会话失效）时不得把任务描述当脚本执行。
+      TaskRecord failGenerated(String error) {
+        _ccManager.closeSession(ccSession.id);
+        if (_tasks[record.id]?.status == TaskStatus.cancelled) {
+          return _tasks[record.id]!;
+        }
+        final failed = TaskRecord(
+          id: record.id, sessionId: softwareName, task: task,
+          status: TaskStatus.failed, error: error,
+          createdAt: record.createdAt, completedAt: DateTime.now(),
+        );
+        _tasks[record.id] = failed;
+        return failed;
+      }
+
       String generatedScript = task;
       if (await _ccRunner.isAvailable()) {
         try {
@@ -103,9 +119,14 @@ class TaskOrchestrator {
             runner: _ccRunner, scriptLanguage: plugin.scriptLanguage,
             taskKey: record.id,
           );
-          generatedScript = (generated['script'] as String?) ?? task;
+          if (generated['success'] == false || generated['script'] == null) {
+            return failGenerated(
+              (generated['error'] as String?) ?? 'Claude Code failed to generate a script',
+            );
+          }
+          generatedScript = generated['script'] as String;
         } catch (_) {
-          // Fall back to raw task text if Claude CLI fails
+          return failGenerated('Claude Code execution failed');
         }
       }
 
@@ -116,8 +137,13 @@ class TaskOrchestrator {
         return _tasks[record.id]!;
       }
 
-      final result = await plugin.execute(generatedScript);
-      _ccManager.closeSession(ccSession.id);
+      ScriptResult result;
+      try {
+        result = await plugin.execute(generatedScript);
+      } finally {
+        // 本地脚本异常退出时也关闭 CC 会话，避免泄漏到空闲驱逐。
+        _ccManager.closeSession(ccSession.id);
+      }
 
       // A cancel during local execution must not overwrite the cancelled
       // record (cancelTask already marked it cancelled).

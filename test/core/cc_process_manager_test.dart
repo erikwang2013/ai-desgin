@@ -71,7 +71,29 @@ void main() {
     expect(manager.activeSessionCount, 0);
   });
 
-  test('evicting a session cancels its still-running task processes', () async {
+  test('full manager evicts the idle session, keeping the busy one', () async {
+    final runner = _HangingRunner();
+    final manager = CCProcessManager(maxProcesses: 2, idleTimeoutSeconds: 300);
+    addTearDown(manager.dispose);
+    const caps = SoftwareCapabilities(actions: [], fileFormats: []);
+    const state = SoftwareState();
+    final idle = manager.createSession(software: 'a', capabilities: caps, state: state);
+    final busy = manager.createSession(software: 'b', capabilities: caps, state: state);
+
+    final exec = manager.executeWithClaude(
+      sessionId: busy.id, task: 't1', model: 'm', runner: runner, taskKey: 'task-1');
+    await runner.started.future;
+
+    manager.createSession(software: 'c', capabilities: caps, state: state);
+    expect(manager.getSession(idle.id), isNull);
+    expect(manager.getSession(busy.id), isNotNull);
+    expect(runner.cancelled, isEmpty);
+
+    runner.gate.complete(CCResult.failure('done'));
+    await exec;
+  });
+
+  test('full manager with all sessions busy refuses a new session', () async {
     final runner = _HangingRunner();
     final manager = CCProcessManager(maxProcesses: 1, idleTimeoutSeconds: 300);
     addTearDown(manager.dispose);
@@ -83,9 +105,10 @@ void main() {
       sessionId: s1.id, task: 't1', model: 'm', runner: runner, taskKey: 'task-1');
     await runner.started.future;
 
-    manager.createSession(software: 'b', capabilities: caps, state: state);
-    expect(manager.getSession(s1.id), isNull);
-    expect(runner.cancelled, contains('task-1'));
+    expect(() => manager.createSession(software: 'b', capabilities: caps, state: state),
+        throwsStateError);
+    expect(manager.getSession(s1.id), isNotNull);
+    expect(runner.cancelled, isEmpty);
 
     runner.gate.complete(CCResult.failure('done'));
     await exec;

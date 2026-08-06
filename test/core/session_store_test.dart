@@ -38,6 +38,33 @@ void main() {
     expect(result, isNull);
   });
 
+  test('load tolerates corrupt task records instead of throwing', () async {
+    final session = Session(domain: DesignCategory.web, softwareName: 'figma');
+    session.addRecord(task: 'good', script: '', scriptLanguage: '', modelUsed: 'haiku');
+    await store.save(session);
+    // 注入坏记录：坏 artifacts JSON + 坏日期。
+    await db.rawInsert(
+      'INSERT INTO task_records (id, session_id, task, status, artifacts_json, created_at) '
+      "VALUES ('bad1', ?, 'corrupt', 'completed', '{bad json', 'bad-date')",
+      [session.id],
+    );
+    final loaded = await store.load(session.id);
+    expect(loaded, isNotNull);
+    expect(loaded!.history, hasLength(1));
+  });
+
+  test('listRecent tolerates corrupt session rows', () async {
+    await store.save(Session(domain: DesignCategory.web, softwareName: 'figma'));
+    await db.rawInsert(
+      "INSERT INTO sessions (id, domain, software_name, context_json, created_at) "
+      "VALUES ('s2', 'web', 'figma', '{bad json', 'bad-date')",
+    );
+    final recent = await store.listRecent(limit: 10);
+    expect(recent, hasLength(2));
+    final corrupted = recent.firstWhere((s) => s.id == 's2');
+    expect(corrupted.history, isEmpty);
+  });
+
   test('listBySoftware filters sessions', () async {
     await store.save(Session(domain: DesignCategory.web, softwareName: 'figma'));
     await store.save(Session(domain: DesignCategory.threeD, softwareName: 'blender'));

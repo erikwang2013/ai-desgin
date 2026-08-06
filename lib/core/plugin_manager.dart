@@ -26,7 +26,14 @@ class PluginManager {
   }
 
   Future<void> initializeAll(PluginContext ctx) async {
-    await Future.wait(_plugins.values.map((p) => p.initialize(ctx)));
+    // 单个插件初始化失败不阻止其余插件（快速失败会让整批停摆）。
+    await Future.wait(_plugins.values.map((p) async {
+      try {
+        await p.initialize(ctx);
+      } catch (e) {
+        dev.log('Plugin "${p.id}" initialize failed: $e', name: 'PluginManager');
+      }
+    }));
   }
 
   Future<void> disposeAll() async {

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' as math;
 import 'package:sqflite/sqflite.dart';
 import '../models/session.dart';
 import '../models/task_record.dart';
@@ -43,26 +44,27 @@ class SessionStore {
   }
 
   Future<void> save(Session session) async {
-    await _db.insert('sessions', {
-      'id': session.id,
-      'domain': session.domain.name,
-      'software_name': session.softwareName,
-      'context_json': jsonEncode({
-        'softwareState': session.context.softwareState,
-        'userPreferences': session.context.userPreferences,
-        'recentActions': session.context.recentActions,
-      }),
-      'created_at': session.createdAt.toIso8601String(),
-    }, conflictAlgorithm: ConflictAlgorithm.replace);
-
-    final existingRows = await _db.query('task_records',
-        columns: ['id'], where: 'session_id = ?', whereArgs: [session.id]);
-    final existingIds = existingRows.map((r) => r['id'] as String).toSet();
-
-    final newRecords = session.history.where((r) => !existingIds.contains(r.id)).toList();
-    if (newRecords.isEmpty) return;
-
+    // 会话与记录同事务写入，避免中途失败留下孤儿 session 行。
     await _db.transaction((txn) async {
+      await txn.insert('sessions', {
+        'id': session.id,
+        'domain': session.domain.name,
+        'software_name': session.softwareName,
+        'context_json': jsonEncode({
+          'softwareState': session.context.softwareState,
+          'userPreferences': session.context.userPreferences,
+          'recentActions': session.context.recentActions,
+        }),
+        'created_at': session.createdAt.toIso8601String(),
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
+
+      final existingRows = await txn.query('task_records',
+          columns: ['id'], where: 'session_id = ?', whereArgs: [session.id]);
+      final existingIds = existingRows.map((r) => r['id'] as String).toSet();
+
+      final newRecords = session.history.where((r) => !existingIds.contains(r.id)).toList();
+      if (newRecords.isEmpty) return;
+
       final batch = txn.batch();
       for (final record in newRecords) {
         batch.insert('task_records', {
@@ -88,8 +90,6 @@ class SessionStore {
     if (rows.isEmpty) return null;
 
     final row = rows.first;
-    final contextData = jsonDecode(row['context_json'] as String? ?? '{}');
-
     final records = await _db.query(
       'task_records',
       where: 'session_id = ?',
@@ -101,13 +101,9 @@ class SessionStore {
       id: row['id'] as String,
       domain: DesignCategory.values.firstWhere((d) => d.name == row['domain'], orElse: () => DesignCategory.web),
       softwareName: row['software_name'] as String,
-      createdAt: DateTime.parse(row['created_at'] as String),
-      context: SessionContext(
-        softwareState: Map<String, dynamic>.from(contextData['softwareState'] ?? {}),
-        userPreferences: Map<String, dynamic>.from(contextData['userPreferences'] ?? {}),
-        recentActions: List<String>.from(contextData['recentActions'] ?? []),
-      ),
-      history: records.map(_deserializeRecord).toList(),
+      createdAt: _parseDate(row['created_at'] as String?),
+      context: _parseContext(row['context_json'] as String?),
+      history: records.map(_deserializeRecord).whereType<TaskRecord>().toList(),
     );
   }
 
@@ -143,16 +139,24 @@ class SessionStore {
     if (rows.isEmpty) return [];
 
     final sessionIds = rows.map((r) => r['id'] as String).toList();
-    final placeholders = List.filled(sessionIds.length, '?').join(',');
-    final allRecords = await _db.rawQuery(
-      'SELECT * FROM task_records WHERE session_id IN ($placeholders) ORDER BY created_at ASC',
-      sessionIds,
-    );
+    // 分批查询，避开 SQLite 单条 IN 列表 999 个变量的上限。
+    final allRecords = <Map<String, dynamic>>[];
+    for (var i = 0; i < sessionIds.length; i += 500) {
+      final chunk = sessionIds.sublist(i, math.min(i + 500, sessionIds.length));
+      final placeholders = List.filled(chunk.length, '?').join(',');
+      allRecords.addAll(await _db.rawQuery(
+        'SELECT * FROM task_records WHERE session_id IN ($placeholders) ORDER BY created_at ASC',
+        chunk,
+      ));
+    }
 
     final recordsBySession = <String, List<TaskRecord>>{};
     for (final rec in allRecords) {
       final sid = rec['session_id'] as String;
-      recordsBySession.putIfAbsent(sid, () => []).add(_deserializeRecord(rec));
+      final record = _deserializeRecord(rec);
+      if (record != null) {
+        recordsBySession.putIfAbsent(sid, () => []).add(record);
+      }
     }
 
     final sessions = <Session>[];
@@ -162,12 +166,21 @@ class SessionStore {
         id: sid,
         domain: DesignCategory.values.firstWhere((d) => d.name == r['domain'], orElse: () => DesignCategory.web),
         softwareName: r['software_name'] as String,
-        createdAt: DateTime.parse(r['created_at'] as String),
+        createdAt: _parseDate(r['created_at'] as String?),
         context: _parseContext(r['context_json'] as String?),
         history: recordsBySession[sid] ?? [],
       ));
     }
     return sessions;
+  }
+
+  DateTime _parseDate(String? iso) {
+    try {
+      return DateTime.parse(iso!);
+    } catch (_) {
+      // 脏日期降级为当前时间，不炸整个加载。
+      return DateTime.now();
+    }
   }
 
   SessionContext _parseContext(String? json) {
@@ -185,27 +198,34 @@ class SessionStore {
   }
 
   Future<void> delete(String sessionId) async {
-    await _db.delete('task_records', where: 'session_id = ?', whereArgs: [sessionId]);
-    await _db.delete('sessions', where: 'id = ?', whereArgs: [sessionId]);
+    await _db.transaction((txn) async {
+      await txn.delete('task_records', where: 'session_id = ?', whereArgs: [sessionId]);
+      await txn.delete('sessions', where: 'id = ?', whereArgs: [sessionId]);
+    });
   }
 
   String _escapeLike(String value) {
     return value.replaceAll('\\', '\\\\').replaceAll('%', '\\%').replaceAll('_', '\\_');
   }
 
-  TaskRecord _deserializeRecord(Map<String, dynamic> row) {
-    return TaskRecord(
-      id: row['id'] as String,
-      sessionId: row['session_id'] as String,
-      task: row['task'] as String,
-      script: row['script'] as String?,
-      scriptLanguage: row['script_language'] as String?,
-      modelUsed: row['model_used'] as String?,
-      status: TaskStatus.values.firstWhere((s) => s.name == row['status'], orElse: () => TaskStatus.failed),
-      error: row['error'] as String?,
-      artifacts: List<String>.from(jsonDecode(row['artifacts_json'] as String? ?? '[]')),
-      createdAt: DateTime.parse(row['created_at'] as String),
-      completedAt: row['completed_at'] != null ? DateTime.parse(row['completed_at'] as String) : null,
-    );
+  TaskRecord? _deserializeRecord(Map<String, dynamic> row) {
+    try {
+      return TaskRecord(
+        id: row['id'] as String,
+        sessionId: row['session_id'] as String,
+        task: row['task'] as String,
+        script: row['script'] as String?,
+        scriptLanguage: row['script_language'] as String?,
+        modelUsed: row['model_used'] as String?,
+        status: TaskStatus.values.firstWhere((s) => s.name == row['status'], orElse: () => TaskStatus.failed),
+        error: row['error'] as String?,
+        artifacts: List<String>.from(jsonDecode(row['artifacts_json'] as String? ?? '[]')),
+        createdAt: DateTime.parse(row['created_at'] as String),
+        completedAt: row['completed_at'] != null ? DateTime.parse(row['completed_at'] as String) : null,
+      );
+    } catch (_) {
+      // 单条脏数据（坏 JSON/坏日期）降级跳过，不炸整个会话加载。
+      return null;
+    }
   }
 }

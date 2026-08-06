@@ -154,6 +154,7 @@ class _ModelConfigPageState extends State<ModelConfigPage> {
   Future<void> _loadSaved() async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      if (!mounted) return;
       _endpointCtrl.text = prefs.getString(_endpointKey) ?? '';
       _apiKeyCtrl.text = prefs.getString(_apiKeyKey) ?? '';
       _modelCtrl.text = prefs.getString(_modelKey) ?? '';
@@ -291,6 +292,7 @@ class _ProxySettingsPageState extends State<ProxySettingsPage> {
   Future<void> _loadSaved() async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      if (!mounted) return;
       _hostCtrl.text = prefs.getString(_hostKey) ?? '';
       _portCtrl.text = prefs.getString(_portKey) ?? '';
     } catch (_) {}
@@ -300,14 +302,16 @@ class _ProxySettingsPageState extends State<ProxySettingsPage> {
     final host = _hostCtrl.text.trim();
     final port = _portCtrl.text.trim();
 
-    final error = _validate(host: host, port: port);
+    // Accept a scheme-prefixed host, store it bare and rebuild the scheme.
+    // Normalize before validating so paths (http://x.com/path) are rejected
+    // instead of being spliced into a malformed proxy URL.
+    final normalized = host.replaceFirst(RegExp(r'^https?://'), '');
+    final error = _validate(host: normalized, port: port);
     if (error != null) {
       _showError(error);
       return;
     }
 
-    // Accept a scheme-prefixed host, store it bare and rebuild the scheme.
-    final normalized = host.replaceFirst(RegExp(r'^https?://'), '');
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_hostKey, normalized);
@@ -336,6 +340,9 @@ class _ProxySettingsPageState extends State<ProxySettingsPage> {
   String? _validate({required String host, required String port}) {
     if (host.contains(' ')) {
       return 'Invalid proxy host (no spaces allowed)';
+    }
+    if (host.contains('/')) {
+      return 'Invalid proxy host (host name only, no path)';
     }
     if (port.isNotEmpty) {
       final value = int.tryParse(port);

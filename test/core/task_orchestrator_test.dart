@@ -78,6 +78,24 @@ class CountingEchoPlugin extends EchoPlugin {
   }
 }
 
+/// Runner that always reports generation failure (API error).
+class FailingGeneratorRunner extends FakeCCRunner {
+  FailingGeneratorRunner() : super(available: true);
+
+  @override
+  Future<CCResult> execute({
+    required String task,
+    required String software,
+    required Map<String, dynamic> capabilities,
+    required Map<String, dynamic> state,
+    String? model,
+    String? scriptLanguage,
+    String? key,
+  }) async {
+    return CCResult.failure('api error');
+  }
+}
+
 /// Runner whose generation blocks until [gate] completes, then reports
 /// failure (as when the CLI process is killed by a cancel).
 class GatedFakeCCRunner extends FakeCCRunner {
@@ -207,6 +225,23 @@ void main() {
     runner.gate.complete();
     final result = await future;
     expect(result.status, TaskStatus.cancelled);
+    expect(counting.executeCalls, 0);
+  });
+
+  test('failed generation does not execute the task text as a script', () async {
+    final counting = CountingEchoPlugin();
+    pluginManager.register(counting);
+    final orch = TaskOrchestrator(
+      pluginManager: pluginManager,
+      ccManager: ccManager,
+      modelRouter: modelRouter,
+      ccRunner: FailingGeneratorRunner(),
+      maxConcurrent: 1,
+    );
+    final result = await orch.submitTask(
+      domain: DesignCategory.web, softwareName: 'echo', task: '设计一个海报');
+    expect(result.status, TaskStatus.failed);
+    expect(result.error, contains('api error'));
     expect(counting.executeCalls, 0);
   });
 

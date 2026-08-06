@@ -72,9 +72,17 @@ class CCProcessManager {
     _evictIdleSessions();
 
     if (_sessions.length >= maxProcesses && _sessions.isNotEmpty) {
-      final oldest = _sessions.entries
-          .reduce((a, b) => a.value.lastActivity.isBefore(b.value.lastActivity) ? a : b);
-      _evictSession(oldest.key);
+      // 满员时只驱逐空闲会话，不杀正在执行任务的任务会话。
+      final idleCandidates = _sessions.entries
+          .where((e) => !(_taskKeysBySession[e.key]?.isNotEmpty ?? false))
+          .toList();
+      if (idleCandidates.isNotEmpty) {
+        final oldest = idleCandidates
+            .reduce((a, b) => a.value.lastActivity.isBefore(b.value.lastActivity) ? a : b);
+        _evictSession(oldest.key);
+      } else if (_sessions.length >= maxProcesses) {
+        throw StateError('All $maxProcesses sessions are busy');
+      }
     }
 
     _ensureEvictionTimer();

@@ -92,6 +92,22 @@ void main() {
     expect(alive.exitCode, isNot(0), reason: 'subprocess should have been killed');
   });
 
+  test('execute fails when the CLI exits non-zero even with stdout', () async {
+    final dir = Directory.systemTemp.createTempSync('cc_runner_exit_');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    final fakeCli = File('${dir.path}/fake_claude.sh');
+    fakeCli.writeAsStringSync(
+        '#!/bin/sh\ncat > /dev/null\necho "not a script, an error dump"\nexit 1\n');
+    Process.runSync('chmod', ['+x', fakeCli.path]);
+
+    final runner = CCRunner(claudeCliPath: fakeCli.path);
+    final result = await runner.execute(
+      task: 't', software: 'figma', capabilities: const {}, state: const {},
+    );
+    expect(result.success, isFalse);
+    expect(result.error, contains('exited with code 1'));
+  });
+
   test('cancel without a key kills all tracked processes', () async {
     final dir = Directory.systemTemp.createTempSync('cc_runner_cancelall_');
     addTearDown(() => dir.deleteSync(recursive: true));

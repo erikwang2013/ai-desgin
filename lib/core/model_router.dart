@@ -34,6 +34,10 @@ class ModelRouter {
   ];
 
   Future<void> loadConfigFromString(String yamlContent) async {
+    final savedDefault = _defaultModel;
+    final savedRoutes = List<ModelRoute>.of(_routes);
+    final savedSimple = List<String>.of(_simpleKeywords);
+    final savedCreative = List<String>.of(_creativeKeywords);
     try {
       final doc = loadYaml(yamlContent);
       _defaultModel = doc['default'] as String? ?? _defaultModel;
@@ -87,14 +91,26 @@ class ModelRouter {
         if (domains == null && complexity == null) {
           _log.warning('Model route with no domains or complexity will match all tasks. Add at least one filter.');
         }
+        final model = r['model']?.toString();
+        if (model == null || model.isEmpty) {
+          _log.warning('Model route without a model key, skipping');
+          continue;
+        }
         _routes.add(ModelRoute(
           domains: domains,
           complexity: complexity,
-          model: r['model'].toString(),
+          model: model,
         ));
       }
     } catch (e) {
       _log.severe('Failed to load model router config: $e');
+      // 回滚本次加载，避免留下部分已加载的路由（半更新状态）。
+      _defaultModel = savedDefault;
+      _routes
+        ..clear()
+        ..addAll(savedRoutes);
+      _simpleKeywords = savedSimple;
+      _creativeKeywords = savedCreative;
     }
   }
 

@@ -58,6 +58,34 @@ routes:
     expect(model, 'custom-model');
   });
 
+  test('routes without a model key are skipped', () async {
+    final custom = ModelRouter();
+    await custom.loadConfigFromString('''
+default: claude-sonnet-4-6
+routes:
+  - domains: [web]
+  - complexity: simple
+    model: claude-haiku-4-5
+''');
+    // Route without a model must not match; creative task falls back to default.
+    expect(custom.route(domain: DesignCategory.web, task: '创意方案'),
+        'claude-sonnet-4-6');
+    // Routes with a model still work.
+    expect(custom.route(domain: DesignCategory.web, task: 'rename layers',
+        forceComplexity: TaskComplexity.simple), 'claude-haiku-4-5');
+  });
+
+  test('failed config load rolls back previous routes and default', () async {
+    router.setDefaultModel('custom-model');
+    await router.loadConfigFromString('default: [x, y]\nroutes: []');
+    expect(router.defaultModel, 'custom-model');
+    final model = router.route(
+      domain: DesignCategory.web, task: 'rename layers',
+      forceComplexity: TaskComplexity.simple,
+    );
+    expect(model, 'claude-haiku-4-5');
+  });
+
   test('keywords config overrides built-in complexity inference', () async {
     final custom = ModelRouter();
     await custom.loadConfigFromString('''

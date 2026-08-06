@@ -136,17 +136,26 @@ class CCRunner {
       _processes.remove(taskKey)?.kill();
       _processes[taskKey] = process;
 
+      // 启动即并发消费 stdout/stderr，避免子进程边读边写时 64KB 管道死锁。
+      final stdoutFuture = process.stdout.transform(utf8.decoder).join();
+      final stderrFuture = process.stderr.transform(utf8.decoder).join();
       process.stdin.write(prompt);
       await process.stdin.flush();
       await process.stdin.close();
 
-      final results = await Future.wait([
-        process.stdout.transform(utf8.decoder).join(),
-        process.stderr.transform(utf8.decoder).join(),
-      ]).timeout(timeout);
+      final exitCode = await process.exitCode.timeout(timeout);
+      final results = await Future.wait([stdoutFuture, stderrFuture]).timeout(timeout);
       _processes.remove(taskKey);
       final output = results[0];
       final errors = results[1];
+
+      // 非零退出（API key 错误、崩溃）时 stdout 里的文本不是生成脚本。
+      if (exitCode != 0) {
+        return CCResult.failure(
+          'Claude Code exited with code $exitCode'
+          '${errors.isNotEmpty ? ': ${errors.trim()}' : ''}',
+        );
+      }
 
       if (errors.isNotEmpty) {
         _log.info('Claude Code stderr: $errors');

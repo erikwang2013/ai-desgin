@@ -1,6 +1,44 @@
 use ai_design_core::ScriptResult;
 use std::io::Write;
-use std::process::Command;
+use std::process::{Child, Command, ExitStatus, Stdio};
+use std::sync::mpsc;
+use std::time::Duration;
+
+const EXEC_TIMEOUT: Duration = Duration::from_secs(120);
+
+/// Collect a child's stdout/stderr on a reader thread and wait with a timeout.
+/// On timeout the child is killed so a hung FreeCAD cannot block forever.
+fn wait_with_timeout(mut child: Child) -> Result<(String, String, ExitStatus), ScriptResult> {
+    let stdout = child
+        .stdout
+        .take()
+        .ok_or_else(|| ScriptResult::failure("Failed to open FreeCAD stdout".into()))?;
+    let stderr = child
+        .stderr
+        .take()
+        .ok_or_else(|| ScriptResult::failure("Failed to open FreeCAD stderr".into()))?;
+    let (tx, rx) = mpsc::channel();
+    let handle = std::thread::spawn(move || {
+        let out = std::io::read_to_string(stdout).unwrap_or_default();
+        let err = std::io::read_to_string(stderr).unwrap_or_default();
+        let _ = tx.send((out, err));
+    });
+
+    let (stdout_text, stderr_text) = match rx.recv_timeout(EXEC_TIMEOUT) {
+        Ok(ok) => ok,
+        Err(_) => {
+            let _ = child.kill();
+            let _ = handle.join();
+            return Err(ScriptResult::failure(
+                "FreeCAD 脚本执行超时（120s），已终止进程".into(),
+            ));
+        }
+    };
+    let status = child
+        .wait()
+        .map_err(|e| ScriptResult::failure(format!("FreeCAD wait error: {e}")))?;
+    Ok((stdout_text, stderr_text, status))
+}
 
 pub fn run_freecad_script(freecad_path: &str, script: &str) -> Result<ScriptResult, String> {
     // Write script to temp file for execution
@@ -14,25 +52,23 @@ pub fn run_freecad_script(freecad_path: &str, script: &str) -> Result<ScriptResu
     // FreeCADCmd is the headless variant; FreeCAD --console also works.
     let is_cmd = freecad_path.contains("FreeCADCmd") || freecad_path.contains("freecadcmd");
 
-    let output = if is_cmd {
+    let mut cmd = Command::new(freecad_path);
+    if is_cmd {
         // FreeCADCmd runs in headless mode directly
-        Command::new(freecad_path)
-            .arg("--runscript")
-            .arg(&temp_path)
-            .output()
-            .map_err(|e| format!("Failed to execute FreeCAD: {}", e))?
+        cmd.arg("--runscript").arg(&temp_path);
     } else {
         // Use --console flag for the GUI version
-        Command::new(freecad_path)
-            .args(["--console", "--runscript", &temp_path])
-            .output()
-            .map_err(|e| format!("Failed to execute FreeCAD: {}", e))?
-    };
+        cmd.args(["--console", "--runscript", &temp_path]);
+    }
+    cmd.stdout(Stdio::piped()).stderr(Stdio::piped());
+    let child = cmd
+        .spawn()
+        .map_err(|e| format!("Failed to execute FreeCAD: {}", e))?;
 
-    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-    let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+    let (stdout, stderr, status) = wait_with_timeout(child)
+        .map_err(|e| e.error.unwrap_or_else(|| "FreeCAD 执行失败".into()))?;
 
-    if output.status.success() {
+    if status.success() {
         Ok(ScriptResult::success(
             Some(format!("FreeCAD 脚本执行成功\n输出:\n{}", stdout)),
             vec![],
@@ -40,7 +76,7 @@ pub fn run_freecad_script(freecad_path: &str, script: &str) -> Result<ScriptResu
     } else {
         Ok(ScriptResult::failure(format!(
             "FreeCAD 脚本执行失败 (exit code: {:?})\n错误:\n{}",
-            output.status.code(),
+            status.code(),
             stderr
         )))
     }

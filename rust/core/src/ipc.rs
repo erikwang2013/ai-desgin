@@ -1,5 +1,9 @@
 use std::process::{Command, Child, Stdio};
-use std::io::Write;
+use std::io::{Read, Write};
+use std::sync::mpsc;
+use std::time::Duration;
+
+const SEND_TIMEOUT: Duration = Duration::from_secs(120);
 
 pub struct IsolatedProcess {
     child: Option<Child>,
@@ -27,10 +31,29 @@ impl IsolatedProcess {
             .map_err(|e| format!("Write error: {}", e))?;
         drop(stdin);
 
-        let output = child.wait_with_output()
-            .map_err(|e| format!("Process error: {}", e))?;
-        String::from_utf8(output.stdout)
-            .map_err(|e| format!("Invalid UTF-8 output: {}", e))
+        // Read stdout on a thread so a hung process or a full pipe cannot
+        // block forever; kill the child on timeout.
+        let mut stdout = child.stdout.take()
+            .ok_or("Failed to open stdout".to_string())?;
+        let (tx, rx) = mpsc::channel();
+        let handle = std::thread::spawn(move || {
+            let mut buf = String::new();
+            let _ = stdout.read_to_string(&mut buf);
+            let _ = tx.send(buf);
+        });
+
+        let stdout_text = match rx.recv_timeout(SEND_TIMEOUT) {
+            Ok(text) => text,
+            Err(_) => {
+                let _ = child.kill();
+                let _ = handle.join();
+                return Err("Process timed out (120s), killed".to_string());
+            }
+        };
+        child
+            .wait()
+            .map_err(|e| format!("Process wait error: {}", e))?;
+        Ok(stdout_text)
     }
 
     pub fn kill(&mut self) {
