@@ -29,7 +29,14 @@ class TaskDashboard extends StatefulWidget {
   final List<TaskItem>? initialTasks;
   final SessionStore? sessionStore;
   final ValueChanged<String>? onCancel;
-  const TaskDashboard({super.key, this.initialTasks, this.sessionStore, this.onCancel});
+  final String Function(String id)? resolveSoftwareName;
+  const TaskDashboard({
+    super.key,
+    this.initialTasks,
+    this.sessionStore,
+    this.onCancel,
+    this.resolveSoftwareName,
+  });
 
   @override
   State<TaskDashboard> createState() => TaskDashboardState();
@@ -59,7 +66,8 @@ class TaskDashboardState extends State<TaskDashboard> {
           .expand((s) => s.history.map((r) => TaskItem(
                 id: r.id,
                 title: r.task,
-                software: s.softwareName,
+                software: widget.resolveSoftwareName?.call(s.softwareName) ??
+                    s.softwareName,
                 status: r.status,
                 createdAt: r.createdAt,
                 modelUsed: r.modelUsed,

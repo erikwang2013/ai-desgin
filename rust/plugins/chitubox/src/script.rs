@@ -18,15 +18,12 @@ pub fn run_chitubox_command(chitubox_path: &str, script: &str) -> Result<ScriptR
         translate_to_cli(script)
     };
 
-    let output = Command::new(chitubox_path)
-        .args(&args)
-        .output()
-        .map_err(|e| format!("Failed to execute ChiTuBox: {}", e))?;
+    let mut cmd = Command::new(chitubox_path);
+    cmd.args(&args);
+    let (stdout, stderr, status) = ai_design_core::proc::run_command(&mut cmd)
+        .map_err(|e| format!("Failed to execute ChiTuBox: {e}"))?;
 
-    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-    let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-
-    if output.status.success() {
+    if status.success() {
         Ok(ScriptResult::success(
             Some(format!("ChiTuBox 命令执行成功\n输出:\n{}", stdout)),
             extract_output_files(&args),
@@ -34,7 +31,7 @@ pub fn run_chitubox_command(chitubox_path: &str, script: &str) -> Result<ScriptR
     } else {
         Ok(ScriptResult::failure(format!(
             "ChiTuBox 命令执行失败 (exit code: {:?})\n错误:\n{}",
-            output.status.code(),
+            status.code(),
             stderr
         )))
     }

@@ -118,12 +118,11 @@ impl DesignPlugin for AutoCADPlugin {
 )"#;
 
         let script = script::format_autolisp_script(lisp_cmd);
-        let output = Command::new(autocad_path)
-            .args(["/b", &script])
-            .output()
+        let mut cmd = Command::new(autocad_path);
+        cmd.args(["/b", &script]);
+        let (stdout, _, _) = ai_design_core::proc::run_command(&mut cmd)
             .map_err(|e| format!("Failed to query AutoCAD: {}", e))?;
 
-        let stdout = String::from_utf8_lossy(&output.stdout);
         for line in stdout.lines() {
             if line.trim().starts_with('{') {
                 if let Ok(state) = serde_json::from_str::<serde_json::Value>(line.trim()) {

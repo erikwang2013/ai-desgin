@@ -16,19 +16,16 @@ pub fn run_openscad_script(openscad_path: &str, script: &str) -> Result<ScriptRe
 
     // Render to STL (default output format)
     let output_stl = temp_dir.path().join("output.stl");
-    let output = Command::new(openscad_path)
-        .args([
-            "-o",
-            &output_stl.to_string_lossy(),
-            &scad_path.to_string_lossy(),
-        ])
-        .output()
-        .map_err(|e| format!("Failed to execute OpenSCAD: {}", e))?;
+    let mut cmd = Command::new(openscad_path);
+    cmd.args([
+        "-o",
+        &output_stl.to_string_lossy(),
+        &scad_path.to_string_lossy(),
+    ]);
+    let (stdout, stderr, status) = ai_design_core::proc::run_command(&mut cmd)
+        .map_err(|e| format!("Failed to execute OpenSCAD: {e}"))?;
 
-    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-    let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-
-    if output.status.success() {
+    if status.success() {
         let mut artifacts = vec![];
         // Check if the output file was generated
         if output_stl.exists() {
@@ -44,7 +41,7 @@ pub fn run_openscad_script(openscad_path: &str, script: &str) -> Result<ScriptRe
     } else {
         Ok(ScriptResult::failure(format!(
             "OpenSCAD 脚本执行失败 (exit code: {:?})\n错误:\n{}",
-            output.status.code(),
+            status.code(),
             stderr
         )))
     }

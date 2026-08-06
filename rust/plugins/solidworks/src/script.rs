@@ -56,18 +56,15 @@ WScript.StdOut.WriteLine "MACRO_COMPLETE"
             .map_err(|e| format!("Failed to flush VBScript: {}", e))?;
         drop(file);
 
-        let output = std::process::Command::new("cscript.exe")
-            .args(["/nologo", &script_path])
-            .output()
-            .map_err(|e| format!("Failed to execute cscript.exe: {}", e))?;
-
-        let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+        let mut cmd = std::process::Command::new("cscript.exe");
+        cmd.args(["/nologo", &script_path]);
+        let (stdout, stderr, status) = ai_design_core::proc::run_command(&mut cmd)
+            .map_err(|e| format!("Failed to execute cscript.exe: {e}"))?;
 
         // Clean up temp file
         let _ = std::fs::remove_file(&script_path);
 
-        if stdout.contains("MACRO_COMPLETE") || output.status.success() {
+        if stdout.contains("MACRO_COMPLETE") || status.success() {
             Ok(ScriptResult::success(
                 Some(format!("SolidWorks 宏执行成功\n{}", stdout)),
                 vec![],

@@ -1,5 +1,6 @@
 use ai_design_core::ScriptResult;
 use std::io::Write;
+use std::process::ExitStatus;
 #[cfg(any(target_os = "windows", target_os = "macos"))]
 use std::process::Command;
 
@@ -15,26 +16,34 @@ pub fn run_extendscript(_illustrator_path: &str, script: &str) -> Result<ScriptR
         .map_err(|e| format!("Failed to rename: {}", e))?;
 
     #[cfg(target_os = "windows")]
-    let result = Command::new(illustrator_path).arg(&jsx_path).output();
+    let result: Result<(String, String, ExitStatus), String> = {
+        let mut cmd = Command::new(illustrator_path);
+        cmd.arg(&jsx_path);
+        ai_design_core::proc::run_command(&mut cmd)
+    };
 
     #[cfg(target_os = "macos")]
-    let result = Command::new("osascript")
-        .arg("-e")
-        .arg(format!("tell application \"Adobe Illustrator\" to do javascript file \"{}\"", jsx_path))
-        .output();
+    let result: Result<(String, String, ExitStatus), String> = {
+        let mut cmd = Command::new("osascript");
+        cmd.arg("-e")
+            .arg(format!(
+                "tell application \"Adobe Illustrator\" to do javascript file \"{}\"",
+                jsx_path
+            ));
+        ai_design_core::proc::run_command(&mut cmd)
+    };
 
     #[cfg(target_os = "linux")]
-    let result: Result<std::process::Output, _> =
-        Err(std::io::Error::new(std::io::ErrorKind::NotFound, "Illustrator not available on Linux"));
+    let result: Result<(String, String, ExitStatus), String> =
+        Err("Illustrator not available on Linux".into());
 
     let _ = std::fs::remove_file(&jsx_path);
 
     match result {
-        Ok(output) if output.status.success() => Ok(ScriptResult::success(
-            Some(String::from_utf8_lossy(&output.stdout).to_string()), vec![],
-        )),
-        Ok(output) => Ok(ScriptResult::failure(format!(
-            "Illustrator ExtendScript failed: {}", String::from_utf8_lossy(&output.stderr)
+        Ok((out, _, status)) if status.success() => Ok(ScriptResult::success(Some(out), vec![])),
+        Ok((_, err, _)) => Ok(ScriptResult::failure(format!(
+            "Illustrator ExtendScript failed: {}",
+            err
         ))),
         Err(e) => Ok(ScriptResult::failure(format!("Failed to run Illustrator: {}", e))),
     }

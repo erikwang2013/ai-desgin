@@ -80,12 +80,12 @@ impl BlenderPlugin {
                 return Some(path.to_string());
             }
         }
-        if let Ok(output) = std::process::Command::new("which").arg("blender").output() {
-            if output.status.success() {
-                let path = String::from_utf8_lossy(&output.stdout).trim().to_string();
-                if !path.is_empty() && std::path::Path::new(&path).exists() {
-                    return Some(path);
-                }
+        let mut cmd = Command::new("which");
+        cmd.arg("blender");
+        if let Ok((out, _, _)) = ai_design_core::proc::run_command(&mut cmd) {
+            let path = out.trim().to_string();
+            if !path.is_empty() && std::path::Path::new(&path).exists() {
+                return Some(path);
             }
         }
         None
@@ -160,12 +160,11 @@ state = {
 }
 print(json.dumps(state))
 "#;
-        let output = Command::new(blender_path)
-            .args(["--background", "--python-expr", state_script])
-            .output()
+        let mut cmd = Command::new(blender_path);
+        cmd.args(["--background", "--python-expr", state_script]);
+        let (stdout, _, _) = ai_design_core::proc::run_command(&mut cmd)
             .map_err(|e| format!("Failed to get Blender state: {}", e))?;
 
-        let stdout = String::from_utf8_lossy(&output.stdout);
         // Parse JSON from stdout (Blender prints other info too, so find the JSON line)
         for line in stdout.lines() {
             if line.trim().starts_with('{') {

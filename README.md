@@ -122,7 +122,7 @@ ai-desgin/
 |   |   +-- src/
 |   |       +-- traits.rs                  # DesignPlugin Rust trait
 |   |       +-- types.rs                   # 共享类型定义
-|   |       +-- api.rs                     # Flutter-Rust bridge API
+|   |       +-- api.rs                     # Rust 侧插件查询 API（JSON 输出，独立运行）
 |   |       +-- ipc.rs                     # 进程隔离工具
 |   +-- plugins/
 |       +-- figma/                         # Figma (REST API)

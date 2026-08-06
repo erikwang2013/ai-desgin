@@ -10,15 +10,12 @@ pub fn run_blender_script(blender_path: &str, script: &str) -> Result<ScriptResu
         .map_err(|e| format!("Failed to write script: {}", e))?;
     let temp_path = temp.path().to_string_lossy().to_string();
 
-    let output = Command::new(blender_path)
-        .args(["--background", "--python", &temp_path])
-        .output()
-        .map_err(|e| format!("Failed to execute Blender: {}", e))?;
+    let mut cmd = Command::new(blender_path);
+    cmd.args(["--background", "--python", &temp_path]);
+    let (stdout, stderr, status) = ai_design_core::proc::run_command(&mut cmd)
+        .map_err(|e| format!("Failed to execute Blender: {e}"))?;
 
-    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-    let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-
-    if output.status.success() {
+    if status.success() {
         Ok(ScriptResult::success(
             Some(format!("Blender 脚本执行成功\n输出:\n{}", stdout)),
             vec![],
@@ -26,7 +23,7 @@ pub fn run_blender_script(blender_path: &str, script: &str) -> Result<ScriptResu
     } else {
         Ok(ScriptResult::failure(format!(
             "Blender 脚本执行失败 (exit code: {:?})\n错误:\n{}",
-            output.status.code(),
+            status.code(),
             stderr
         )))
     }

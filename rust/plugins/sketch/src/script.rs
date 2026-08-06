@@ -13,25 +13,27 @@ pub fn run_sketch_script(_sketch_path: &str, script: &str) -> Result<ScriptResul
     std::fs::rename(&base, &js_path)
         .map_err(|e| format!("Failed to rename: {}", e))?;
 
-    let result = Command::new("sketchtool").arg("run").arg(&js_path).output();
+    let mut cmd = Command::new("sketchtool");
+    cmd.arg("run").arg(&js_path);
+    let result = ai_design_core::proc::run_command(&mut cmd);
 
     let output = match result {
-        Ok(ref out) if out.status.success() => result,
-        _ => Command::new("osascript")
-            .arg("-e")
-            .arg(format!("tell application \"Sketch\" to run script file \"{}\"", js_path))
-            .output(),
+        Ok((out, _, status)) if status.success() => Ok((out, String::new(), status)),
+        _ => {
+            let mut cmd2 = Command::new("osascript");
+            cmd2.arg("-e").arg(format!(
+                "tell application \"Sketch\" to run script file \"{}\"",
+                js_path
+            ));
+            ai_design_core::proc::run_command(&mut cmd2)
+        }
     };
 
     let _ = std::fs::remove_file(&js_path);
 
     match output {
-        Ok(out) if out.status.success() => Ok(ScriptResult::success(
-            Some(String::from_utf8_lossy(&out.stdout).to_string()), vec![],
-        )),
-        Ok(out) => Ok(ScriptResult::failure(format!(
-            "Sketch script failed: {}", String::from_utf8_lossy(&out.stderr)
-        ))),
+        Ok((out, _, status)) if status.success() => Ok(ScriptResult::success(Some(out), vec![])),
+        Ok((_, err, _)) => Ok(ScriptResult::failure(format!("Sketch script failed: {}", err))),
         Err(e) => Ok(ScriptResult::failure(format!("Failed to run Sketch: {}", e))),
     }
 }

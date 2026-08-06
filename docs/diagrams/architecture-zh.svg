@@ -105,15 +105,15 @@
   <!-- Rust 插件层 -->
   <rect x="950" y="560" width="260" height="140" rx="12" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2"/>
   <text x="1080" y="588" font-size="16" font-weight="bold" fill="#5b21b6" text-anchor="middle">Rust 插件层</text>
-  <text x="1080" y="612" font-size="13" fill="#7c3aed" text-anchor="middle">flutter_rust_bridge FFI 调用</text>
+  <text x="1080" y="612" font-size="13" fill="#7c3aed" text-anchor="middle">独立 crate（无 FFI 桥接）</text>
   <g font-size="12.5" fill="#111827" text-anchor="middle">
     <rect class="chip" x="965" y="630" width="115" height="30" rx="7"/><text x="1022" y="649">Figma REST</text>
     <rect class="chip" x="1090" y="630" width="115" height="30" rx="7"/><text x="1147" y="649">ExtendScript</text>
     <rect class="chip" x="965" y="668" width="115" height="30" rx="7"/><text x="1022" y="687">Python API</text>
     <rect class="chip" x="1090" y="668" width="115" height="30" rx="7"/><text x="1147" y="687">进程隔离 IPC</text>
   </g>
-  <path d="M 700 480 V 640 H 948" fill="none" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)"/>
-  <text class="halo" x="716" y="630" font-size="12" fill="#374151">FFI 调用</text>
+  <path d="M 700 480 V 640 H 948" fill="none" stroke="#6b7280" stroke-width="2" stroke-dasharray="6 4"/>
+  <text class="halo" x="716" y="630" font-size="12" fill="#374151">独立运行（无运行时调用）</text>
 
   <!-- 图例 -->
   <g font-size="12.5" fill="#374151">

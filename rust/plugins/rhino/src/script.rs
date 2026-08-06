@@ -16,15 +16,12 @@ pub fn run_rhino_script(rhino_path: &str, script: &str) -> Result<ScriptResult, 
     {
         // On Windows, use Rhino's CLI with -runscript or Python script execution
         // Rhino 7+ supports running Python scripts via: rhino -runscript="...py"
-        let output = Command::new(rhino_path)
-            .args(["-runscript", &temp_path])
-            .output()
-            .map_err(|e| format!("Failed to execute Rhino: {}", e))?;
+        let mut cmd = Command::new(rhino_path);
+        cmd.args(["-runscript", &temp_path]);
+        let (stdout, stderr, status) = ai_design_core::proc::run_command(&mut cmd)
+            .map_err(|e| format!("Failed to execute Rhino: {e}"))?;
 
-        let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-
-        if output.status.success() {
+        if status.success() {
             Ok(ScriptResult::success(
                 Some(format!("Rhino 脚本执行成功\n输出:\n{}", stdout)),
                 vec![],
@@ -32,7 +29,7 @@ pub fn run_rhino_script(rhino_path: &str, script: &str) -> Result<ScriptResult, 
         } else {
             Ok(ScriptResult::failure(format!(
                 "Rhino 脚本执行失败 (exit code: {:?})\n错误:\n{}",
-                output.status.code(),
+                status.code(),
                 stderr
             )))
         }
@@ -50,16 +47,12 @@ end tell"#,
             &temp_path
         );
 
-        let output = Command::new("osascript")
-            .arg("-e")
-            .arg(&applescript)
-            .output()
-            .map_err(|e| format!("Failed to execute Rhino via osascript: {}", e))?;
+        let mut cmd = Command::new("osascript");
+        cmd.arg("-e").arg(&applescript);
+        let (stdout, stderr, status) = ai_design_core::proc::run_command(&mut cmd)
+            .map_err(|e| format!("Failed to execute Rhino via osascript: {e}"))?;
 
-        let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-
-        if output.status.success() {
+        if status.success() {
             Ok(ScriptResult::success(
                 Some(format!("Rhino (macOS) 脚本执行成功\n输出:\n{}", stdout)),
                 vec![],
@@ -67,7 +60,7 @@ end tell"#,
         } else {
             Ok(ScriptResult::failure(format!(
                 "Rhino (macOS) 脚本执行失败 (exit code: {:?})\n错误:\n{}",
-                output.status.code(),
+                status.code(),
                 stderr
             )))
         }

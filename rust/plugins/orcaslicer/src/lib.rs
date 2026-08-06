@@ -140,14 +140,12 @@ impl DesignPlugin for OrcaSlicerPlugin {
             .as_ref()
             .ok_or("OrcaSlicer not found")?;
 
-        let output = Command::new(slicer_path)
-            .arg("--version")
-            .output()
+        let mut cmd = Command::new(slicer_path);
+        cmd.arg("--version");
+        let (stdout, stderr, _) = ai_design_core::proc::run_command(&mut cmd)
             .map_err(|e| format!("Failed to get OrcaSlicer version: {}", e))?;
 
-        let version = String::from_utf8_lossy(&output.stdout).to_string();
-        let err = String::from_utf8_lossy(&output.stderr).to_string();
-        let combined = if version.is_empty() { err } else { version };
+        let combined = if stdout.trim().is_empty() { stderr } else { stdout };
 
         Ok(SoftwareState {
             active_document: "untitled".into(),

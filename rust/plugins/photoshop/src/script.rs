@@ -30,14 +30,12 @@ pub fn run_extendscript(photoshop_path: &str, script: &str) -> Result<ScriptResu
 
 #[cfg(target_os = "windows")]
 fn run_impl(photoshop_path: &str, jsx_path: &str) -> Result<ScriptResult, String> {
-    let output = Command::new(photoshop_path)
-        .args([jsx_path])
-        .output()
-        .map_err(|e| format!("Failed to execute Photoshop: {}", e))?;
+    let mut cmd = Command::new(photoshop_path);
+    cmd.args([jsx_path]);
+    let (stdout, _, status) = ai_design_core::proc::run_command(&mut cmd)
+        .map_err(|e| format!("Failed to execute Photoshop: {e}"))?;
 
-    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-
-    if output.status.success() {
+    if status.success() {
         Ok(ScriptResult::success(
             Some(format!("Photoshop 脚本执行成功\n{}", stdout)),
             vec![],
@@ -63,21 +61,17 @@ fn run_impl(photoshop_path: &str, jsx_path: &str) -> Result<ScriptResult, String
             app_name, escaped_path
         );
 
-        let output = match Command::new("osascript")
-            .args(["-e", &applescript])
-            .output()
-        {
-            Ok(o) => o,
+        let mut cmd = Command::new("osascript");
+        cmd.args(["-e", &applescript]);
+        let (stdout, stderr, status) = match ai_design_core::proc::run_command(&mut cmd) {
+            Ok(ok) => ok,
             Err(e) => {
-                last_err = format!("osascript error: {}", e);
+                last_err = format!("osascript error: {e}");
                 continue;
             }
         };
 
-        let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-
-        if output.status.success() {
+        if status.success() {
             return Ok(ScriptResult::success(
                 Some(format!("Photoshop 脚本执行成功\n{}", stdout)),
                 vec![],

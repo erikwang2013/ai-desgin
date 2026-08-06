@@ -101,15 +101,12 @@ pub fn run_orca_slicer(slicer_path: &str, command_json: &str) -> Result<ScriptRe
 
             // Invoke orca-slicer
             let args_refs: Vec<&str> = cli_args.iter().map(|s| s.as_str()).collect();
-            let output = Command::new(slicer_path)
-                .args(&args_refs)
-                .output()
+            let mut cmd = Command::new(slicer_path);
+            cmd.args(&args_refs);
+            let (stdout, stderr, status) = ai_design_core::proc::run_command(&mut cmd)
                 .map_err(|e| format!("Failed to execute OrcaSlicer: {}", e))?;
 
-            let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-            let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-
-            if output.status.success() {
+            if status.success() {
                 Ok(ScriptResult::success(
                     Some(format!(
                         "OrcaSlicer 切片成功\n输出: {}\n{}",
@@ -120,20 +117,19 @@ pub fn run_orca_slicer(slicer_path: &str, command_json: &str) -> Result<ScriptRe
             } else {
                 Ok(ScriptResult::failure(format!(
                     "OrcaSlicer 切片失败 (exit code: {:?})\n{}",
-                    output.status.code(),
+                    status.code(),
                     stderr
                 )))
             }
         }
         "check_version" => {
-            let output = Command::new(slicer_path)
-                .arg("--version")
-                .output()
+            let mut cmd = Command::new(slicer_path);
+            cmd.arg("--version");
+            let (stdout, _, _) = ai_design_core::proc::run_command(&mut cmd)
                 .map_err(|e| format!("Failed to run OrcaSlicer version: {}", e))?;
 
-            let version = String::from_utf8_lossy(&output.stdout).to_string();
             Ok(ScriptResult::success(
-                Some(format!("OrcaSlicer version:\n{}", version)),
+                Some(format!("OrcaSlicer version:\n{}", stdout)),
                 vec![],
             ))
         }

@@ -250,7 +250,7 @@ class _MainShellState extends State<_MainShell> {
     _dashboardKey.currentState?.addTask(TaskItem(
       id: result.id,
       title: result.task,
-      software: result.sessionId,
+      software: _pluginManager.get(sw)?.name ?? sw,
       status: result.status,
       createdAt: result.createdAt,
       modelUsed: result.modelUsed,
@@ -318,6 +318,7 @@ class _MainShellState extends State<_MainShell> {
             key: _dashboardKey,
             sessionStore: _sessionStore,
             onCancel: _ready ? _orchestrator.cancelTask : null,
+            resolveSoftwareName: (id) => _pluginManager.get(id)?.name ?? id,
           ),
           SoftwarePanel(
             pluginManager: _pluginManager,

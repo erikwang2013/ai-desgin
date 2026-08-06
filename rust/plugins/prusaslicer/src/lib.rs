@@ -138,14 +138,12 @@ impl DesignPlugin for PrusaSlicerPlugin {
             .as_ref()
             .ok_or("PrusaSlicer not found")?;
 
-        let output = Command::new(slicer_path)
-            .arg("--info")
-            .output()
+        let mut cmd = Command::new(slicer_path);
+        cmd.arg("--info");
+        let (stdout, stderr, _) = ai_design_core::proc::run_command(&mut cmd)
             .map_err(|e| format!("Failed to get PrusaSlicer info: {}", e))?;
 
-        let info = String::from_utf8_lossy(&output.stdout).to_string();
-        let error_info = String::from_utf8_lossy(&output.stderr).to_string();
-        let combined = if info.is_empty() { error_info } else { info };
+        let combined = if stdout.trim().is_empty() { stderr } else { stdout };
 
         Ok(SoftwareState {
             active_document: "untitled".into(),

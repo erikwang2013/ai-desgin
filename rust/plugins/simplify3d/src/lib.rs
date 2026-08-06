@@ -137,14 +137,12 @@ impl DesignPlugin for Simplify3DPlugin {
             .as_ref()
             .ok_or("Simplify3D not found")?;
 
-        let output = Command::new(s3d_path)
-            .arg("--help")
-            .output()
+        let mut cmd = Command::new(s3d_path);
+        cmd.arg("--help");
+        let (stdout, stderr, _) = ai_design_core::proc::run_command(&mut cmd)
             .map_err(|e| format!("Failed to check Simplify3D: {}", e))?;
 
-        let out = String::from_utf8_lossy(&output.stdout).to_string();
-        let err = String::from_utf8_lossy(&output.stderr).to_string();
-        let combined = if out.is_empty() { err } else { out };
+        let combined = if stdout.trim().is_empty() { stderr } else { stdout };
 
         Ok(SoftwareState {
             active_document: "untitled".into(),

@@ -147,12 +147,12 @@ impl DesignPlugin for CuraPlugin {
             .as_ref()
             .ok_or("CuraEngine not found")?;
 
-        let output = Command::new(cura_path)
-            .arg("--version")
-            .output()
+        let mut cmd = Command::new(cura_path);
+        cmd.arg("--version");
+        let (stdout, _, _) = ai_design_core::proc::run_command(&mut cmd)
             .map_err(|e| format!("Failed to get CuraEngine version: {}", e))?;
 
-        let version = String::from_utf8_lossy(&output.stdout).to_string();
+        let version = stdout;
 
         Ok(SoftwareState {
             active_document: "untitled".into(),

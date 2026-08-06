@@ -1,5 +1,6 @@
 use ai_design_core::ScriptResult;
 use std::io::Write;
+use std::process::ExitStatus;
 #[cfg(any(target_os = "windows", target_os = "macos"))]
 use std::process::Command;
 
@@ -15,29 +16,35 @@ pub fn run_sketchup_script(_sketchup_path: &str, script: &str) -> Result<ScriptR
         .map_err(|e| format!("Failed to rename: {}", e))?;
 
     #[cfg(target_os = "windows")]
-    let result = Command::new(sketchup_path).arg("-RubyStartup").arg(&rb_path).output();
+    let result: Result<(String, String, ExitStatus), String> = {
+        let mut cmd = Command::new(sketchup_path);
+        cmd.arg("-RubyStartup").arg(&rb_path);
+        ai_design_core::proc::run_command(&mut cmd)
+    };
 
     #[cfg(target_os = "macos")]
-    let result = Command::new("osascript")
-        .arg("-e")
-        .arg(format!("tell application \"SketchUp\" to open \"{}\"", rb_path))
-        .output();
+    let result: Result<(String, String, ExitStatus), String> = {
+        let mut cmd = Command::new("osascript");
+        cmd.arg("-e")
+            .arg(format!("tell application \"SketchUp\" to open \"{}\"", rb_path));
+        ai_design_core::proc::run_command(&mut cmd)
+    };
 
     #[cfg(target_os = "linux")]
-    let result: Result<std::process::Output, _> =
-        Err(std::io::Error::new(std::io::ErrorKind::NotFound, "SketchUp not available on Linux"));
+    let result: Result<(String, String, ExitStatus), String> =
+        Err("SketchUp not available on Linux".into());
 
     let _ = std::fs::remove_file(&rb_path);
 
     match result {
-        Ok(output) if output.status.success() => Ok(ScriptResult::success(
-            Some(String::from_utf8_lossy(&output.stdout).to_string()), vec![],
-        )),
-        Ok(output) => Ok(ScriptResult::failure(format!(
-            "SketchUp script failed: {}", String::from_utf8_lossy(&output.stderr)
+        Ok((out, _, status)) if status.success() => Ok(ScriptResult::success(Some(out), vec![])),
+        Ok((_, err, _)) => Ok(ScriptResult::failure(format!(
+            "SketchUp script failed: {}",
+            err
         ))),
         Err(e) => Ok(ScriptResult::failure(format!(
-            "SketchUp unavailable: {}. Ruby script prepared for manual paste in SketchUp Ruby Console.", e
+            "SketchUp unavailable: {}. Ruby script prepared for manual paste in SketchUp Ruby Console.",
+            e
         ))),
     }
 }

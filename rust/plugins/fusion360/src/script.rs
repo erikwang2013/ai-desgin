@@ -1,4 +1,5 @@
 use ai_design_core::ScriptResult;
+use std::process::ExitStatus;
 
 /// Write a Python script to a temp file and execute it via Fusion 360's
 /// built-in Python interpreter (accessible through its API).
@@ -52,15 +53,12 @@ if __name__ == "__main__":
         .map_err(|e| format!("Failed to flush script: {}", e))?;
     drop(file);
 
-    let output: std::process::Output = run_fusion360_process(fusion360_path, &script_path)?;
-
-    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-    let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+    let (stdout, stderr, status) = run_fusion360_process(fusion360_path, &script_path)?;
 
     // Clean up temp file
     let _ = std::fs::remove_file(&script_path);
 
-    let has_error = stderr.contains("ERROR_START") || !output.status.success();
+    let has_error = stderr.contains("ERROR_START") || !status.success();
 
     if has_error {
         let error_detail = if stderr.contains("ERROR_START") {
@@ -83,23 +81,32 @@ if __name__ == "__main__":
 /// Platform-specific Fusion 360 process launching.
 /// Returns the process output or an error string.
 #[cfg(target_os = "macos")]
-fn run_fusion360_process(fusion360_path: &str, script_path: &str) -> Result<std::process::Output, String> {
-    std::process::Command::new("open")
-        .args(["-a", fusion360_path, "--args", "-p", script_path])
-        .output()
-        .map_err(|e| format!("Failed to execute Fusion 360: {}", e))
+fn run_fusion360_process(
+    fusion360_path: &str,
+    script_path: &str,
+) -> Result<(String, String, ExitStatus), String> {
+    let mut cmd = std::process::Command::new("open");
+    cmd.args(["-a", fusion360_path, "--args", "-p", script_path]);
+    ai_design_core::proc::run_command(&mut cmd)
+        .map_err(|e| format!("Failed to execute Fusion 360: {e}"))
 }
 
 #[cfg(target_os = "windows")]
-fn run_fusion360_process(fusion360_path: &str, script_path: &str) -> Result<std::process::Output, String> {
-    std::process::Command::new(fusion360_path)
-        .args(["-p", script_path])
-        .output()
-        .map_err(|e| format!("Failed to execute Fusion 360: {}", e))
+fn run_fusion360_process(
+    fusion360_path: &str,
+    script_path: &str,
+) -> Result<(String, String, ExitStatus), String> {
+    let mut cmd = std::process::Command::new(fusion360_path);
+    cmd.args(["-p", script_path]);
+    ai_design_core::proc::run_command(&mut cmd)
+        .map_err(|e| format!("Failed to execute Fusion 360: {e}"))
 }
 
 #[cfg(target_os = "linux")]
-fn run_fusion360_process(_fusion360_path: &str, _script_path: &str) -> Result<std::process::Output, String> {
+fn run_fusion360_process(
+    _fusion360_path: &str,
+    _script_path: &str,
+) -> Result<(String, String, ExitStatus), String> {
     Err("Fusion 360 is not available on Linux".into())
 }
 

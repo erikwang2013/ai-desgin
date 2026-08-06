@@ -19,15 +19,12 @@ pub fn run_autocad_script(autocad_path: &str, script: &str) -> Result<ScriptResu
         .map_err(|e| format!("Failed to write script: {}", e))?;
     let temp_path = temp.path().to_string_lossy().to_string();
 
-    let output = Command::new(autocad_path)
-        .args(["/b", &temp_path]) // /b runs script on startup
-        .output()
-        .map_err(|e| format!("Failed to execute AutoCAD: {}", e))?;
+    let mut cmd = Command::new(autocad_path);
+    cmd.args(["/b", &temp_path]); // /b runs script on startup
+    let (stdout, stderr, status) = ai_design_core::proc::run_command(&mut cmd)
+        .map_err(|e| format!("Failed to execute AutoCAD: {e}"))?;
 
-    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-    let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-
-    if stdout.contains("SCRIPT_COMPLETE") || output.status.success() {
+    if stdout.contains("SCRIPT_COMPLETE") || status.success() {
         Ok(ScriptResult::success(
             Some(format!("AutoCAD 脚本执行成功\n{}", stdout)),
             vec![],

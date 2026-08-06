@@ -15,15 +15,12 @@ pub fn run_lychee_command(lychee_path: &str, script: &str) -> Result<ScriptResul
         translate_to_cli(script)
     };
 
-    let output = Command::new(lychee_path)
-        .args(&args)
-        .output()
-        .map_err(|e| format!("Failed to execute Lychee Slicer: {}", e))?;
+    let mut cmd = Command::new(lychee_path);
+    cmd.args(&args);
+    let (stdout, stderr, status) = ai_design_core::proc::run_command(&mut cmd)
+        .map_err(|e| format!("Failed to execute Lychee Slicer: {e}"))?;
 
-    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-    let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-
-    if output.status.success() {
+    if status.success() {
         Ok(ScriptResult::success(
             Some(format!("Lychee Slicer 命令执行成功\n输出:\n{}", stdout)),
             extract_output_files(&args),
@@ -31,7 +28,7 @@ pub fn run_lychee_command(lychee_path: &str, script: &str) -> Result<ScriptResul
     } else {
         Ok(ScriptResult::failure(format!(
             "Lychee Slicer 命令执行失败 (exit code: {:?})\n错误:\n{}",
-            output.status.code(),
+            status.code(),
             stderr
         )))
     }

@@ -170,23 +170,20 @@ pub fn run_cura_slice(cura_path: &str, command_json: &str) -> Result<ScriptResul
                 .map_err(|e| format!("Failed to write config file: {}", e))?;
 
             // Invoke CuraEngine
-            let output = Command::new(cura_path)
-                .args([
-                    "slice",
-                    "-v",
-                    "-j",
-                    &config_path,
-                    "-o",
-                    output_path,
-                    input,
-                ])
-                .output()
+            let mut cmd = Command::new(cura_path);
+            cmd.args([
+                "slice",
+                "-v",
+                "-j",
+                &config_path,
+                "-o",
+                output_path,
+                input,
+            ]);
+            let (stdout, stderr, status) = ai_design_core::proc::run_command(&mut cmd)
                 .map_err(|e| format!("Failed to execute CuraEngine: {}", e))?;
 
-            let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-            let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-
-            if output.status.success() {
+            if status.success() {
                 Ok(ScriptResult::success(
                     Some(format!(
                         "CuraEngine 切片成功\n输出: {}\n{}",
@@ -197,20 +194,19 @@ pub fn run_cura_slice(cura_path: &str, command_json: &str) -> Result<ScriptResul
             } else {
                 Ok(ScriptResult::failure(format!(
                     "CuraEngine 切片失败 (exit code: {:?})\n{}",
-                    output.status.code(),
+                    status.code(),
                     stderr
                 )))
             }
         }
         "check_version" => {
-            let output = Command::new(cura_path)
-                .arg("--version")
-                .output()
+            let mut cmd = Command::new(cura_path);
+            cmd.arg("--version");
+            let (stdout, _, _) = ai_design_core::proc::run_command(&mut cmd)
                 .map_err(|e| format!("Failed to run CuraEngine version: {}", e))?;
 
-            let version = String::from_utf8_lossy(&output.stdout).to_string();
             Ok(ScriptResult::success(
-                Some(format!("CuraEngine version:\n{}", version)),
+                Some(format!("CuraEngine version:\n{}", stdout)),
                 vec![],
             ))
         }

@@ -104,22 +104,19 @@ pub fn run_prusa_slicer(slicer_path: &str, command_json: &str) -> Result<ScriptR
                 .map_err(|e| format!("Failed to write config file: {}", e))?;
 
             // Invoke prusa-slicer
-            let output = Command::new(slicer_path)
-                .args([
-                    "--slice",
-                    "--load",
-                    &config_path,
-                    "--output",
-                    output_path,
-                    input,
-                ])
-                .output()
+            let mut cmd = Command::new(slicer_path);
+            cmd.args([
+                "--slice",
+                "--load",
+                &config_path,
+                "--output",
+                output_path,
+                input,
+            ]);
+            let (stdout, stderr, status) = ai_design_core::proc::run_command(&mut cmd)
                 .map_err(|e| format!("Failed to execute PrusaSlicer: {}", e))?;
 
-            let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-            let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-
-            if output.status.success() {
+            if status.success() {
                 Ok(ScriptResult::success(
                     Some(format!(
                         "PrusaSlicer 切片成功\n输出: {}\n{}",
@@ -130,20 +127,19 @@ pub fn run_prusa_slicer(slicer_path: &str, command_json: &str) -> Result<ScriptR
             } else {
                 Ok(ScriptResult::failure(format!(
                     "PrusaSlicer 切片失败 (exit code: {:?})\n{}",
-                    output.status.code(),
+                    status.code(),
                     stderr
                 )))
             }
         }
         "check_version" => {
-            let output = Command::new(slicer_path)
-                .arg("--version")
-                .output()
+            let mut cmd = Command::new(slicer_path);
+            cmd.arg("--version");
+            let (stdout, _, _) = ai_design_core::proc::run_command(&mut cmd)
                 .map_err(|e| format!("Failed to run PrusaSlicer version: {}", e))?;
 
-            let version = String::from_utf8_lossy(&output.stdout).to_string();
             Ok(ScriptResult::success(
-                Some(format!("PrusaSlicer version:\n{}", version)),
+                Some(format!("PrusaSlicer version:\n{}", stdout)),
                 vec![],
             ))
         }
