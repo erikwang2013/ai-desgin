@@ -79,6 +79,7 @@ class _MainShellState extends State<_MainShell> {
 
   late final PluginManager _pluginManager;
   late final TaskOrchestrator _orchestrator;
+  CCProcessManager? _ccManager;
   SessionStore? _sessionStore;
   final _dashboardKey = GlobalKey<TaskDashboardState>();
   final Map<String, bool> _connectionStatus = {};
@@ -92,9 +93,16 @@ class _MainShellState extends State<_MainShell> {
     _initOrchestrator();
   }
 
+  @override
+  void dispose() {
+    _ccManager?.dispose();
+    super.dispose();
+  }
+
   Future<void> _initOrchestrator() async {
     _pluginManager = PluginManager();
     final ccManager = CCProcessManager();
+    _ccManager = ccManager;
     final modelRouter = ModelRouter();
     final ccRunner = CCRunner();
 

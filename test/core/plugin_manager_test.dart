@@ -73,4 +73,28 @@ void main() {
     await manager.disposeAll();
     expect(manager.getAll().length, 0);
   });
+
+  test('disposeAll disposes each plugin once and clears registry', () async {
+    final manager = PluginManager();
+    final disposed = <String>[];
+    manager.register(StubPlugin('a'));
+    manager.register(StubPlugin('b'));
+    manager.register(_RecordingDisposePlugin('c', disposed));
+    manager.register(StubPlugin('d'));
+    await manager.disposeAll();
+
+    expect(disposed, ['c']);
+    expect(manager.getAll().length, 0);
+    expect(manager.get('c'), isNull);
+  });
+}
+
+class _RecordingDisposePlugin extends StubPlugin {
+  final List<String> disposed;
+  _RecordingDisposePlugin(super.id, this.disposed);
+
+  @override
+  Future<void> dispose() async {
+    disposed.add(id);
+  }
 }

@@ -57,4 +57,27 @@ routes:
     final model = router.route(domain: DesignCategory.web, task: 'some task');
     expect(model, 'custom-model');
   });
+
+  test('keywords config overrides built-in complexity inference', () async {
+    final custom = ModelRouter();
+    await custom.loadConfigFromString('''
+default: claude-sonnet-4-6
+keywords:
+  simple: [copy]
+  creative: [paint]
+routes:
+  - complexity: simple
+    model: claude-haiku-4-5
+  - complexity: creative
+    model: claude-opus-4-7
+''');
+
+    expect(custom.route(domain: DesignCategory.web, task: 'copy this layer'),
+        'claude-haiku-4-5');
+    expect(custom.route(domain: DesignCategory.web, task: 'paint the scene'),
+        'claude-opus-4-7');
+    // Built-in keyword '改名' is no longer recognized after override.
+    expect(custom.route(domain: DesignCategory.web, task: '改名导出'),
+        'claude-sonnet-4-6');
+  });
 }

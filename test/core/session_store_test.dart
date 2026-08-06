@@ -72,6 +72,24 @@ void main() {
     expect(results.length, 1);
   });
 
+  test('search treats % and _ literally (LIKE escaping)', () async {
+    final withPercent = Session(domain: DesignCategory.web, softwareName: 'figma');
+    withPercent.addRecord(task: 'export 50%_off image', script: '', scriptLanguage: '', modelUsed: '');
+    await store.save(withPercent);
+    final noUnderscore = Session(domain: DesignCategory.web, softwareName: 'figma');
+    noUnderscore.addRecord(task: 'turn off light', script: '', scriptLanguage: '', modelUsed: '');
+    await store.save(noUnderscore);
+
+    final byPercent = await store.search('50%');
+    expect(byPercent.length, 1);
+    expect(byPercent.single.id, withPercent.id);
+
+    // '_off' must match the literal underscore, not any character before 'off'.
+    final byUnderscore = await store.search('_off');
+    expect(byUnderscore.length, 1);
+    expect(byUnderscore.single.id, withPercent.id);
+  });
+
   test('delete removes session', () async {
     final s = Session(domain: DesignCategory.web, softwareName: 'figma');
     await store.save(s);

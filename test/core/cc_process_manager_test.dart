@@ -1,6 +1,34 @@
+import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ai_design_studio/core/cc_process_manager.dart';
+import 'package:ai_design_studio/core/cc_runner.dart';
 import 'package:ai_design_studio/models/software_capabilities.dart';
+
+/// Runner that stays "running" until its gate is completed, recording cancels.
+class _HangingRunner extends CCRunner {
+  final List<String> cancelled = [];
+  final Completer<void> started = Completer<void>();
+  final Completer<CCResult> gate = Completer<CCResult>();
+
+  @override
+  Future<CCResult> execute({
+    required String task,
+    required String software,
+    required Map<String, dynamic> capabilities,
+    required Map<String, dynamic> state,
+    String? model,
+    String? scriptLanguage,
+    String? key,
+  }) {
+    started.complete();
+    return gate.future;
+  }
+
+  @override
+  void cancel({String? key}) {
+    if (key != null) cancelled.add(key);
+  }
+}
 
 void main() {
   late CCProcessManager manager;
@@ -41,6 +69,60 @@ void main() {
     manager.closeSession(session.id);
     expect(manager.getSession(session.id), isNull);
     expect(manager.activeSessionCount, 0);
+  });
+
+  test('evicting a session cancels its still-running task processes', () async {
+    final runner = _HangingRunner();
+    final manager = CCProcessManager(maxProcesses: 1, idleTimeoutSeconds: 300);
+    addTearDown(manager.dispose);
+    const caps = SoftwareCapabilities(actions: [], fileFormats: []);
+    const state = SoftwareState();
+    final s1 = manager.createSession(software: 'a', capabilities: caps, state: state);
+
+    final exec = manager.executeWithClaude(
+      sessionId: s1.id, task: 't1', model: 'm', runner: runner, taskKey: 'task-1');
+    await runner.started.future;
+
+    manager.createSession(software: 'b', capabilities: caps, state: state);
+    expect(manager.getSession(s1.id), isNull);
+    expect(runner.cancelled, contains('task-1'));
+
+    runner.gate.complete(CCResult.failure('done'));
+    await exec;
+  });
+
+  test('idle sessions are evicted after idleTimeoutSeconds', () async {
+    final manager = CCProcessManager(maxProcesses: 3, idleTimeoutSeconds: 1);
+    addTearDown(manager.dispose);
+    const caps = SoftwareCapabilities(actions: [], fileFormats: []);
+    const state = SoftwareState();
+    final s1 = manager.createSession(software: 'a', capabilities: caps, state: state);
+
+    // inSeconds truncates, so wait past 2 s to exceed the 1 s threshold.
+    await Future<void>.delayed(const Duration(milliseconds: 2100));
+    manager.createSession(software: 'b', capabilities: caps, state: state);
+
+    expect(manager.getSession(s1.id), isNull);
+    expect(manager.activeSessionCount, 1);
+  });
+
+  test('dispose cancels tracked processes and clears sessions', () async {
+    final runner = _HangingRunner();
+    final manager = CCProcessManager(maxProcesses: 3, idleTimeoutSeconds: 300);
+    const caps = SoftwareCapabilities(actions: [], fileFormats: []);
+    const state = SoftwareState();
+    final s1 = manager.createSession(software: 'a', capabilities: caps, state: state);
+
+    final exec = manager.executeWithClaude(
+      sessionId: s1.id, task: 't1', model: 'm', runner: runner, taskKey: 'task-1');
+    await runner.started.future;
+
+    manager.dispose();
+    expect(runner.cancelled, contains('task-1'));
+    expect(manager.activeSessionCount, 0);
+
+    runner.gate.complete(CCResult.failure('done'));
+    await exec;
   });
 
   test('buildRequest creates valid JSON-RPC request', () {

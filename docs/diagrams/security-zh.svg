@@ -55,7 +55,7 @@
   <rect x="60" y="330" width="6" height="110" fill="#3b82f6"/>
   <rect x="66" y="330" width="574" height="110" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1.2"/>
   <text x="88" y="358" font-size="14.5" font-weight="bold" fill="#1d4ed8">凭据保护</text>
-  <text x="88" y="388" font-size="12.5" fill="#374151">· API 密钥仅存 SharedPreferences（本地）</text>
+  <text x="88" y="388" font-size="12.5" fill="#374151">· API 密钥存 SharedPreferences（明文存储 — 已知限制）</text>
   <text x="88" y="412" font-size="12.5" fill="#374151">· 密钥不出现在日志 / 会话记录中</text>
 
   <!-- 进程隔离 -->
@@ -99,7 +99,7 @@
 
   <line x1="30" y1="772" x2="1250" y2="772" stroke="#fca5a5" stroke-width="1.5"/>
   <text x="310" y="797" font-size="13" fill="#7f1d1d" text-anchor="middle">密钥泄露</text>
-  <text x="905" y="797" font-size="13" fill="#374151" text-anchor="middle">密钥仅存本地 SharedPreferences，不写入日志</text>
+  <text x="905" y="797" font-size="13" fill="#374151" text-anchor="middle">密钥明文存储为已知限制 · 建议迁移系统安全存储（Keychain/DPAPI）</text>
 
   <line x1="30" y1="822" x2="1250" y2="822" stroke="#fca5a5" stroke-width="1.5"/>
   <text x="310" y="847" font-size="13" fill="#7f1d1d" text-anchor="middle">数据外传</text>

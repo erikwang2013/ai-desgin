@@ -1,4 +1,5 @@
 // test/core/cc_runner_test.dart
+import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ai_design_studio/core/cc_runner.dart';
 
@@ -63,5 +64,31 @@ void main() {
       state: const {},
     );
     expect(prompt.contains('请使用中文回复。'), isFalse);
+  });
+
+  test('execute kills the subprocess on timeout instead of leaking it', () async {
+    final dir = Directory.systemTemp.createTempSync('cc_runner_timeout_');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    final pidFile = File('${dir.path}/pid');
+    final fakeCli = File('${dir.path}/fake_claude.sh');
+    fakeCli.writeAsStringSync(
+        '#!/bin/sh\necho \$\$ > ${pidFile.path}\nexec sleep 30\n');
+    Process.runSync('chmod', ['+x', fakeCli.path]);
+
+    final runner = CCRunner(
+      claudeCliPath: fakeCli.path,
+      timeout: const Duration(seconds: 1),
+    );
+    final result = await runner.execute(
+      task: 'slow task',
+      software: 'figma',
+      capabilities: const {},
+      state: const {},
+    );
+
+    expect(result.success, isFalse);
+    final pid = int.parse((await pidFile.readAsString()).trim());
+    final alive = await Process.run('kill', ['-0', '$pid']);
+    expect(alive.exitCode, isNot(0), reason: 'subprocess should have been killed');
   });
 }

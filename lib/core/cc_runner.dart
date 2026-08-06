@@ -53,13 +53,14 @@ class CCRunner {
   static String? responseLanguage;
 
   final String? claudeCliPath;
+  final Duration timeout;
   final Map<String, Process> _processes = {};
   bool? _cachedAvailable;
   DateTime? _lastAvailabilityCheck;
 
   static const _availabilityCacheTtl = Duration(seconds: 60);
 
-  CCRunner({this.claudeCliPath});
+  CCRunner({this.claudeCliPath, this.timeout = const Duration(seconds: 120)});
 
   String get _cliPath => claudeCliPath ?? 'claude';
 
@@ -125,7 +126,7 @@ class CCRunner {
         ['--print', '--output-format', 'json'],
         environment: {
           ...Platform.environment,
-          if (model != null) 'CLAUDE_DEFAULT_MODEL': model,
+          'CLAUDE_DEFAULT_MODEL': ?model,
           if (apiBaseUrl != null && apiBaseUrl!.isNotEmpty) 'ANTHROPIC_BASE_URL': apiBaseUrl!,
           if (apiAuthToken != null && apiAuthToken!.isNotEmpty) 'ANTHROPIC_AUTH_TOKEN': apiAuthToken!,
           ...?proxyEnvironment,
@@ -142,7 +143,7 @@ class CCRunner {
       final results = await Future.wait([
         process.stdout.transform(utf8.decoder).join(),
         process.stderr.transform(utf8.decoder).join(),
-      ]).timeout(const Duration(seconds: 120));
+      ]).timeout(timeout);
       _processes.remove(taskKey);
       final output = results[0];
       final errors = results[1];

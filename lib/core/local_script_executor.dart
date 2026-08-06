@@ -67,6 +67,7 @@ class LocalScriptExecutor {
       final result = await Process.run(
         exe,
         args,
+        environment: {...Platform.environment, 'AI_DESIGN_SCRIPT': scriptPath},
         runInShell: Platform.isWindows,
       ).timeout(_executeTimeout);
 
@@ -118,7 +119,11 @@ class LocalScriptExecutor {
       case 'blender':
         return ['--background', '--python', scriptPath];
       case 'freecad':
-        return ['-c', 'exec(open(r"$scriptPath", encoding="utf-8").read())'];
+        // Script path passed via env var to avoid shell-quoting/path-embedding issues.
+        return [
+          '-c',
+          'import os; exec(open(os.environ["AI_DESIGN_SCRIPT"], encoding="utf-8").read())',
+        ];
       case 'openscad':
         return ['-o', '${tempDir.path}/out.stl', scriptPath];
       default:

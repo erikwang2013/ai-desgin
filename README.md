@@ -69,11 +69,11 @@ Dart (接口定义)  →  PluginManager  →  BuiltInPlugin (脚本生成)
 | 简单操作 | Claude Haiku | 批量重命名、导出设置 |
 | 创意构思 | 创意模型 | 广告方案、风格建议 |
 
-路由规则通过 `config/model-routing.yaml` 配置，支持接入任何兼容 OpenAI API 格式的模型。
+路由规则通过 `config/model-routing.yaml` 配置（含复杂度推断关键词 `keywords` 段），支持接入任何兼容 OpenAI API 格式的模型。
 
 ### 生命周期
 
-任务、插件、会话三大生命周期一览：
+任务、插件、会话三大生命周期一览。会话空闲超过 300 秒即被每 60 秒一次的巡检自动回收，回收时同步终止关联的 Claude 进程，避免进程泄漏：
 
 ![](docs/diagrams/lifecycle-zh.svg)
 
@@ -82,6 +82,8 @@ Dart (接口定义)  →  PluginManager  →  BuiltInPlugin (脚本生成)
 本地优先 · 进程隔离 · 最小信任边界：
 
 ![](docs/diagrams/security-zh.svg)
+
+已知限制：API 密钥明文存储于本地 SharedPreferences（未加密），建议后续迁移至系统安全存储（macOS Keychain / Windows DPAPI）。
 
 ## 项目结构
 

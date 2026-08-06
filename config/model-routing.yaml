@@ -1,5 +1,10 @@
 default: claude-sonnet-4-6
 
+# 复杂度推断关键词（可选；缺省使用内置中英文默认列表）
+keywords:
+  simple: [改名, 导出, 删除, 列表, rename, export, delete, list, get, view, show, 查看, 显示]
+  creative: [创意, 方案, 风格, layout, design, create, creative, generate, 构思]
+
 routes:
   - domains: [web, ad]
     complexity: creative

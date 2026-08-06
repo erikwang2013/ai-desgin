@@ -69,11 +69,11 @@ Dart (interface)  →  PluginManager  →  BuiltInPlugin (script generation)
 | Simple Operations | Claude Haiku | Batch rename, export |
 | Creative Brainstorming | Creative model | Ad copy, style suggestions |
 
-Routing rules are configured in `config/model-routing.yaml`. Any OpenAI-compatible API model can be plugged in.
+Routing rules are configured in `config/model-routing.yaml` (including the `keywords` section for complexity inference). Any OpenAI-compatible API model can be plugged in.
 
 ### Lifecycle
 
-Task, plugin, and session lifecycles at a glance:
+Task, plugin, and session lifecycles at a glance. Sessions idle for more than 300 s are reclaimed by a 60-second periodic sweep, which also cancels their associated Claude processes to prevent process leaks:
 
 ![](docs/diagrams/lifecycle-en.svg)
 
@@ -82,6 +82,8 @@ Task, plugin, and session lifecycles at a glance:
 Local-first · Process isolation · Minimal trust boundary:
 
 ![](docs/diagrams/security-en.svg)
+
+Known limitation: the API key is stored in plaintext in local SharedPreferences. Migrating to OS-backed secure storage (macOS Keychain / Windows DPAPI) is recommended.
 
 ## Project Structure
 

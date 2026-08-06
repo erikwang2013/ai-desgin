@@ -1,7 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
+import 'package:logging/logging.dart';
 import 'package:uuid/uuid.dart';
 import '../models/software_capabilities.dart';
 import 'cc_runner.dart';
+
+final _log = Logger('CCProcessManager');
 
 const _uuid = Uuid();
 
@@ -28,8 +32,37 @@ class CCProcessManager {
   final int maxProcesses;
   final int idleTimeoutSeconds;
   final Map<String, CCSession> _sessions = {};
+  final Map<String, List<String>> _taskKeysBySession = {};
+  Timer? _evictionTimer;
+  CCRunner? _runner;
 
   CCProcessManager({this.maxProcesses = 3, this.idleTimeoutSeconds = 300});
+
+  /// Periodically evict idle sessions so stale sessions are reclaimed even
+  /// when the app is otherwise idle. Stops itself when no sessions remain.
+  void _ensureEvictionTimer() {
+    if (_evictionTimer != null) return;
+    _evictionTimer = Timer.periodic(const Duration(seconds: 60), (_) {
+      _evictIdleSessions();
+      if (_sessions.isEmpty && _taskKeysBySession.isEmpty) {
+        _evictionTimer?.cancel();
+        _evictionTimer = null;
+      }
+    });
+  }
+
+  /// Cancel running tasks and drop all session state. Call on app teardown.
+  void dispose() {
+    _evictionTimer?.cancel();
+    _evictionTimer = null;
+    for (final keys in _taskKeysBySession.values) {
+      for (final key in keys) {
+        _runner?.cancel(key: key);
+      }
+    }
+    _taskKeysBySession.clear();
+    _sessions.clear();
+  }
 
   CCSession createSession({
     required String software,
@@ -41,9 +74,10 @@ class CCProcessManager {
     if (_sessions.length >= maxProcesses && _sessions.isNotEmpty) {
       final oldest = _sessions.entries
           .reduce((a, b) => a.value.lastActivity.isBefore(b.value.lastActivity) ? a : b);
-      _sessions.remove(oldest.key);
+      _evictSession(oldest.key);
     }
 
+    _ensureEvictionTimer();
     final session = CCSession(software: software, capabilities: capabilities, state: state);
     _sessions[session.id] = session;
     return session;
@@ -52,6 +86,7 @@ class CCProcessManager {
   CCSession? getSession(String sessionId) => _sessions[sessionId];
 
   void closeSession(String sessionId) {
+    _taskKeysBySession.remove(sessionId);
     _sessions.remove(sessionId);
   }
 
@@ -98,6 +133,11 @@ class CCProcessManager {
     }
 
     final effectiveRunner = runner ?? CCRunner();
+    _runner = effectiveRunner;
+    if (taskKey != null) {
+      _taskKeysBySession.putIfAbsent(sessionId, () => []).add(taskKey);
+    }
+
     final result = await effectiveRunner.execute(
       task: task,
       software: session.software,
@@ -108,6 +148,7 @@ class CCProcessManager {
       key: taskKey,
     );
 
+    _taskKeysBySession[sessionId]?.remove(taskKey);
     session.lastActivity = DateTime.now();
 
     if (result.success) {
@@ -128,8 +169,21 @@ class CCProcessManager {
 
   void _evictIdleSessions() {
     final now = DateTime.now();
-    _sessions.removeWhere((_, session) {
-      return now.difference(session.lastActivity).inSeconds > idleTimeoutSeconds;
-    });
+    final expired = _sessions.entries
+        .where((e) => now.difference(e.value.lastActivity).inSeconds > idleTimeoutSeconds)
+        .map((e) => e.key)
+        .toList();
+    for (final id in expired) {
+      _evictSession(id);
+    }
+  }
+
+  /// Remove a session and cancel any Claude processes still tracked for it.
+  void _evictSession(String sessionId) {
+    _log.info('Evicting session $sessionId (max sessions reached or idle timeout)');
+    for (final key in _taskKeysBySession.remove(sessionId) ?? const <String>[]) {
+      _runner?.cancel(key: key);
+    }
+    _sessions.remove(sessionId);
   }
 }

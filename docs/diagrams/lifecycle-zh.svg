@@ -117,5 +117,5 @@
   <text x="895" y="686" font-size="11.5" fill="#115e59" text-anchor="middle">会话彻底结束</text>
 
   <text x="640" y="740" font-size="13" fill="#115e59" text-anchor="middle">CCProcessManager 统一管理（最多 3 个进程并行）</text>
-  <text x="640" y="764" font-size="13" fill="#115e59" text-anchor="middle">空闲超时 300 秒自动回收，避免进程泄漏</text>
+  <text x="640" y="764" font-size="13" fill="#115e59" text-anchor="middle">每 60 秒巡检回收空闲会话 · 回收时终止关联任务进程</text>
 </svg>

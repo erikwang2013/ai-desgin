@@ -117,5 +117,5 @@
   <text x="895" y="686" font-size="11.5" fill="#115e59" text-anchor="middle">Session closed</text>
 
   <text x="640" y="740" font-size="13" fill="#115e59" text-anchor="middle">Managed by CCProcessManager (max 3 parallel processes)</text>
-  <text x="640" y="764" font-size="13" fill="#115e59" text-anchor="middle">Idle sessions evicted after 300 s to prevent process leaks</text>
+  <text x="640" y="764" font-size="13" fill="#115e59" text-anchor="middle">Idle sessions swept every 60 s · eviction cancels running tasks</text>
 </svg>

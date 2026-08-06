@@ -55,7 +55,7 @@
   <rect x="60" y="330" width="6" height="110" fill="#3b82f6"/>
   <rect x="66" y="330" width="574" height="110" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1.2"/>
   <text x="88" y="358" font-size="14.5" font-weight="bold" fill="#1d4ed8">Credential Protection</text>
-  <text x="88" y="388" font-size="12.5" fill="#374151">· API key stored only in SharedPreferences (local)</text>
+  <text x="88" y="388" font-size="12.5" fill="#374151">· API key stored in SharedPreferences (plaintext — known limit)</text>
   <text x="88" y="412" font-size="12.5" fill="#374151">· Key never appears in logs / session records</text>
 
   <!-- Process isolation -->
@@ -99,7 +99,7 @@
 
   <line x1="30" y1="772" x2="1250" y2="772" stroke="#fca5a5" stroke-width="1.5"/>
   <text x="310" y="797" font-size="13" fill="#7f1d1d" text-anchor="middle">API key leakage</text>
-  <text x="905" y="797" font-size="13" fill="#374151" text-anchor="middle">Key stored locally in SharedPreferences, never logged</text>
+  <text x="905" y="797" font-size="13" fill="#374151" text-anchor="middle">Key stored in plaintext — migrate to OS secure storage (Keychain/DPAPI)</text>
 
   <line x1="30" y1="822" x2="1250" y2="822" stroke="#fca5a5" stroke-width="1.5"/>
   <text x="310" y="847" font-size="13" fill="#7f1d1d" text-anchor="middle">Data exfiltration</text>
