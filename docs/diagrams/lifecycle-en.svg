@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="820" viewBox="0 0 1280 820" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#6b7280"/>
+    </marker>
+    <style>
+      .halo { paint-order: stroke; stroke: #ffffff; stroke-width: 4px; }
+      .chip { fill: #ffffff; stroke: #d1d5db; stroke-width: 1.2; }
+    </style>
+  </defs>
+
+  <rect width="1280" height="820" fill="#ffffff"/>
+
+  <text x="640" y="42" font-size="26" font-weight="bold" fill="#111827" text-anchor="middle">AI Design Lifecycle Diagram</text>
+  <text x="640" y="72" font-size="15" fill="#6b7280" text-anchor="middle">Task · Plugin · Session — three lifecycles at a glance</text>
+
+  <!-- ============ Lane 1 Task Lifecycle ============ -->
+  <rect x="30" y="100" width="1220" height="210" rx="12" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+  <rect x="30" y="100" width="1220" height="38" rx="12" fill="#3b82f6"/>
+  <rect x="30" y="125" width="1220" height="13" fill="#3b82f6"/>
+  <text x="640" y="126" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">① Task Lifecycle</text>
+
+  <!-- Main flow Pending → Running → Completed -->
+  <rect x="230" y="150" width="170" height="72" rx="10" fill="#ffffff" stroke="#3b82f6" stroke-width="2"/>
+  <text x="315" y="182" font-size="15" font-weight="bold" fill="#1d4ed8" text-anchor="middle">Pending</text>
+  <text x="315" y="204" font-size="12" fill="#1e40af" text-anchor="middle">Queued, awaiting execution</text>
+
+  <line x1="402" y1="186" x2="422" y2="186" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="428" y="150" width="170" height="72" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+  <text x="513" y="182" font-size="15" font-weight="bold" fill="#1d4ed8" text-anchor="middle">Running</text>
+  <text x="513" y="204" font-size="12" fill="#1e40af" text-anchor="middle">Claude Code running</text>
+
+  <line x1="600" y1="186" x2="620" y2="186" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="628" y="150" width="170" height="72" rx="10" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+  <text x="713" y="182" font-size="15" font-weight="bold" fill="#047857" text-anchor="middle">Completed ✓</text>
+  <text x="713" y="204" font-size="12" fill="#065f46" text-anchor="middle">Done, result returned</text>
+
+  <!-- Terminal branches -->
+  <line x1="315" y1="222" x2="315" y2="232" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="230" y="236" width="170" height="54" rx="10" fill="#f8fafc" stroke="#9ca3af" stroke-width="2"/>
+  <text x="315" y="260" font-size="14" font-weight="bold" fill="#374151" text-anchor="middle">Cancelled</text>
+  <text x="315" y="280" font-size="11.5" fill="#6b7280" text-anchor="middle">Cancelled by user</text>
+
+  <line x1="513" y1="222" x2="513" y2="232" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="430" y="236" width="170" height="54" rx="10" fill="#fef2f2" stroke="#ef4444" stroke-width="2"/>
+  <text x="515" y="260" font-size="14" font-weight="bold" fill="#b91c1c" text-anchor="middle">Failed ✗</text>
+  <text x="515" y="280" font-size="11.5" fill="#7f1d1d" text-anchor="middle">Execution failed</text>
+
+  <text x="870" y="258" font-size="13" fill="#1e40af" text-anchor="middle">Cancel: allowed while pending or running</text>
+  <text x="870" y="280" font-size="13" fill="#1e40af" text-anchor="middle">Terminal states: Completed / Failed / Cancelled</text>
+
+  <!-- ============ Lane 2 Plugin Lifecycle ============ -->
+  <rect x="30" y="340" width="1220" height="210" rx="12" fill="#fffbeb" stroke="#f59e0b" stroke-width="2"/>
+  <rect x="30" y="340" width="1220" height="38" rx="12" fill="#f59e0b"/>
+  <rect x="30" y="365" width="1220" height="13" fill="#f59e0b"/>
+  <text x="640" y="366" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">② Plugin Lifecycle</text>
+
+  <rect x="230" y="390" width="160" height="76" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+  <text x="310" y="422" font-size="15" font-weight="bold" fill="#b45309" text-anchor="middle">Register</text>
+  <text x="310" y="446" font-size="12" fill="#92400e" text-anchor="middle">PluginManager.register</text>
+
+  <line x1="392" y1="428" x2="410" y2="428" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="414" y="390" width="160" height="76" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+  <text x="494" y="422" font-size="15" font-weight="bold" fill="#b45309" text-anchor="middle">Available</text>
+  <text x="494" y="446" font-size="12" fill="#92400e" text-anchor="middle">Loaded, ready for use</text>
+
+  <line x1="576" y1="428" x2="594" y2="428" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="598" y="390" width="160" height="76" rx="10" fill="#fffbeb" stroke="#f59e0b" stroke-width="2"/>
+  <text x="678" y="422" font-size="15" font-weight="bold" fill="#b45309" text-anchor="middle">Execute</text>
+  <text x="678" y="446" font-size="12" fill="#92400e" text-anchor="middle">Generate &amp; run scripts</text>
+
+  <line x1="760" y1="428" x2="778" y2="428" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="782" y="390" width="160" height="76" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+  <text x="862" y="422" font-size="15" font-weight="bold" fill="#b45309" text-anchor="middle">Dispose</text>
+  <text x="862" y="446" font-size="12" fill="#92400e" text-anchor="middle">Free resources, unregister</text>
+
+  <text x="640" y="510" font-size="13" fill="#92400e" text-anchor="middle">Install from marketplace → auto register</text>
+  <text x="640" y="534" font-size="13" fill="#92400e" text-anchor="middle">Cleaned up on app exit (disposeAll)</text>
+
+  <!-- ============ Lane 3 Session Lifecycle ============ -->
+  <rect x="30" y="580" width="1220" height="210" rx="12" fill="#ecfeff" stroke="#0d9488" stroke-width="2"/>
+  <rect x="30" y="580" width="1220" height="38" rx="12" fill="#0d9488"/>
+  <rect x="30" y="605" width="1220" height="13" fill="#0d9488"/>
+  <text x="640" y="606" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">③ Session Lifecycle</text>
+
+  <rect x="230" y="630" width="130" height="76" rx="10" fill="#ffffff" stroke="#0d9488" stroke-width="2"/>
+  <text x="295" y="662" font-size="14.5" font-weight="bold" fill="#0f766e" text-anchor="middle">Create</text>
+  <text x="295" y="686" font-size="11.5" fill="#115e59" text-anchor="middle">New session</text>
+
+  <line x1="362" y1="668" x2="376" y2="668" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="380" y="630" width="130" height="76" rx="10" fill="#ecfeff" stroke="#0d9488" stroke-width="2"/>
+  <text x="445" y="662" font-size="14.5" font-weight="bold" fill="#0f766e" text-anchor="middle">Active</text>
+  <text x="445" y="686" font-size="11.5" fill="#115e59" text-anchor="middle">Up to 3 parallel</text>
+
+  <line x1="512" y1="668" x2="526" y2="668" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="530" y="630" width="130" height="76" rx="10" fill="#ffffff" stroke="#0d9488" stroke-width="2"/>
+  <text x="595" y="662" font-size="14.5" font-weight="bold" fill="#0f766e" text-anchor="middle">Idle</text>
+  <text x="595" y="686" font-size="11.5" fill="#115e59" text-anchor="middle">No tasks running</text>
+
+  <line x1="662" y1="668" x2="676" y2="668" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="680" y="630" width="130" height="76" rx="10" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+  <text x="745" y="662" font-size="14.5" font-weight="bold" fill="#0f766e" text-anchor="middle">Evict</text>
+  <text x="745" y="686" font-size="11.5" fill="#115e59" text-anchor="middle">Timeout 300 s</text>
+
+  <line x1="812" y1="668" x2="826" y2="668" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="830" y="630" width="130" height="76" rx="10" fill="#ffffff" stroke="#0d9488" stroke-width="2"/>
+  <text x="895" y="662" font-size="14.5" font-weight="bold" fill="#0f766e" text-anchor="middle">Close</text>
+  <text x="895" y="686" font-size="11.5" fill="#115e59" text-anchor="middle">Session closed</text>
+
+  <text x="640" y="740" font-size="13" fill="#115e59" text-anchor="middle">Managed by CCProcessManager (max 3 parallel processes)</text>
+  <text x="640" y="764" font-size="13" fill="#115e59" text-anchor="middle">Idle sessions evicted after 300 s to prevent process leaks</text>
+</svg>

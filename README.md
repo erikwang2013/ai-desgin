@@ -23,22 +23,9 @@ Claude Code 分析任务 → 选择最优模型 → 生成 Figma JavaScript 脚�
 
 ## 架构设计
 
-### 三层架构
+### 系统架构
 
-```
-+------------------------------------------+
-|  Flutter UI (Dart)                       |
-|  ChatView · TaskDashboard · SoftwarePanel|
-+------------------------------------------+
-|  核心层 (Dart)                            |
-|  TaskOrchestrator · CCProcessManager     |
-|  ModelRouter · PluginManager · Session   |
-+------------------------------------------+
-|  插件层 (Built-in Plugins)                |
-|  Figma · Blender · AutoCAD · Photoshop   |
-|  (62 个内置设计软件插件)                    |
-+------------------------------------------+
-```
+![](docs/diagrams/architecture-zh.svg)
 
 ### 技术栈
 
@@ -51,24 +38,9 @@ Claude Code 分析任务 → 选择最优模型 → 生成 Figma JavaScript 脚�
 | AI 引擎 | Claude Code CLI | 多模型调度与脚本生成 |
 | 持久化 | SQLite (sqflite) | 会话与任务历史 |
 
-### 一次任务的数据流
+### 任务流程图
 
-```
-用户输入 → TaskOrchestrator → CCProcessManager → Claude Code CLI
-                                                      |
-                                          +-----------+
-                                          v
-                                   模型路由决策 + 脚本生成
-                                          |
-                                          v
-                              生成的脚本 ← PluginManager
-                                          |
-                                          v
-                     Built-in Plugin 执行 → 设计软件操作
-                                          |
-                                          v
-                              结果/截图 ← 用户确认
-```
+![](docs/diagrams/task-flow-zh.svg)
 
 ### 插件架构
 
@@ -98,6 +70,18 @@ Dart (接口定义)  →  PluginManager  →  BuiltInPlugin (脚本生成)
 | 创意构思 | 创意模型 | 广告方案、风格建议 |
 
 路由规则通过 `config/model-routing.yaml` 配置，支持接入任何兼容 OpenAI API 格式的模型。
+
+### 生命周期
+
+任务、插件、会话三大生命周期一览：
+
+![](docs/diagrams/lifecycle-zh.svg)
+
+### 安全架构
+
+本地优先 · 进程隔离 · 最小信任边界：
+
+![](docs/diagrams/security-zh.svg)
 
 ## 项目结构
 
@@ -206,6 +190,17 @@ ai-desgin/
 |   +-- release.sh                         # 发布打包
 +-- test/                                  # Dart 测试 (72 tests)
 +-- docs/
+    +-- diagrams/                          # 中英文 SVG 图表（架构/流程/功能/生命周期/安全）
+    |   +-- architecture-zh.svg            # 系统架构图
+    |   +-- architecture-en.svg            # System architecture
+    |   +-- task-flow-zh.svg               # 任务流程图
+    |   +-- task-flow-en.svg               # Task flow
+    |   +-- features-zh.svg                # 功能全景图
+    |   +-- features-en.svg                # Feature map
+    |   +-- lifecycle-zh.svg               # 生命周期图
+    |   +-- lifecycle-en.svg               # Lifecycle diagram
+    |   +-- security-zh.svg                # 安全架构图
+    |   +-- security-en.svg                # Security architecture
     +-- test-report-2026-07-31.md          # 测试报告
     +-- review-report-2026-07-31.md        # 审查报告
     +-- review-report-2026-07-31-v2.md     # 审查报告 v2
@@ -310,6 +305,8 @@ AI 生成脚本后会展示预览，确认无误后点击执行。执行结果�
 「设置 -> 插件市场」中浏览可用插件，一键安装。安装后即可在软件控制台中看到新的软件入口。
 
 ## 功能说明
+
+![](docs/diagrams/features-zh.svg)
 
 ### 平面与 UI 设计
 

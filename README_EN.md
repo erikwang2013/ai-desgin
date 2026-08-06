@@ -23,22 +23,9 @@ Execution layer (LocalScriptExecutor / CLI) → software executes → returns re
 
 ## Architecture
 
-### Three-Layer Design
+### System Architecture
 
-```
-+------------------------------------------+
-|  Flutter UI (Dart)                       |
-|  ChatView · TaskDashboard · SoftwarePanel|
-+------------------------------------------+
-|  Core Layer (Dart)                        |
-|  TaskOrchestrator · CCProcessManager     |
-|  ModelRouter · PluginManager · Session   |
-+------------------------------------------+
-|  Plugin Layer (Built-in Plugins)          |
-|  Figma · Blender · AutoCAD · Photoshop   |
-|  (62 built-in design software plugins)    |
-+------------------------------------------+
-```
+![](docs/diagrams/architecture-en.svg)
 
 ### Tech Stack
 
@@ -51,24 +38,9 @@ Execution layer (LocalScriptExecutor / CLI) → software executes → returns re
 | AI Engine | Claude Code CLI | Multi-model orchestration and script generation |
 | Storage | SQLite (sqflite) | Session and task history persistence |
 
-### Data Flow
+### Task Flow
 
-```
-User Input → TaskOrchestrator → CCProcessManager → Claude Code CLI
-                                                       |
-                                           +-----------+
-                                           v
-                                   Model routing + script generation
-                                           |
-                                           v
-                              Generated script <- PluginManager
-                                           |
-                                           v
-                       Built-in Plugin executes → Design software operation
-                                           |
-                                           v
-                              Result/screenshot <- User confirmation
-```
+![](docs/diagrams/task-flow-en.svg)
 
 ### Plugin Architecture
 
@@ -98,6 +70,18 @@ Dart (interface)  →  PluginManager  →  BuiltInPlugin (script generation)
 | Creative Brainstorming | Creative model | Ad copy, style suggestions |
 
 Routing rules are configured in `config/model-routing.yaml`. Any OpenAI-compatible API model can be plugged in.
+
+### Lifecycle
+
+Task, plugin, and session lifecycles at a glance:
+
+![](docs/diagrams/lifecycle-en.svg)
+
+### Security Architecture
+
+Local-first · Process isolation · Minimal trust boundary:
+
+![](docs/diagrams/security-en.svg)
 
 ## Project Structure
 
@@ -183,6 +167,17 @@ ai-desgin/
 +-- scripts/                               # Build + release scripts
 +-- test/                                  # Dart tests
 +-- docs/
+    +-- diagrams/                          # EN/ZH SVG diagrams (architecture/flow/features/lifecycle/security)
+    |   +-- architecture-zh.svg            # 系统架构图
+    |   +-- architecture-en.svg            # System architecture
+    |   +-- task-flow-zh.svg               # 任务流程图
+    |   +-- task-flow-en.svg               # Task flow
+    |   +-- features-zh.svg                # 功能全景图
+    |   +-- features-en.svg                # Feature map
+    |   +-- lifecycle-zh.svg               # 生命周期图
+    |   +-- lifecycle-en.svg               # Lifecycle diagram
+    |   +-- security-zh.svg                # 安全架构图
+    |   +-- security-en.svg                # Security architecture
     +-- test-report-2026-07-31.md          # Test report
     +-- review-report-2026-07-31.md        # Code review
     +-- review-report-2026-07-31-v2.md     # Code review v2
@@ -282,6 +277,8 @@ Set up API endpoints and keys in Settings -> Model Configuration. Customize rout
 Browse available plugins in Settings -> Plugin Marketplace. One-click install. New software entries appear in the Software Panel immediately.
 
 ## Features
+
+![](docs/diagrams/features-en.svg)
 
 ### Graphic & UI Design
 

@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="880" viewBox="0 0 1280 880" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#6b7280"/>
+    </marker>
+    <style>
+      .halo { paint-order: stroke; stroke: #ffffff; stroke-width: 4px; }
+      .chip { fill: #ffffff; stroke: #d1d5db; stroke-width: 1.2; }
+    </style>
+  </defs>
+
+  <rect width="1280" height="880" fill="#ffffff"/>
+
+  <text x="640" y="42" font-size="26" font-weight="bold" fill="#111827" text-anchor="middle">AI Design Security Architecture</text>
+  <text x="640" y="72" font-size="15" fill="#6b7280" text-anchor="middle">Local-first · Process isolation · Minimal trust boundary</text>
+
+  <!-- ============ Band 1 Trust Boundary ============ -->
+  <rect x="30" y="100" width="1220" height="150" rx="12" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+  <rect x="30" y="100" width="1220" height="38" rx="12" fill="#3b82f6"/>
+  <rect x="30" y="125" width="1220" height="13" fill="#3b82f6"/>
+  <text x="640" y="126" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">Trust Boundary</text>
+
+  <rect x="50" y="160" width="250" height="64" rx="10" fill="#ffffff" stroke="#3b82f6" stroke-width="2"/>
+  <text x="175" y="192" font-size="14" font-weight="bold" fill="#1e3a8a" text-anchor="middle">User Interface (Flutter)</text>
+  <text x="175" y="212" font-size="11.5" fill="#1e40af" text-anchor="middle">Submit tasks / view results</text>
+
+  <line x1="304" y1="192" x2="351" y2="192" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)"/>
+  <text class="halo" x="328" y="180" font-size="12" fill="#374151" text-anchor="middle">Authorized</text>
+
+  <rect x="355" y="160" width="250" height="64" rx="10" fill="#ffffff" stroke="#3b82f6" stroke-width="2"/>
+  <text x="480" y="192" font-size="14" font-weight="bold" fill="#1e3a8a" text-anchor="middle">App Core (Dart)</text>
+  <text x="480" y="212" font-size="11.5" fill="#1e40af" text-anchor="middle">Orchestration / plugins</text>
+
+  <line x1="609" y1="192" x2="656" y2="192" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)"/>
+  <text class="halo" x="632" y="180" font-size="12" fill="#374151" text-anchor="middle">Isolated</text>
+
+  <rect x="660" y="160" width="250" height="64" rx="10" fill="#ffffff" stroke="#3b82f6" stroke-width="2"/>
+  <text x="785" y="192" font-size="14" font-weight="bold" fill="#1e3a8a" text-anchor="middle">Claude Code CLI Process</text>
+  <text x="785" y="212" font-size="11.5" fill="#1e40af" text-anchor="middle">Model routing / script gen</text>
+
+  <line x1="914" y1="192" x2="961" y2="192" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)"/>
+  <text class="halo" x="937" y="180" font-size="12" fill="#374151" text-anchor="middle">Controlled</text>
+
+  <rect x="965" y="160" width="250" height="64" rx="10" fill="#ffffff" stroke="#3b82f6" stroke-width="2"/>
+  <text x="1090" y="192" font-size="14" font-weight="bold" fill="#1e3a8a" text-anchor="middle">Design Software Process</text>
+  <text x="1090" y="212" font-size="11.5" fill="#1e40af" text-anchor="middle">Figma / Blender / …62 apps</text>
+
+  <!-- ============ Band 2 Security Mechanisms ============ -->
+  <rect x="30" y="270" width="1220" height="300" rx="12" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+  <rect x="30" y="270" width="1220" height="38" rx="12" fill="#10b981"/>
+  <rect x="30" y="295" width="1220" height="13" fill="#10b981"/>
+  <text x="640" y="296" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">Security Mechanisms</text>
+
+  <!-- Credential protection -->
+  <rect x="60" y="330" width="6" height="110" fill="#3b82f6"/>
+  <rect x="66" y="330" width="574" height="110" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1.2"/>
+  <text x="88" y="358" font-size="14.5" font-weight="bold" fill="#1d4ed8">Credential Protection</text>
+  <text x="88" y="388" font-size="12.5" fill="#374151">· API key stored only in SharedPreferences (local)</text>
+  <text x="88" y="412" font-size="12.5" fill="#374151">· Key never appears in logs / session records</text>
+
+  <!-- Process isolation -->
+  <rect x="640" y="330" width="6" height="110" fill="#8b5cf6"/>
+  <rect x="646" y="330" width="574" height="110" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1.2"/>
+  <text x="668" y="358" font-size="14.5" font-weight="bold" fill="#6d28d9">Process Isolation</text>
+  <text x="668" y="388" font-size="12.5" fill="#374151">· Rust IPC isolation (spawn / send_script / kill)</text>
+  <text x="668" y="412" font-size="12.5" fill="#374151">· cc_runner kills orphaned processes after 120 s</text>
+
+  <!-- Script execution control -->
+  <rect x="60" y="460" width="6" height="110" fill="#f59e0b"/>
+  <rect x="66" y="460" width="574" height="110" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1.2"/>
+  <text x="88" y="488" font-size="14.5" font-weight="bold" fill="#b45309">Script Execution Control</text>
+  <text x="88" y="518" font-size="12.5" fill="#374151">· Scripts run only in the user-selected design software</text>
+  <text x="88" y="542" font-size="12.5" fill="#374151">· Honest fallback: generate script for manual copy</text>
+
+  <!-- Data localization -->
+  <rect x="640" y="460" width="6" height="110" fill="#0d9488"/>
+  <rect x="646" y="460" width="574" height="110" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1.2"/>
+  <text x="668" y="488" font-size="14.5" font-weight="bold" fill="#0f766e">Data Localization</text>
+  <text x="668" y="518" font-size="12.5" fill="#374151">· Sessions &amp; task history stored in local SQLite</text>
+  <text x="668" y="542" font-size="12.5" fill="#374151">· Local-first architecture, no cloud backend</text>
+
+  <!-- ============ Band 3 Threat Model & Mitigation ============ -->
+  <rect x="30" y="590" width="1220" height="260" rx="12" fill="#fef2f2" stroke="#ef4444" stroke-width="2"/>
+  <rect x="30" y="590" width="1220" height="38" rx="12" fill="#ef4444"/>
+  <rect x="30" y="615" width="1220" height="13" fill="#ef4444"/>
+  <text x="640" y="616" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">Threat Model &amp; Mitigation</text>
+
+  <line x1="560" y1="628" x2="560" y2="850" stroke="#fca5a5" stroke-width="1.5"/>
+  <text x="310" y="654" font-size="14" font-weight="bold" fill="#b91c1c" text-anchor="middle">Threat</text>
+  <text x="905" y="654" font-size="14" font-weight="bold" fill="#b91c1c" text-anchor="middle">Mitigation</text>
+
+  <line x1="30" y1="672" x2="1250" y2="672" stroke="#fca5a5" stroke-width="1.5"/>
+  <text x="310" y="697" font-size="13" fill="#7f1d1d" text-anchor="middle">Prompt injection / malicious</text>
+  <text x="905" y="697" font-size="13" fill="#374151" text-anchor="middle">Scripts run only inside the target software; user confirms</text>
+
+  <line x1="30" y1="722" x2="1250" y2="722" stroke="#fca5a5" stroke-width="1.5"/>
+  <text x="310" y="747" font-size="13" fill="#7f1d1d" text-anchor="middle">Runaway process / leaks</text>
+  <text x="905" y="747" font-size="13" fill="#374151" text-anchor="middle">cc_runner 120 s kill; idle sessions evicted after 300 s</text>
+
+  <line x1="30" y1="772" x2="1250" y2="772" stroke="#fca5a5" stroke-width="1.5"/>
+  <text x="310" y="797" font-size="13" fill="#7f1d1d" text-anchor="middle">API key leakage</text>
+  <text x="905" y="797" font-size="13" fill="#374151" text-anchor="middle">Key stored locally in SharedPreferences, never logged</text>
+
+  <line x1="30" y1="822" x2="1250" y2="822" stroke="#fca5a5" stroke-width="1.5"/>
+  <text x="310" y="847" font-size="13" fill="#7f1d1d" text-anchor="middle">Data exfiltration</text>
+  <text x="905" y="847" font-size="13" fill="#374151" text-anchor="middle">Task history stays in local SQLite; no cloud upload</text>
+</svg>

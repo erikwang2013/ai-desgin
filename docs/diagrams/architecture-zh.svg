@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="920" viewBox="0 0 1240 920" font-family="'PingFang SC','Microsoft YaHei','Noto Sans CJK SC',Arial,sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#6b7280"/>
+    </marker>
+    <marker id="arrowRev" markerWidth="10" markerHeight="10" refX="2" refY="3" orient="auto-start-reverse">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#6b7280"/>
+    </marker>
+    <style>
+      .halo { paint-order: stroke; stroke: #ffffff; stroke-width: 4px; }
+      .chip { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.2; }
+    </style>
+  </defs>
+
+  <rect width="1240" height="920" fill="#ffffff"/>
+
+  <!-- 标题 -->
+  <text x="620" y="42" font-size="26" font-weight="bold" fill="#111827" text-anchor="middle">AI Design 系统架构图</text>
+  <text x="620" y="72" font-size="15" fill="#6b7280" text-anchor="middle">Flutter 桌面应用 · Claude Code 多模型调度 · 62 款设计软件插件</text>
+
+  <!-- ============ 左列：AI 引擎 ============ -->
+  <rect x="30" y="110" width="250" height="370" rx="12" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2"/>
+  <text x="155" y="148" font-size="16" font-weight="bold" fill="#5b21b6" text-anchor="middle">AI 引擎</text>
+  <text x="155" y="172" font-size="18" font-weight="bold" fill="#312e81" text-anchor="middle">Claude Code CLI</text>
+  <line x1="50" y1="190" x2="260" y2="190" stroke="#c4b5fd" stroke-width="1.5"/>
+  <g font-size="14" fill="#111827" text-anchor="middle">
+    <rect class="chip" x="50" y="215" width="210" height="40" rx="8"/><text x="155" y="240">多模型调度</text>
+    <rect class="chip" x="50" y="270" width="210" height="40" rx="8"/><text x="155" y="295">自动生成控制脚本</text>
+    <rect class="chip" x="50" y="325" width="210" height="40" rx="8"/><text x="155" y="350">Opus · Sonnet · Haiku</text>
+  </g>
+
+  <!-- ============ 中列：三层架构 ============ -->
+  <!-- 第 1 层 Flutter UI -->
+  <rect x="320" y="110" width="600" height="140" rx="12" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+  <text x="340" y="138" font-size="16" font-weight="bold" fill="#1e3a8a">Flutter UI 层 (Dart)</text>
+  <g font-size="14" fill="#111827" text-anchor="middle">
+    <rect class="chip" x="340" y="156" width="250" height="38" rx="8"/><text x="465" y="179">ChatView（对话面板）</text>
+    <rect class="chip" x="610" y="156" width="250" height="38" rx="8"/><text x="735" y="179">TaskDashboard（任务看板）</text>
+    <rect class="chip" x="340" y="206" width="250" height="38" rx="8"/><text x="465" y="229">SoftwarePanel（软件控制台）</text>
+    <rect class="chip" x="610" y="206" width="250" height="38" rx="8"/><text x="735" y="229">PluginMarketplace（插件市场）</text>
+  </g>
+  <line x1="620" y1="250" x2="620" y2="318" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)"/>
+  <text class="halo" x="632" y="286" font-size="12.5" fill="#374151">提交任务 / 订阅状态</text>
+
+  <!-- 第 2 层 核心层 -->
+  <rect x="320" y="320" width="600" height="160" rx="12" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+  <text x="340" y="348" font-size="16" font-weight="bold" fill="#065f46">核心层 (Dart)</text>
+  <g font-size="14" fill="#111827" text-anchor="middle">
+    <rect class="chip" x="340" y="365" width="180" height="38" rx="8"/><text x="430" y="388">TaskOrchestrator</text>
+    <rect class="chip" x="530" y="365" width="180" height="38" rx="8"/><text x="620" y="388">CCProcessManager</text>
+    <rect class="chip" x="720" y="365" width="180" height="38" rx="8"/><text x="810" y="388">ModelRouter</text>
+    <rect class="chip" x="340" y="415" width="180" height="38" rx="8"/><text x="430" y="438">PluginManager</text>
+    <rect class="chip" x="530" y="415" width="180" height="38" rx="8"/><text x="620" y="438">SessionStore</text>
+    <rect class="chip" x="720" y="415" width="180" height="38" rx="8"/><text x="810" y="438">LocaleProvider</text>
+  </g>
+  <line x1="620" y1="480" x2="620" y2="548" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)"/>
+  <text class="halo" x="632" y="516" font-size="12.5" fill="#374151">下发脚本 / 上报结果</text>
+
+  <!-- 第 3 层 插件层 -->
+  <rect x="320" y="550" width="600" height="130" rx="12" fill="#fffbeb" stroke="#f59e0b" stroke-width="2"/>
+  <text x="340" y="578" font-size="16" font-weight="bold" fill="#92400e">插件层（内置 BuiltInPlugin ×62）</text>
+  <g font-size="13.5" fill="#111827" text-anchor="middle">
+    <rect class="chip" x="340" y="598" width="100" height="36" rx="8"/><text x="390" y="620">Figma</text>
+    <rect class="chip" x="450" y="598" width="100" height="36" rx="8"/><text x="500" y="620">Blender</text>
+    <rect class="chip" x="560" y="598" width="100" height="36" rx="8"/><text x="610" y="620">AutoCAD</text>
+    <rect class="chip" x="670" y="598" width="100" height="36" rx="8"/><text x="720" y="620">Photoshop</text>
+    <rect class="chip" x="780" y="598" width="125" height="36" rx="8"/><text x="842" y="620">…共 62 款</text>
+  </g>
+  <line x1="620" y1="680" x2="620" y2="788" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)"/>
+  <text class="halo" x="632" y="736" font-size="12.5" fill="#374151">执行脚本 / 操作软件</text>
+
+  <!-- ============ 底带：设计软件层 ============ -->
+  <rect x="320" y="790" width="890" height="100" rx="12" fill="#fdf2f8" stroke="#ec4899" stroke-width="2"/>
+  <text x="340" y="818" font-size="16" font-weight="bold" fill="#9d174d">设计软件层（62 款：六大设计领域）</text>
+  <g font-size="13" fill="#111827" text-anchor="middle">
+    <rect class="chip" x="340" y="836" width="100" height="36" rx="8"/><text x="390" y="858">Figma</text>
+    <rect class="chip" x="450" y="836" width="100" height="36" rx="8"/><text x="500" y="858">Blender</text>
+    <rect class="chip" x="560" y="836" width="100" height="36" rx="8"/><text x="610" y="858">AutoCAD</text>
+    <rect class="chip" x="670" y="836" width="100" height="36" rx="8"/><text x="720" y="858">Photoshop</text>
+    <rect class="chip" x="780" y="836" width="100" height="36" rx="8"/><text x="830" y="858">Illustrator</text>
+    <rect class="chip" x="890" y="836" width="100" height="36" rx="8"/><text x="940" y="858">Maya</text>
+    <rect class="chip" x="1000" y="836" width="100" height="36" rx="8"/><text x="1050" y="858">Revit</text>
+    <rect class="chip" x="1110" y="836" width="82" height="36" rx="8"/><text x="1151" y="858">…62 款</text>
+  </g>
+
+  <!-- ============ 右列：持久化 / 配置 / Rust ============ -->
+  <!-- 核心层 ↔ AI 引擎 双向箭头 -->
+  <line x1="280" y1="400" x2="320" y2="400" stroke="#6b7280" stroke-width="2" marker-start="url(#arrowRev)" marker-end="url(#arrow)"/>
+  <text class="halo" x="300" y="386" font-size="12" fill="#374151" text-anchor="middle">任务分析 ↔ 脚本返回</text>
+
+  <!-- SQLite -->
+  <rect x="950" y="320" width="260" height="100" rx="12" fill="#ecfeff" stroke="#06b6d4" stroke-width="2"/>
+  <text x="1080" y="352" font-size="16" font-weight="bold" fill="#155e75" text-anchor="middle">SQLite 本地存储</text>
+  <text x="1080" y="378" font-size="13" fill="#0e7490" text-anchor="middle">会话与任务历史持久化</text>
+  <line x1="920" y1="370" x2="950" y2="370" stroke="#6b7280" stroke-width="2" marker-start="url(#arrowRev)" marker-end="url(#arrow)"/>
+  <text class="halo" x="935" y="356" font-size="12" fill="#374151" text-anchor="middle">持久化</text>
+
+  <!-- 配置 -->
+  <rect x="950" y="450" width="260" height="80" rx="12" fill="#fefce8" stroke="#eab308" stroke-width="2"/>
+  <text x="1080" y="482" font-size="16" font-weight="bold" fill="#854d0e" text-anchor="middle">model-routing.yaml</text>
+  <text x="1080" y="506" font-size="13" fill="#a16207" text-anchor="middle">模型路由规则配置</text>
+  <line x1="1080" y1="420" x2="1080" y2="448" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)"/>
+  <text class="halo" x="1092" y="436" font-size="12" fill="#374151">读取路由规则</text>
+
+  <!-- Rust 插件层 -->
+  <rect x="950" y="560" width="260" height="140" rx="12" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2"/>
+  <text x="1080" y="588" font-size="16" font-weight="bold" fill="#5b21b6" text-anchor="middle">Rust 插件层</text>
+  <text x="1080" y="612" font-size="13" fill="#7c3aed" text-anchor="middle">flutter_rust_bridge FFI 调用</text>
+  <g font-size="12.5" fill="#111827" text-anchor="middle">
+    <rect class="chip" x="965" y="630" width="115" height="30" rx="7"/><text x="1022" y="649">Figma REST</text>
+    <rect class="chip" x="1090" y="630" width="115" height="30" rx="7"/><text x="1147" y="649">ExtendScript</text>
+    <rect class="chip" x="965" y="668" width="115" height="30" rx="7"/><text x="1022" y="687">Python API</text>
+    <rect class="chip" x="1090" y="668" width="115" height="30" rx="7"/><text x="1147" y="687">进程隔离 IPC</text>
+  </g>
+  <path d="M 700 480 V 640 H 948" fill="none" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)"/>
+  <text class="halo" x="716" y="630" font-size="12" fill="#374151">FFI 调用</text>
+
+  <!-- 图例 -->
+  <g font-size="12.5" fill="#374151">
+    <rect x="60" y="850" width="16" height="16" rx="4" fill="#eff6ff" stroke="#3b82f6"/>
+    <text x="84" y="863">UI 层</text>
+    <rect x="150" y="850" width="16" height="16" rx="4" fill="#ecfdf5" stroke="#10b981"/>
+    <text x="174" y="863">核心层</text>
+    <rect x="240" y="850" width="16" height="16" rx="4" fill="#fffbeb" stroke="#f59e0b"/>
+    <text x="264" y="863">插件层</text>
+    <rect x="330" y="850" width="16" height="16" rx="4" fill="#f5f3ff" stroke="#8b5cf6"/>
+    <text x="354" y="863">AI / Rust 引擎</text>
+    <rect x="455" y="850" width="16" height="16" rx="4" fill="#ecfeff" stroke="#06b6d4"/>
+    <text x="479" y="863">持久化</text>
+    <rect x="545" y="850" width="16" height="16" rx="4" fill="#fdf2f8" stroke="#ec4899"/>
+    <text x="569" y="863">设计软件</text>
+  </g>
+</svg>
