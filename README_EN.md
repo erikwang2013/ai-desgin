@@ -236,7 +236,7 @@ macos runners and packages them automatically:
 
 | Platform | Artifact |
 |----------|----------|
-| Linux | `AI-Design-Studio-Linux-<version>.tar.gz` (includes `libai_design_core.so`) |
+| Linux | `AI-Design-Studio-Linux-<version>.tar.gz` / `.tar.xz` / `.deb` / `.rpm` / `.AppImage` (all include `libai_design_core.so`) |
 | Windows | `AI-Design-Studio-Windows-<version>.zip` (includes `ai_design_core.dll`) |
 | macOS | `AI-Design-Studio-macOS-<version>.zip` (.app embeds `libai_design_core.dylib` + ad-hoc signed) |
 

@@ -4,7 +4,7 @@ use std::process::ExitStatus;
 #[cfg(any(target_os = "windows", target_os = "macos"))]
 use std::process::Command;
 
-pub fn run_extendscript(_illustrator_path: &str, script: &str) -> Result<ScriptResult, String> {
+pub fn run_extendscript(illustrator_path: &str, script: &str) -> Result<ScriptResult, String> {
     let mut temp = tempfile::NamedTempFile::new()
         .map_err(|e| format!("Failed to create temp file: {}", e))?;
     temp.write_all(script.as_bytes())

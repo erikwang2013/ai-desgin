@@ -261,7 +261,7 @@ flutter_rust_bridge_codegen generate
 
 | 平台 | 产物 |
 |------|------|
-| Linux | `AI-Design-Studio-Linux-<版本>.tar.gz`（含 `libai_design_core.so`） |
+| Linux | `AI-Design-Studio-Linux-<版本>.tar.gz` / `.tar.xz` / `.deb` / `.rpm` / `.AppImage`（均含 `libai_design_core.so`） |
 | Windows | `AI-Design-Studio-Windows-<版本>.zip`（含 `ai_design_core.dll`） |
 | macOS | `AI-Design-Studio-macOS-<版本>.zip`（.app 内嵌 `libai_design_core.dylib` + ad-hoc 签名） |
 

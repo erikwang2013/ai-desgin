@@ -69,6 +69,51 @@ jobs:
           cp -R build/linux/x64/release/bundle/* "release/$VERSION/AI-Design-Studio/"
           cd "release/$VERSION"
           tar -czf "AI-Design-Studio-Linux-$VERSION.tar.gz" AI-Design-Studio
+          # .deb：dpkg-deb 零额外依赖；runner 自带 $ORIGIN/lib RUNPATH，库放 lib/ 子目录即可被 dlopen
+          mkdir -p packaging/DEBIAN packaging/usr/bin packaging/usr/lib/ai-design-studio
+          cp -R AI-Design-Studio/. packaging/usr/lib/ai-design-studio/
+          ln -s /usr/lib/ai-design-studio/ai_design_studio packaging/usr/bin/ai-design-studio
+          printf 'Package: ai-design-studio\nVersion: %s\nSection: graphics\nPriority: optional\nArchitecture: amd64\nMaintainer: erik <erik.xyz>\nDescription: AI-driven design software automation tool\n' "$VERSION" > packaging/DEBIAN/control
+          dpkg-deb --build --root-owner-group packaging "AI-Design-Studio-Linux-$VERSION.deb"
+          # .tar.xz：xz 压缩
+          tar -cJf "AI-Design-Studio-Linux-$VERSION.tar.xz" AI-Design-Studio
+          # AppImage：官方 appimagetool（--appimage-extract-and-run 免 FUSE）
+          curl -sL https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -o /tmp/appimagetool
+          chmod +x /tmp/appimagetool
+          mkdir -p appimage/AppDir/usr/bin
+          cp -R AI-Design-Studio/. appimage/AppDir/usr/
+          printf '#!/bin/sh\nHERE="$(dirname "$(readlink -f "${0}")")"\nexport PATH="$HERE/usr/bin:$PATH"\nexport LD_LIBRARY_PATH="$HERE/usr/lib:$LD_LIBRARY_PATH"\nexec ai_design_studio "$@"\n' > appimage/AppDir/AppRun
+          chmod +x appimage/AppDir/AppRun
+          printf '[Desktop Entry]\nName=AI Design Studio\nExec=ai_design_studio\nIcon=icon\nType=Application\nCategories=Graphics;\n' > appimage/AppDir/ai-design-studio.desktop
+          python3 -c "import struct,zlib;c=lambda t,d:(lambda n:struct.pack('>I',len(d))+n+struct.pack('>I',zlib.crc32(n)&0xffffffff))(t+d);ihdr=struct.pack('>IIBBBBB',64,64,8,2,0,0,0);raw=b''.join(b'\x00'+b'\x2e\x7d\x32'*64 for _ in range(64));open('appimage/AppDir/icon.png','wb').write(b'\x89PNG\r\n\x1a\n'+c(b'IHDR',ihdr)+c(b'IDAT',zlib.compress(raw))+c(b'IEND',b''))"
+          /tmp/appimagetool --appimage-extract-and-run appimage/AppDir "AI-Design-Studio-Linux-$VERSION.AppImage"
+          # rpm：rpmbuild（apt 装 rpm 包）
+          sudo apt-get update
+          sudo apt-get install -y rpm
+          mkdir -p rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+          cat > rpmbuild/SPECS/ai-design-studio.spec <<EOF
+          %global debug_package %{nil}
+          Name: ai-design-studio
+          Version: $VERSION
+          Release: 1
+          Summary: AI-driven design software automation tool
+          License: Proprietary
+          BuildArch: x86_64
+
+          %description
+          AI-driven design software automation tool.
+
+          %install
+          mkdir -p %{buildroot}/usr/lib/ai-design-studio %{buildroot}/usr/bin
+          cp -R AI-Design-Studio/. %{buildroot}/usr/lib/ai-design-studio/
+          ln -s /usr/lib/ai-design-studio/ai_design_studio %{buildroot}/usr/bin/ai-design-studio
+
+          %files
+          /usr/lib/ai-design-studio
+          /usr/bin/ai-design-studio
+          EOF
+          rpmbuild -bb --define "_topdir $(pwd)/rpmbuild" rpmbuild/SPECS/ai-design-studio.spec
+          cp rpmbuild/RPMS/x86_64/ai-design-studio-$VERSION-1.x86_64.rpm "AI-Design-Studio-Linux-$VERSION.rpm"
 
       - name: Build & package Windows
         if: runner.os == 'Windows'
@@ -83,8 +128,8 @@ jobs:
           cd "release/$VERSION"
           powershell -Command "Compress-Archive -Path 'AI-Design-Studio' -DestinationPath 'AI-Design-Studio-Windows-$VERSION.zip' -Force"
 
-      # macOS CI 有真机环境：嵌入 dylib + 修 rpath + ad-hoc 签名（release.sh 的
-      # 本机 TODO 在 CI 中真实执行）
+      # macOS CI 有真机环境：嵌入 dylib + 修 install name + ad-hoc 签名
+      # （Flutter 构建已自带 @executable_path/../Frameworks rpath，勿重复添加）
       - name: Build & package macOS
         if: runner.os == 'macOS'
         run: |
@@ -93,7 +138,6 @@ jobs:
           mkdir -p "$APP/Contents/Frameworks"
           cp rust/target/release/libai_design_core.dylib "$APP/Contents/Frameworks/"
           install_name_tool -id @rpath/libai_design_core.dylib "$APP/Contents/Frameworks/libai_design_core.dylib"
-          install_name_tool -add_rpath @executable_path/../Frameworks "$APP/Contents/MacOS/ai_design_studio"
           codesign --force --deep --sign - "$APP"
           VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}')
           mkdir -p "release/$VERSION"
@@ -107,5 +151,9 @@ jobs:
           name: ai-design-studio-${{ matrix.platform }}-${{ github.sha }}
           path: |
             release/**/*.tar.gz
+            release/**/*.tar.xz
+            release/**/*.deb
+            release/**/*.rpm
+            release/**/*.AppImage
             release/**/*.zip
           if-no-files-found: error
