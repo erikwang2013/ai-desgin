@@ -3,8 +3,13 @@ name = "ai_design_core"
 version.workspace = true
 edition.workspace = true
 
+# cdylib 供 flutter_rust_bridge FFI 加载；rlib 保留让插件 crate 依赖与 cargo test 继续可用。
+[lib]
+crate-type = ["cdylib", "rlib"]
+
 [dependencies]
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 log = "0.4"
 tokio = { version = "1", features = ["process", "io-util"] }
+flutter_rust_bridge = "=2.12.0"

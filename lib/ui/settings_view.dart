@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../l10n/app_localizations.dart';
 import '../core/version.dart';
 import '../core/plugin_manager.dart';
@@ -98,6 +99,7 @@ class SettingsView extends StatelessWidget {
 
   void _showAboutDialog(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final primary = Theme.of(context).colorScheme.primary;
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -111,6 +113,33 @@ class SettingsView extends StatelessWidget {
             Text(l10n?.aboutDescription1 ?? 'An AI-driven design software automation tool.'),
             const SizedBox(height: 8),
             Text(l10n?.aboutDescription2 ?? 'Covers 6 design domains and 62+ mainstream design software with AI-driven script generation and execution.'),
+            const SizedBox(height: 12),
+            InkWell(
+              onTap: () =>
+                  launchUrl(Uri.parse('https://github.com/erikwang2013/ai-desgin')),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.code, size: 16, color: primary),
+                  const SizedBox(width: 6),
+                  Text('GitHub: github.com/erikwang2013/ai-desgin',
+                      style: TextStyle(color: primary, fontSize: 13)),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            InkWell(
+              onTap: () => launchUrl(Uri.parse('https://erik.xyz')),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.person_outline, size: 16, color: primary),
+                  const SizedBox(width: 6),
+                  Text(l10n?.aboutDeveloper ?? 'Developer: erik',
+                      style: TextStyle(color: primary, fontSize: 13)),
+                ],
+              ),
+            ),
           ],
         ),
         actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n?.ok ?? 'OK'))],
@@ -272,6 +301,7 @@ class ProxySettingsPage extends StatefulWidget {
 class _ProxySettingsPageState extends State<ProxySettingsPage> {
   static const _hostKey = 'proxy_host';
   static const _portKey = 'proxy_port';
+  static const _schemeKey = 'proxy_scheme';
 
   final _hostCtrl = TextEditingController();
   final _portCtrl = TextEditingController();
@@ -305,6 +335,7 @@ class _ProxySettingsPageState extends State<ProxySettingsPage> {
     // Accept a scheme-prefixed host, store it bare and rebuild the scheme.
     // Normalize before validating so paths (http://x.com/path) are rejected
     // instead of being spliced into a malformed proxy URL.
+    final scheme = RegExp(r'^(https?)://').firstMatch(host)?.group(1) ?? 'http';
     final normalized = host.replaceFirst(RegExp(r'^https?://'), '');
     final error = _validate(host: normalized, port: port);
     if (error != null) {
@@ -316,11 +347,12 @@ class _ProxySettingsPageState extends State<ProxySettingsPage> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_hostKey, normalized);
       await prefs.setString(_portKey, port);
+      await prefs.setString(_schemeKey, scheme);
     } catch (_) {}
     if (normalized.isEmpty) {
       CCRunner.proxyEnvironment = null;
     } else {
-      final base = port.isEmpty ? 'http://$normalized' : 'http://$normalized:$port';
+      final base = port.isEmpty ? '$scheme://$normalized' : '$scheme://$normalized:$port';
       CCRunner.proxyEnvironment = {
         'HTTP_PROXY': base,
         'HTTPS_PROXY': base,

@@ -73,6 +73,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Covers 6 design domains and 62+ mainstream design software with AI-driven script generation and execution.';
 
   @override
+  String get aboutDeveloper => 'Developer: erik';
+
+  @override
   String get installedPlugins => 'Installed Plugins';
 
   @override

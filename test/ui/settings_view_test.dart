@@ -111,4 +111,18 @@ void main() {
       expect(prefs.getString('proxy_port'), '7890');
     });
   });
+
+  group('About dialog links', () {
+    testWidgets('shows GitHub and developer links', (tester) async {
+      await tester.pumpWidget(const MaterialApp(home: SettingsView()));
+
+      await tester.tap(find.text('About'));
+      await tester.pumpAndSettle();
+
+      expect(
+          find.textContaining('github.com/erikwang2013/ai-desgin'),
+          findsOneWidget);
+      expect(find.text('Developer: erik'), findsOneWidget);
+    });
+  });
 }

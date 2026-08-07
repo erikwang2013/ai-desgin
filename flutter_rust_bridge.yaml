@@ -1,2 +1,3 @@
-rust_input: rust/core/src/api.rs
+rust_root: rust/core/
+rust_input: crate::api
 dart_output: lib/bridge

@@ -73,6 +73,9 @@ class AppLocalizationsFr extends AppLocalizations {
       'Couvre 6 domaines de conception et plus de 62 logiciels avec génération de scripts par IA.';
 
   @override
+  String get aboutDeveloper => 'Développeur : erik';
+
+  @override
   String get installedPlugins => 'Plugins installés';
 
   @override

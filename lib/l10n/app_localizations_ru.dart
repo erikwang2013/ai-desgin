@@ -73,6 +73,9 @@ class AppLocalizationsRu extends AppLocalizations {
       'Охватывает 6 областей дизайна и 62+ программ для автоматизированной генерации скриптов.';
 
   @override
+  String get aboutDeveloper => 'Разработчик: erik';
+
+  @override
   String get installedPlugins => 'Установленные плагины';
 
   @override

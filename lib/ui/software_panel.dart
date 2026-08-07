@@ -73,6 +73,20 @@ class _SoftwarePanelState extends State<SoftwarePanel> {
           ),
         ),
         Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+          child: Text(
+            widget.pluginManager.rustConnected
+                ? 'Rust 内核已连接 · 注册表来自 Rust'
+                : 'Rust 内核未连接 · 使用 Dart 内置注册表',
+            style: TextStyle(
+              fontSize: 11,
+              color: widget.pluginManager.rustConnected
+                  ? Colors.green.shade700
+                  : Colors.grey.shade600,
+            ),
+          ),
+        ),
+        Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
           child: TextField(
             onChanged: (v) => setState(() => _query = v),

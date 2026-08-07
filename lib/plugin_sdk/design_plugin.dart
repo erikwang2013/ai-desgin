@@ -53,6 +53,29 @@ class BuiltInPlugin implements DesignPlugin {
     required this.capabilities,
   });
 
+  /// 从 Rust 注册表 JSON（registry.rs 序列化）构造；未知 category 回退 web。
+  factory BuiltInPlugin.fromRustJson(Map<String, dynamic> json) {
+    final category = switch (json['category'] as String? ?? '') {
+      'ad' => DesignCategory.ad,
+      'industrial' => DesignCategory.industrial,
+      'threeD' => DesignCategory.threeD,
+      'arch' => DesignCategory.arch,
+      'interior' => DesignCategory.interior,
+      _ => DesignCategory.web,
+    };
+    final caps = json['capabilities'] as Map<String, dynamic>? ?? const {};
+    return BuiltInPlugin(
+      id: json['id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      category: category,
+      scriptLanguage: json['script_language'] as String? ?? '',
+      capabilities: SoftwareCapabilities(
+        actions: (caps['actions'] as List?)?.cast<String>() ?? const [],
+        fileFormats: (caps['file_formats'] as List?)?.cast<String>() ?? const [],
+      ),
+    );
+  }
+
   @override
   Future<bool> initialize(PluginContext ctx) async => true;
 

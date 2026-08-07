@@ -43,6 +43,12 @@ class _ChatViewState extends State<ChatView> {
 
   static const _maxMessages = 500;
 
+  void _trimMessages() {
+    while (_messages.length > _maxMessages) {
+      _messages.removeAt(0);
+    }
+  }
+
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
@@ -61,9 +67,7 @@ class _ChatViewState extends State<ChatView> {
 
     setState(() {
       _messages.add(ChatMessage(content: text));
-      while (_messages.length > _maxMessages) {
-        _messages.removeAt(0);
-      }
+      _trimMessages();
       _isLoading = true;
     });
     _scrollToBottom();
@@ -74,6 +78,7 @@ class _ChatViewState extends State<ChatView> {
         if (mounted) {
           setState(() {
             _messages.add(ChatMessage(content: response, isUser: false));
+            _trimMessages();
             _isLoading = false;
           });
           _scrollToBottom();
@@ -83,6 +88,7 @@ class _ChatViewState extends State<ChatView> {
           final l10n = AppLocalizations.of(context);
           setState(() {
             _messages.add(ChatMessage(content: '❌ ${l10n?.errorPrefix ?? 'Error'}: $error', isUser: false));
+            _trimMessages();
             _isLoading = false;
           });
           _scrollToBottom();

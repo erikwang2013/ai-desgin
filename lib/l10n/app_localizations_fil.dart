@@ -73,6 +73,9 @@ class AppLocalizationsFil extends AppLocalizations {
       'Sakop ang 6 na domain ng disenyo at 62+ pangunahing design software gamit ang AI script generation.';
 
   @override
+  String get aboutDeveloper => 'Developer: erik';
+
+  @override
   String get installedPlugins => 'Mga Naka-install na Plugin';
 
   @override

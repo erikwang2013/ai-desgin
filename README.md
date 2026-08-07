@@ -122,7 +122,8 @@ ai-desgin/
 |   |   +-- src/
 |   |       +-- traits.rs                  # DesignPlugin Rust trait
 |   |       +-- types.rs                   # 共享类型定义
-|   |       +-- api.rs                     # Rust 侧插件查询 API（JSON 输出，独立运行）
+|   |       +-- registry.rs                # 插件注册表（62 条，运行时权威源）
+|   |       +-- api.rs                     # FFI 边界层（String 入出参，供 flutter_rust_bridge 绑定）
 |   |       +-- ipc.rs                     # 进程隔离工具
 |   +-- plugins/
 |       +-- figma/                         # Figma (REST API)
@@ -190,7 +191,7 @@ ai-desgin/
 |   +-- build.sh                           # Unix 构建
 |   +-- build_windows.bat                  # Windows 构建
 |   +-- release.sh                         # 发布打包
-+-- test/                                  # Dart 测试 (72 tests)
++-- test/                                  # Dart 测试 (107 tests)
 +-- docs/
     +-- diagrams/                          # 中英文 SVG 图表（架构/流程/功能/生命周期/安全）
     |   +-- architecture-zh.svg            # 系统架构图
@@ -204,8 +205,7 @@ ai-desgin/
     |   +-- security-zh.svg                # 安全架构图
     |   +-- security-en.svg                # Security architecture
     +-- test-report-2026-07-31.md          # 测试报告
-    +-- review-report-2026-07-31.md        # 审查报告
-    +-- review-report-2026-07-31-v2.md     # 审查报告 v2
+    +-- review-report-2026-08-07-v26.md    # 最新审查报告（v14-v25 历轮报告同目录）
     +-- superpowers/
         +-- specs/                         # 设计规格文档
         +-- plans/                         # 实现计划文档
@@ -233,12 +233,25 @@ flutter pub get
 # 编译 Rust 插件
 cd rust && cargo build --release && cd ..
 
-# 一键构建
+# 一键构建（自动编译 Rust FFI 内核并拷入 bundle）
 bash scripts/build.sh        # macOS / Linux
 scripts\build_windows.bat     # Windows
 
 # 开发模式
-flutter run -d windows        # 或 -d macos
+flutter run -d windows        # 或 -d macos / -d linux
+```
+
+### Rust 内核集成
+
+App 启动时通过 flutter_rust_bridge 加载 Rust 内核（`libai_design_core.so` / `.dll` / `.dylib`），
+插件注册表以 **Rust 为运行时权威源**（62 条元数据 + 能力）。动态库缺失或加载失败时
+自动回退到 Dart 内置常量（`builtin_plugins.dart`），App 功能不受影响；
+软件面板底部状态行显示「Rust 内核已连接 / 未连接（Dart 回退）」。
+
+重新生成绑定（修改 `rust/core/src/api.rs` 后）：
+
+```bash
+flutter_rust_bridge_codegen generate
 ```
 
 ### 运行测试
@@ -254,11 +267,11 @@ cd rust && cargo clippy       # Rust lint 检查
 | 检查项 | 状态 |
 |--------|------|
 | `flutter analyze` | No issues found |
-| `flutter test` | 72 tests passed |
+| `flutter test` | 107 tests passed |
 | `cargo check` | 40 crates compiled |
 | `cargo clippy` | 0 warnings |
 
-详细报告：[审查报告 v18](docs/review-report-2026-08-06-v18.md) | [审查报告 v17](docs/review-report-2026-08-06-v17.md) | [测试报告](docs/test-report-2026-07-31.md)
+详细报告：[审查报告 v26](docs/review-report-2026-08-07-v26.md) | [审查报告 v25](docs/review-report-2026-08-07-v25.md) | [审查报告 v24](docs/review-report-2026-08-07-v24.md)
 
 ## 使用教程
 

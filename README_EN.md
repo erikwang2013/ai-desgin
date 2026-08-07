@@ -167,7 +167,7 @@ ai-desgin/
 |       +-- waxjetprint/                   # WaxJetPrint (Python)
 +-- config/model-routing.yaml
 +-- scripts/                               # Build + release scripts
-+-- test/                                  # Dart tests
++-- test/                                  # Dart tests (107 tests)
 +-- docs/
     +-- diagrams/                          # EN/ZH SVG diagrams (architecture/flow/features/lifecycle/security)
     |   +-- architecture-zh.svg            # 系统架构图
@@ -205,12 +205,27 @@ git clone <repo-url> ai-desgin && cd ai-desgin
 flutter pub get
 cd rust && cargo build --release && cd ..
 
-# Build
+# Build (also compiles the Rust FFI core into the bundle)
 bash scripts/build.sh            # macOS / Linux
 scripts\build_windows.bat         # Windows
 
 # Dev mode
-flutter run -d windows            # or -d macos
+flutter run -d windows            # or -d macos / -d linux
+```
+
+### Rust Kernel Integration
+
+At startup the app loads the Rust kernel via flutter_rust_bridge
+(`libai_design_core.so` / `.dll` / `.dylib`). The plugin registry is served
+from **Rust as the runtime authority** (62 plugin metadata entries + capabilities).
+If the dynamic library is missing or fails to load, the app falls back to the
+Dart built-in constants (`builtin_plugins.dart`) with full functionality;
+the Software Panel shows "Rust kernel connected / disconnected (Dart fallback)".
+
+Regenerate bindings after editing `rust/core/src/api.rs`:
+
+```bash
+flutter_rust_bridge_codegen generate
 ```
 
 ### Tests
@@ -226,11 +241,11 @@ cd rust && cargo clippy           # Rust lint check
 | Check | Status |
 |-------|--------|
 | `flutter analyze` | No issues found |
-| `flutter test` | 72 tests passed |
+| `flutter test` | 107 tests passed |
 | `cargo build` | 40 crates compiled |
 | `cargo clippy` | 0 warnings |
 
-Detailed reports: [Review v18](docs/review-report-2026-08-06-v18.md) | [Review v17](docs/review-report-2026-08-06-v17.md) | [Test](docs/test-report-2026-07-31.md)
+Detailed reports: [Review v26](docs/review-report-2026-08-07-v26.md) | [Review v25](docs/review-report-2026-08-07-v25.md) | [Review v24](docs/review-report-2026-08-07-v24.md)
 
 ## Usage
 

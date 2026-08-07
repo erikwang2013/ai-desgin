@@ -71,6 +71,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aboutDescription2 => '覆盖 6 大设计领域、62 款主流设计软件的 AI 驱动脚本生成与执行。';
 
   @override
+  String get aboutDeveloper => '开发者：erik';
+
+  @override
   String get installedPlugins => '已安装插件';
 
   @override

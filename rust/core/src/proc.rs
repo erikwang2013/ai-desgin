@@ -1,13 +1,15 @@
 use std::process::{Command, ExitStatus, Stdio};
 use std::sync::mpsc;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 /// Shared hard timeout for script execution (120s), matching the Dart side.
 pub const EXEC_TIMEOUT: Duration = Duration::from_secs(120);
 
-/// Run a command capturing stdout/stderr on reader threads with a hard
-/// timeout. On timeout the child is killed so a hung process (e.g. a
-/// stuck Blender/FreeCAD) cannot block the caller forever.
+/// Run a command capturing stdout/stderr on separate reader threads with a
+/// hard timeout. The streams are drained concurrently so a full 64KB pipe on
+/// either side cannot deadlock the child. On timeout the child is killed and
+/// reaped so a hung process (e.g. a stuck Blender/FreeCAD) cannot block the
+/// caller forever or leak a zombie.
 /// Returns (stdout, stderr, exit_status).
 pub fn run_command_with_timeout(
     cmd: &mut Command,
@@ -25,21 +27,46 @@ pub fn run_command_with_timeout(
         .stderr
         .take()
         .ok_or_else(|| "Failed to open stderr".to_string())?;
-    let (tx, rx) = mpsc::channel();
-    let handle = std::thread::spawn(move || {
-        let out = std::io::read_to_string(stdout).unwrap_or_default();
-        let err = std::io::read_to_string(stderr).unwrap_or_default();
-        let _ = tx.send((out, err));
-    });
-
-    let (out, err) = match rx.recv_timeout(timeout) {
-        Ok(ok) => ok,
-        Err(_) => {
-            let _ = child.kill();
-            let _ = handle.join();
-            return Err("Script execution timed out, process killed".to_string());
-        }
+    let (tx, rx) = mpsc::channel::<(bool, String)>();
+    let out_handle = {
+        let tx = tx.clone();
+        std::thread::spawn(move || {
+            let out = std::io::read_to_string(stdout).unwrap_or_default();
+            let _ = tx.send((true, out));
+        })
     };
+    let err_handle = {
+        let tx = tx.clone();
+        std::thread::spawn(move || {
+            let err = std::io::read_to_string(stderr).unwrap_or_default();
+            let _ = tx.send((false, err));
+        })
+    };
+    drop(tx);
+
+    let deadline = Instant::now() + timeout;
+    let mut out = String::new();
+    let mut err = String::new();
+    let mut received = 0;
+    while received < 2 {
+        match rx.recv_timeout(deadline.saturating_duration_since(Instant::now())) {
+            Ok((is_stdout, text)) => {
+                if is_stdout {
+                    out = text;
+                } else {
+                    err = text;
+                }
+                received += 1;
+            }
+            Err(_) => {
+                let _ = child.kill();
+                let _ = child.wait();
+                let _ = out_handle.join();
+                let _ = err_handle.join();
+                return Err("Script execution timed out, process killed".to_string());
+            }
+        }
+    }
     let status = child
         .wait()
         .map_err(|e| format!("Process wait error: {e}"))?;

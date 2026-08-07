@@ -77,7 +77,7 @@ class _MainShellState extends State<_MainShell> {
   DesignCategory _currentDomain = DesignCategory.web;
   String _currentSoftware = '';
 
-  late final PluginManager _pluginManager;
+  late PluginManager _pluginManager;
   late final TaskOrchestrator _orchestrator;
   CCProcessManager? _ccManager;
   SessionStore? _sessionStore;
@@ -101,7 +101,9 @@ class _MainShellState extends State<_MainShell> {
   }
 
   Future<void> _initOrchestrator() async {
+    // 同步占位避免 await 期间 build 访问未初始化字段；create() 完成后替换。
     _pluginManager = PluginManager();
+    _pluginManager = await PluginManager.create();
     final ccManager = CCProcessManager();
     _ccManager = ccManager;
     final modelRouter = ModelRouter();
@@ -116,9 +118,11 @@ class _MainShellState extends State<_MainShell> {
       // No persistence available; all plugins default to installed
     }
 
-    for (final p in builtInPlugins) {
-      if (uninstalledIds.contains(p.id)) continue;
-      _pluginManager.register(p);
+    // create() 已注册 Rust 权威源（或 Dart 回退）的全部插件，这里只做卸载过滤。
+    for (final p in _pluginManager.getAll()) {
+      if (uninstalledIds.contains(p.id)) {
+        _pluginManager.unregister(p.id);
+      }
     }
 
     LocalScriptExecutor.instance ??= LocalScriptExecutor();
@@ -149,9 +153,10 @@ class _MainShellState extends State<_MainShell> {
       final proxyHost = prefs.getString('proxy_host');
       final proxyPort = prefs.getString('proxy_port');
       if (proxyHost != null && proxyHost.isNotEmpty) {
+        final scheme = prefs.getString('proxy_scheme') ?? 'http';
         final base = proxyPort != null && proxyPort.isNotEmpty
-            ? 'http://$proxyHost:$proxyPort'
-            : 'http://$proxyHost';
+            ? '$scheme://$proxyHost:$proxyPort'
+            : '$scheme://$proxyHost';
         CCRunner.proxyEnvironment = {
           'HTTP_PROXY': base,
           'HTTPS_PROXY': base,

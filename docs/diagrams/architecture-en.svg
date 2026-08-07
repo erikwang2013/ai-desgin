@@ -102,18 +102,18 @@
   <line x1="1080" y1="420" x2="1080" y2="448" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)"/>
   <text class="halo" x="1092" y="436" font-size="12" fill="#374151">Read routing rules</text>
 
-  <!-- Rust Plugins -->
+  <!-- Rust Kernel (FFI integrated) -->
   <rect x="950" y="560" width="260" height="140" rx="12" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2"/>
-  <text x="1080" y="588" font-size="16" font-weight="bold" fill="#5b21b6" text-anchor="middle">Rust Plugin Layer</text>
-  <text x="1080" y="612" font-size="13" fill="#7c3aed" text-anchor="middle">Standalone crates (no FFI bridge)</text>
+  <text x="1080" y="588" font-size="16" font-weight="bold" fill="#5b21b6" text-anchor="middle">Rust Kernel</text>
+  <text x="1080" y="612" font-size="13" fill="#7c3aed" text-anchor="middle">Registry authority · FFI bridge</text>
   <g font-size="12.5" fill="#111827" text-anchor="middle">
-    <rect class="chip" x="965" y="630" width="115" height="30" rx="7"/><text x="1022" y="649">Figma REST</text>
-    <rect class="chip" x="1090" y="630" width="115" height="30" rx="7"/><text x="1147" y="649">ExtendScript</text>
-    <rect class="chip" x="965" y="668" width="115" height="30" rx="7"/><text x="1022" y="687">Python API</text>
+    <rect class="chip" x="965" y="630" width="115" height="30" rx="7"/><text x="1022" y="649">62 plugin metadata</text>
+    <rect class="chip" x="1090" y="630" width="115" height="30" rx="7"/><text x="1147" y="649">39 plugin crates</text>
+    <rect class="chip" x="965" y="668" width="115" height="30" rx="7"/><text x="1022" y="687">flutter_rust_bridge</text>
     <rect class="chip" x="1090" y="668" width="115" height="30" rx="7"/><text x="1147" y="687">IPC isolation</text>
   </g>
-  <path d="M 700 480 V 640 H 948" fill="none" stroke="#6b7280" stroke-width="2" stroke-dasharray="6 4"/>
-  <text class="halo" x="716" y="630" font-size="12" fill="#374151">Independent (no runtime calls)</text>
+  <path d="M 700 480 V 640 H 948" fill="none" stroke="#8b5cf6" stroke-width="2" marker-end="url(#arrow)"/>
+  <text class="halo" x="716" y="630" font-size="12" fill="#374151">Fetch registry via FFI at startup</text>
 
   <!-- Legend -->
   <g font-size="12.5" fill="#374151">

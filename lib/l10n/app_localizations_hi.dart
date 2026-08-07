@@ -73,6 +73,9 @@ class AppLocalizationsHi extends AppLocalizations {
       '6 डिज़ाइन क्षेत्रों और 62+ प्रमुख डिज़ाइन सॉफ़्टवेयर के लिए AI स्क्रिप्ट जनरेशन और निष्पादन।';
 
   @override
+  String get aboutDeveloper => 'डेवलपर: erik';
+
+  @override
   String get installedPlugins => 'इंस्टॉल किए गए प्लगइन्स';
 
   @override
