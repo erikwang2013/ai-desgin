@@ -1,0 +1,111 @@
+name: Build Release Packages
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux
+            os: ubuntu-latest
+          - platform: windows
+            os: windows-latest
+          - platform: macos
+            os: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 锁定 Flutter 3.44.2（匹配本机 Dart 3.12.2；pubspec sdk 约束 ^3.12.2，
+      # 最新 stable 的 Dart 4.x 会使 pub get 解析失败）
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.44.2
+          cache: true
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Install Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+
+      - name: Build Rust workspace (含 FFI core)
+        working-directory: rust
+        run: cargo build --release
+
+      - name: Build & package Linux
+        if: runner.os == 'Linux'
+        run: |
+          flutter build linux --release
+          # FFI 动态库拷入 bundle，RustLib.init() 从可执行目录 dlopen
+          mkdir -p build/linux/x64/release/bundle/lib
+          cp rust/target/release/libai_design_core.so build/linux/x64/release/bundle/lib/
+          VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}')
+          mkdir -p "release/$VERSION/AI-Design-Studio"
+          cp -R build/linux/x64/release/bundle/* "release/$VERSION/AI-Design-Studio/"
+          cd "release/$VERSION"
+          tar -czf "AI-Design-Studio-Linux-$VERSION.tar.gz" AI-Design-Studio
+
+      - name: Build & package Windows
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          flutter build windows --release
+          # FFI 动态库拷入 runner 目录，RustLib.init() 从可执行目录 dlopen
+          cp rust/target/release/ai_design_core.dll build/windows/x64/runner/Release/
+          VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}')
+          mkdir -p "release/$VERSION/AI-Design-Studio"
+          cp -R build/windows/x64/runner/Release/* "release/$VERSION/AI-Design-Studio/"
+          cd "release/$VERSION"
+          powershell -Command "Compress-Archive -Path 'AI-Design-Studio' -DestinationPath 'AI-Design-Studio-Windows-$VERSION.zip' -Force"
+
+      # macOS CI 有真机环境：嵌入 dylib + 修 rpath + ad-hoc 签名（release.sh 的
+      # 本机 TODO 在 CI 中真实执行）
+      - name: Build & package macOS
+        if: runner.os == 'macOS'
+        run: |
+          flutter build macos --release
+          APP=build/macos/Build/Products/Release/ai_design_studio.app
+          mkdir -p "$APP/Contents/Frameworks"
+          cp rust/target/release/libai_design_core.dylib "$APP/Contents/Frameworks/"
+          install_name_tool -id @rpath/libai_design_core.dylib "$APP/Contents/Frameworks/libai_design_core.dylib"
+          install_name_tool -add_rpath @executable_path/../Frameworks "$APP/Contents/MacOS/ai_design_studio"
+          codesign --force --deep --sign - "$APP"
+          VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}')
+          mkdir -p "release/$VERSION"
+          cp -R "$APP" "release/$VERSION/"
+          cd "release/$VERSION"
+          zip -r "AI-Design-Studio-macOS-$VERSION.zip" ai_design_studio.app
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-design-studio-${{ matrix.platform }}-${{ github.sha }}
+          path: |
+            release/**/*.tar.gz
+            release/**/*.zip
+          if-no-files-found: error

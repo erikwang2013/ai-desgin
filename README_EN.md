@@ -228,6 +228,24 @@ Regenerate bindings after editing `rust/core/src/api.rs`:
 flutter_rust_bridge_codegen generate
 ```
 
+### Continuous Integration (GitHub Actions)
+
+`.github/workflows/build.yml`: on push to `main` or a `v*` tag (or manual
+trigger), builds the Rust core + Flutter app in parallel on ubuntu / windows /
+macos runners and packages them automatically:
+
+| Platform | Artifact |
+|----------|----------|
+| Linux | `AI-Design-Studio-Linux-<version>.tar.gz` (includes `libai_design_core.so`) |
+| Windows | `AI-Design-Studio-Windows-<version>.zip` (includes `ai_design_core.dll`) |
+| macOS | `AI-Design-Studio-macOS-<version>.zip` (.app embeds `libai_design_core.dylib` + ad-hoc signed) |
+
+Artifacts are downloadable from the Actions page. Flutter is pinned to 3.44.2
+(matches local Dart 3.12.2). Note: the first Windows / macOS builds may surface
+platform differences not verifiable on Linux (39 plugin crates); the three jobs
+are independent (`fail-fast: false`), so one platform failing does not block
+the others.
+
 ### Tests
 
 ```bash

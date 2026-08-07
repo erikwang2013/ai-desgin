@@ -254,6 +254,21 @@ App 启动时通过 flutter_rust_bridge 加载 Rust 内核（`libai_design_core.
 flutter_rust_bridge_codegen generate
 ```
 
+### 持续集成（GitHub Actions）
+
+`.github/workflows/build.yml`：push 到 `main` 或打 `v*` tag（也可手动触发）后，
+在 ubuntu / windows / macos 三端 runner 上并行构建 Rust core + Flutter 应用并自动打包：
+
+| 平台 | 产物 |
+|------|------|
+| Linux | `AI-Design-Studio-Linux-<版本>.tar.gz`（含 `libai_design_core.so`） |
+| Windows | `AI-Design-Studio-Windows-<版本>.zip`（含 `ai_design_core.dll`） |
+| macOS | `AI-Design-Studio-macOS-<版本>.zip`（.app 内嵌 `libai_design_core.dylib` + ad-hoc 签名） |
+
+产物在 Actions 页面 Artifacts 中下载。Flutter 固定 3.44.2（匹配本机 Dart 3.12.2）。
+注意：Windows / macOS 首轮构建可能暴露 Linux 未验证过的平台差异（39 个插件 crate），
+三个 job 相互独立（`fail-fast: false`），任一失败不影响其余平台。
+
 ### 运行测试
 
 ```bash
