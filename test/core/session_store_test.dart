@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqlite3/sqlite3.dart' hide Session;
 import 'package:ai_design_studio/core/session_store.dart';
 import 'package:ai_design_studio/models/session.dart';
 
@@ -7,21 +7,13 @@ void main() {
   late SessionStore store;
   late Database db;
 
-  setUpAll(() {
-    sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
-  });
-
-  setUp(() async {
-    db = await openDatabase(
-      inMemoryDatabasePath,
-      version: 1,
-      onCreate: SessionStore.onCreate,
-    );
+  setUp(() {
+    db = sqlite3.openInMemory();
+    SessionStore.onCreate(db, 1);
     store = SessionStore(db);
   });
 
-  tearDown(() async => db.close());
+  tearDown(() => db.close());
 
   test('save and load session preserves data', () async {
     final session = Session(domain: DesignCategory.web, softwareName: 'figma');
@@ -43,7 +35,7 @@ void main() {
     session.addRecord(task: 'good', script: '', scriptLanguage: '', modelUsed: 'haiku');
     await store.save(session);
     // 注入坏记录：坏 artifacts JSON + 坏日期。
-    await db.rawInsert(
+    db.execute(
       'INSERT INTO task_records (id, session_id, task, status, artifacts_json, created_at) '
       "VALUES ('bad1', ?, 'corrupt', 'completed', '{bad json', 'bad-date')",
       [session.id],
@@ -55,7 +47,7 @@ void main() {
 
   test('listRecent tolerates corrupt session rows', () async {
     await store.save(Session(domain: DesignCategory.web, softwareName: 'figma'));
-    await db.rawInsert(
+    db.execute(
       "INSERT INTO sessions (id, domain, software_name, context_json, created_at) "
       "VALUES ('s2', 'web', 'figma', '{bad json', 'bad-date')",
     );
@@ -117,10 +109,23 @@ void main() {
     expect(byUnderscore.single.id, withPercent.id);
   });
 
-  test('delete removes session', () async {
+  test('delete removes session and its records', () async {
     final s = Session(domain: DesignCategory.web, softwareName: 'figma');
+    s.addRecord(task: 'task', script: '', scriptLanguage: '', modelUsed: '');
     await store.save(s);
     await store.delete(s.id);
     expect(await store.load(s.id), isNull);
+    expect(db.select('SELECT * FROM task_records WHERE session_id = ?', [s.id]), isEmpty);
+  });
+
+  test('deleteMany removes multiple sessions', () async {
+    final s1 = Session(domain: DesignCategory.web, softwareName: 'figma');
+    await store.save(s1);
+    final s2 = Session(domain: DesignCategory.threeD, softwareName: 'blender');
+    await store.save(s2);
+    await store.deleteMany([s1.id, s2.id]);
+    expect(await store.load(s1.id), isNull);
+    expect(await store.load(s2.id), isNull);
+    expect(db.select('SELECT * FROM sessions'), isEmpty);
   });
 }

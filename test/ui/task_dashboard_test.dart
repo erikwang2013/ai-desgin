@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqlite3/sqlite3.dart' hide Session;
 import 'package:ai_design_studio/core/session_store.dart';
 import 'package:ai_design_studio/models/session.dart';
 import 'package:ai_design_studio/models/task_record.dart';
@@ -76,47 +76,38 @@ void main() {
   });
 
   testWidgets('restored history shows display name via resolveSoftwareName', (tester) async {
-    // Real sqflite-ffi IO must run outside the widget test's fake-async zone.
-    await tester.runAsync(() async {
-      sqfliteFfiInit();
-      databaseFactory = databaseFactoryFfi;
-      final db = await openDatabase(
-        inMemoryDatabasePath,
-        version: 1,
-        onCreate: SessionStore.onCreate,
-      );
-      final store = SessionStore(db);
+    final db = sqlite3.openInMemory();
+    SessionStore.onCreate(db, 1);
+    final store = SessionStore(db);
 
-      final session = Session(
-        domain: DesignCategory.threeD,
-        softwareName: 'blender',
-        history: [
-          TaskRecord(
-            sessionId: 's1',
-            task: 'render',
-            status: TaskStatus.completed,
-            createdAt: DateTime(2026, 8, 6, 10, 33),
-          ),
-        ],
-      );
-      await store.save(session);
-
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: TaskDashboard(
-            sessionStore: store,
-            onCancel: (id) {},
-            resolveSoftwareName: (id) => id == 'blender' ? 'Blender' : id,
-          ),
+    final session = Session(
+      domain: DesignCategory.threeD,
+      softwareName: 'blender',
+      history: [
+        TaskRecord(
+          sessionId: 's1',
+          task: 'render',
+          status: TaskStatus.completed,
+          createdAt: DateTime(2026, 8, 6, 10, 33),
         ),
-      ));
-      await Future<void>.delayed(const Duration(milliseconds: 50));
-      await tester.pump();
+      ],
+    );
+    await store.save(session);
 
-      expect(find.text('Blender'), findsOneWidget);
-      expect(find.text('blender'), findsNothing);
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: TaskDashboard(
+          sessionStore: store,
+          onCancel: (id) {},
+          resolveSoftwareName: (id) => id == 'blender' ? 'Blender' : id,
+        ),
+      ),
+    ));
+    await tester.pumpAndSettle();
 
-      await db.close();
-    });
+    expect(find.text('Blender'), findsOneWidget);
+    expect(find.text('blender'), findsNothing);
+
+    db.close();
   });
 }

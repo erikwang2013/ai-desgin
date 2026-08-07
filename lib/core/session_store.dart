@@ -1,15 +1,17 @@
 import 'dart:convert';
 import 'dart:math' as math;
-import 'package:sqflite/sqflite.dart';
+import 'package:sqlite3/sqlite3.dart' hide Session;
 import '../models/session.dart';
 import '../models/task_record.dart';
 
+/// 基于 package:sqlite3（支持 SQLCipher 加密）的会话存储。
+/// 公开 API 与 sqflite 版本保持一致，仅底层驱动不同。
 class SessionStore {
   final Database _db;
   SessionStore(this._db);
 
-  static Future<void> onCreate(Database db, int version) async {
-    await db.execute('''
+  static void onCreate(Database db, int version) {
+    db.execute('''
       CREATE TABLE sessions (
         id TEXT PRIMARY KEY,
         domain TEXT NOT NULL,
@@ -18,7 +20,7 @@ class SessionStore {
         created_at TEXT NOT NULL
       )
     ''');
-    await db.execute('''
+    db.execute('''
       CREATE TABLE task_records (
         id TEXT PRIMARY KEY,
         session_id TEXT NOT NULL,
@@ -34,67 +36,87 @@ class SessionStore {
         FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE
       )
     ''');
-    await db.execute('CREATE INDEX idx_task_session ON task_records(session_id)');
-    await db.execute('CREATE INDEX idx_sessions_software ON sessions(software_name)');
+    db.execute('CREATE INDEX idx_task_session ON task_records(session_id)');
+    db.execute('CREATE INDEX idx_sessions_software ON sessions(software_name)');
   }
 
-  static Future<void> onUpgrade(Database db, int oldVersion, int newVersion) async {
+  static void onUpgrade(Database db, int oldVersion, int newVersion) {
     // Future migrations go here. Example:
-    // if (oldVersion < 2) { await db.execute('ALTER TABLE sessions ADD COLUMN ...'); }
+    // if (oldVersion < 2) { db.execute('ALTER TABLE sessions ADD COLUMN ...'); }
+  }
+
+  Future<T> _txn<T>(Future<T> Function() action) async {
+    _db.execute('BEGIN');
+    try {
+      final result = await action();
+      _db.execute('COMMIT');
+      return result;
+    } catch (_) {
+      _db.execute('ROLLBACK');
+      rethrow;
+    }
   }
 
   Future<void> save(Session session) async {
     // 会话与记录同事务写入，避免中途失败留下孤儿 session 行。
-    await _db.transaction((txn) async {
-      await txn.insert('sessions', {
-        'id': session.id,
-        'domain': session.domain.name,
-        'software_name': session.softwareName,
-        'context_json': jsonEncode({
-          'softwareState': session.context.softwareState,
-          'userPreferences': session.context.userPreferences,
-          'recentActions': session.context.recentActions,
-        }),
-        'created_at': session.createdAt.toIso8601String(),
-      }, conflictAlgorithm: ConflictAlgorithm.replace);
+    await _txn(() async {
+      _db.execute(
+        'INSERT OR REPLACE INTO sessions '
+        '(id, domain, software_name, context_json, created_at) '
+        'VALUES (?, ?, ?, ?, ?)',
+        [
+          session.id,
+          session.domain.name,
+          session.softwareName,
+          jsonEncode({
+            'softwareState': session.context.softwareState,
+            'userPreferences': session.context.userPreferences,
+            'recentActions': session.context.recentActions,
+          }),
+          session.createdAt.toIso8601String(),
+        ],
+      );
 
-      final existingRows = await txn.query('task_records',
-          columns: ['id'], where: 'session_id = ?', whereArgs: [session.id]);
-      final existingIds = existingRows.map((r) => r['id'] as String).toSet();
+      final rows =
+          _db.select('SELECT id FROM task_records WHERE session_id = ?', [session.id]);
+      final existingIds = rows.map((r) => r['id'] as String).toSet();
 
-      final newRecords = session.history.where((r) => !existingIds.contains(r.id)).toList();
+      final newRecords =
+          session.history.where((r) => !existingIds.contains(r.id)).toList();
       if (newRecords.isEmpty) return;
 
-      final batch = txn.batch();
       for (final record in newRecords) {
-        batch.insert('task_records', {
-          'id': record.id,
-          'session_id': session.id,
-          'task': record.task,
-          'script': record.script,
-          'script_language': record.scriptLanguage,
-          'model_used': record.modelUsed,
-          'status': record.status.name,
-          'error': record.error,
-          'artifacts_json': jsonEncode(record.artifacts),
-          'created_at': record.createdAt.toIso8601String(),
-          'completed_at': record.completedAt?.toIso8601String(),
-        }, conflictAlgorithm: ConflictAlgorithm.replace);
+        _db.execute(
+          'INSERT OR REPLACE INTO task_records '
+          '(id, session_id, task, script, script_language, model_used, status, '
+          'error, artifacts_json, created_at, completed_at) '
+          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [
+            record.id,
+            session.id,
+            record.task,
+            record.script,
+            record.scriptLanguage,
+            record.modelUsed,
+            record.status.name,
+            record.error,
+            jsonEncode(record.artifacts),
+            record.createdAt.toIso8601String(),
+            record.completedAt?.toIso8601String(),
+          ],
+        );
       }
-      await batch.commit(noResult: true);
     });
   }
 
   Future<Session?> load(String sessionId) async {
-    final rows = await _db.query('sessions', where: 'id = ?', whereArgs: [sessionId]);
+    final rows = _db.select('SELECT * FROM sessions WHERE id = ?', [sessionId]);
     if (rows.isEmpty) return null;
 
     final row = rows.first;
-    final records = await _db.query(
-      'task_records',
-      where: 'session_id = ?',
-      whereArgs: [sessionId],
-      orderBy: 'created_at ASC',
+    final records = _db.select(
+      'SELECT * FROM task_records WHERE session_id = ? ORDER BY created_at ASC',
+      [sessionId],
     );
 
     return Session(
@@ -108,43 +130,38 @@ class SessionStore {
   }
 
   Future<List<Session>> listRecent({int limit = 50}) async {
-    final rows = await _db.query(
-      'sessions',
-      orderBy: 'created_at DESC',
-      limit: limit,
-    );
+    final rows = _db.select('SELECT * FROM sessions ORDER BY created_at DESC LIMIT ?', [limit]);
     return _loadSessionRowsWithHistory(rows);
   }
 
   Future<List<Session>> listBySoftware(String softwareName) async {
-    final rows = await _db.query(
-      'sessions',
-      where: 'software_name = ?',
-      whereArgs: [softwareName],
-      orderBy: 'created_at DESC',
+    final rows = _db.select(
+      'SELECT * FROM sessions WHERE software_name = ? ORDER BY created_at DESC',
+      [softwareName],
     );
     return _loadSessionRowsWithHistory(rows);
   }
 
   Future<List<Session>> search(String query) async {
-    final rows = await _db.rawQuery('''
-      SELECT DISTINCT s.* FROM sessions s
-      INNER JOIN task_records t ON t.session_id = s.id
-      WHERE t.task LIKE ? ESCAPE '\\' ORDER BY s.created_at DESC
-    ''', ['%${_escapeLike(query)}%']);
+    final rows = _db.select(
+      "SELECT DISTINCT s.* FROM sessions s "
+      "INNER JOIN task_records t ON t.session_id = s.id "
+      "WHERE t.task LIKE ? ESCAPE '\\' ORDER BY s.created_at DESC",
+      ['%${_escapeLike(query)}%'],
+    );
     return _loadSessionRowsWithHistory(rows);
   }
 
-  Future<List<Session>> _loadSessionRowsWithHistory(List<Map<String, dynamic>> rows) async {
+  Future<List<Session>> _loadSessionRowsWithHistory(List<Row> rows) async {
     if (rows.isEmpty) return [];
 
     final sessionIds = rows.map((r) => r['id'] as String).toList();
     // 分批查询，避开 SQLite 单条 IN 列表 999 个变量的上限。
-    final allRecords = <Map<String, dynamic>>[];
+    final allRecords = <Row>[];
     for (var i = 0; i < sessionIds.length; i += 500) {
       final chunk = sessionIds.sublist(i, math.min(i + 500, sessionIds.length));
       final placeholders = List.filled(chunk.length, '?').join(',');
-      allRecords.addAll(await _db.rawQuery(
+      allRecords.addAll(_db.select(
         'SELECT * FROM task_records WHERE session_id IN ($placeholders) ORDER BY created_at ASC',
         chunk,
       ));
@@ -198,19 +215,19 @@ class SessionStore {
   }
 
   Future<void> delete(String sessionId) async {
-    await _db.transaction((txn) async {
-      await txn.delete('task_records', where: 'session_id = ?', whereArgs: [sessionId]);
-      await txn.delete('sessions', where: 'id = ?', whereArgs: [sessionId]);
+    await _txn(() async {
+      _db.execute('DELETE FROM task_records WHERE session_id = ?', [sessionId]);
+      _db.execute('DELETE FROM sessions WHERE id = ?', [sessionId]);
     });
   }
 
   /// 单事务内批量删除，失败则全部回滚。
   Future<void> deleteMany(List<String> sessionIds) async {
     if (sessionIds.isEmpty) return;
-    await _db.transaction((txn) async {
+    await _txn(() async {
       for (final id in sessionIds) {
-        await txn.delete('task_records', where: 'session_id = ?', whereArgs: [id]);
-        await txn.delete('sessions', where: 'id = ?', whereArgs: [id]);
+        _db.execute('DELETE FROM task_records WHERE session_id = ?', [id]);
+        _db.execute('DELETE FROM sessions WHERE id = ?', [id]);
       }
     });
   }
@@ -219,7 +236,7 @@ class SessionStore {
     return value.replaceAll('\\', '\\\\').replaceAll('%', '\\%').replaceAll('_', '\\_');
   }
 
-  TaskRecord? _deserializeRecord(Map<String, dynamic> row) {
+  TaskRecord? _deserializeRecord(Row row) {
     try {
       return TaskRecord(
         id: row['id'] as String,
