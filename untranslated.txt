@@ -1,1 +1,41 @@
-{}
+{
+  "ar": [
+    "retry"
+  ],
+
+  "de": [
+    "retry"
+  ],
+
+  "es": [
+    "retry"
+  ],
+
+  "fa": [
+    "retry"
+  ],
+
+  "fil": [
+    "retry"
+  ],
+
+  "fr": [
+    "retry"
+  ],
+
+  "hi": [
+    "retry"
+  ],
+
+  "ja": [
+    "retry"
+  ],
+
+  "ko": [
+    "retry"
+  ],
+
+  "ru": [
+    "retry"
+  ]
+}

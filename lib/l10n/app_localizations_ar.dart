@@ -79,6 +79,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get aboutDeveloper => 'المطوّر: erik';
 
   @override
+  String get retry => 'Retry';
+
+  @override
   String get installedPlugins => 'الإضافات المثبتة';
 
   @override

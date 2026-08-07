@@ -74,6 +74,7 @@ class _MainShell extends StatefulWidget {
 
 class _MainShellState extends State<_MainShell> {
   int _currentTab = 0;
+  int _conversationEpoch = 0;
   DesignCategory _currentDomain = DesignCategory.web;
   String _currentSoftware = '';
 
@@ -228,6 +229,8 @@ class _MainShellState extends State<_MainShell> {
     setState(() {
       _currentDomain = domain;
       _currentSoftware = restored;
+      _currentTab = 0;
+      _conversationEpoch++;
     });
   }
 
@@ -335,6 +338,7 @@ class _MainShellState extends State<_MainShell> {
             softwareOptions: _ready ? _buildSoftwareOptions() : [],
             selectedSoftware: _currentSoftware,
             onSoftwareChanged: _onSoftwareChanged,
+            conversationEpoch: _conversationEpoch,
           ),
           TaskDashboard(
             key: _dashboardKey,

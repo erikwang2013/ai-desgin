@@ -78,6 +78,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aboutDeveloper => '开发者：erik';
 
   @override
+  String get retry => '重试';
+
+  @override
   String get installedPlugins => '已安装插件';
 
   @override

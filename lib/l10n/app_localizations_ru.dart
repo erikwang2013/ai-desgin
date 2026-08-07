@@ -79,6 +79,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get aboutDeveloper => 'Разработчик: erik';
 
   @override
+  String get retry => 'Retry';
+
+  @override
   String get installedPlugins => 'Установленные плагины';
 
   @override

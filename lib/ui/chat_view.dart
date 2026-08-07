@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../l10n/app_localizations.dart';
 
 class ChatMessage {
@@ -22,6 +23,7 @@ class ChatView extends StatefulWidget {
   final List<SoftwareOption> softwareOptions;
   final String selectedSoftware;
   final ValueChanged<String>? onSoftwareChanged;
+  final int conversationEpoch;
 
   const ChatView({
     super.key,
@@ -29,6 +31,7 @@ class ChatView extends StatefulWidget {
     this.softwareOptions = const [],
     this.selectedSoftware = '',
     this.onSoftwareChanged,
+    this.conversationEpoch = 0,
   });
 
   @override
@@ -38,10 +41,32 @@ class ChatView extends StatefulWidget {
 class _ChatViewState extends State<ChatView> {
   final _controller = TextEditingController();
   final _scrollController = ScrollController();
+  late final FocusNode _inputFocus = FocusNode(onKeyEvent: _handleInputKey);
   final _messages = <ChatMessage>[];
   bool _isLoading = false;
 
+  KeyEventResult _handleInputKey(FocusNode node, KeyEvent event) {
+    final isEnter = event.logicalKey == LogicalKeyboardKey.enter ||
+        event.logicalKey == LogicalKeyboardKey.numpadEnter;
+    if (isEnter &&
+        event is KeyDownEvent &&
+        !HardwareKeyboard.instance.isShiftPressed) {
+      _send();
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
+  }
+
   static const _maxMessages = 500;
+
+  @override
+  void didUpdateWidget(ChatView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.conversationEpoch != oldWidget.conversationEpoch) {
+      _messages.clear();
+      _controller.clear();
+    }
+  }
 
   void _trimMessages() {
     while (_messages.length > _maxMessages) {
@@ -64,6 +89,16 @@ class _ChatViewState extends State<ChatView> {
   void _send() {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
+    _controller.clear();
+    // 引擎/IME 可能在 Enter 事件后补插一个换行符，下一帧前清掉残留。
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_controller.text.trim().isEmpty) _controller.clear();
+    });
+    _sendText(text);
+  }
+
+  void _sendText(String text) {
+    if (text.isEmpty) return;
 
     setState(() {
       _messages.add(ChatMessage(content: text));
@@ -71,7 +106,6 @@ class _ChatViewState extends State<ChatView> {
       _isLoading = true;
     });
     _scrollToBottom();
-    _controller.clear();
 
     if (widget.onSubmit != null) {
       widget.onSubmit!(text).then((response) {
@@ -166,19 +200,38 @@ class _ChatViewState extends State<ChatView> {
   }
 
   Widget _buildMessage(ChatMessage msg) {
+    final bubble = Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: msg.isUser
+            ? Theme.of(context).colorScheme.primaryContainer
+            : Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      constraints: const BoxConstraints(maxWidth: 400),
+      child: SelectableText(msg.content),
+    );
+    if (!msg.isUser) {
+      return Align(alignment: Alignment.centerLeft, child: bubble);
+    }
     return Align(
-      alignment: msg.isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: msg.isUser
-              ? Theme.of(context).colorScheme.primaryContainer
-              : Theme.of(context).colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        constraints: const BoxConstraints(maxWidth: 400),
-        child: Text(msg.content),
+      alignment: Alignment.centerRight,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          bubble,
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8, left: 4),
+            child: IconButton(
+              icon: const Icon(Icons.refresh, size: 16),
+              visualDensity: VisualDensity.compact,
+              tooltip: AppLocalizations.of(context)?.retry ?? 'Retry',
+              onPressed: _isLoading ? null : () => _sendText(msg.content),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -198,6 +251,7 @@ class _ChatViewState extends State<ChatView> {
               ),
               maxLines: 3,
               minLines: 1,
+              focusNode: _inputFocus,
               enabled: !_isLoading,
               onSubmitted: (_) => _send(),
             ),
@@ -224,6 +278,7 @@ class _ChatViewState extends State<ChatView> {
   void dispose() {
     _controller.dispose();
     _scrollController.dispose();
+    _inputFocus.dispose();
     super.dispose();
   }
 }

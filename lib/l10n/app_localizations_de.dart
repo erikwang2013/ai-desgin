@@ -79,6 +79,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get aboutDeveloper => 'Entwickler: erik';
 
   @override
+  String get retry => 'Retry';
+
+  @override
   String get installedPlugins => 'Installierte Plugins';
 
   @override

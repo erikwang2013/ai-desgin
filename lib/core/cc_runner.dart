@@ -137,8 +137,10 @@ class CCRunner {
       _processes[taskKey] = process;
 
       // 启动即并发消费 stdout/stderr，避免子进程边读边写时 64KB 管道死锁。
-      final stdoutFuture = process.stdout.transform(utf8.decoder).join();
-      final stderrFuture = process.stderr.transform(utf8.decoder).join();
+      // Windows 控制台可能输出 GBK 等非 UTF-8 文本，宽容解码避免抛异常。
+      const lenient = Utf8Decoder(allowMalformed: true);
+      final stdoutFuture = process.stdout.transform(lenient).join();
+      final stderrFuture = process.stderr.transform(lenient).join();
       process.stdin.write(prompt);
       await process.stdin.flush();
       await process.stdin.close();

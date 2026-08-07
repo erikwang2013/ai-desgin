@@ -42,7 +42,7 @@ class _AppShellState extends State<AppShell> {
     (DesignCategory.interior, Icons.chair),
   ];
 
-  static const _tabIcons = [Icons.chat, Icons.list_alt, Icons.extension];
+  static const _tabIcons = [Icons.list_alt, Icons.extension];
 
   @override
   Widget build(BuildContext context) {
@@ -118,8 +118,8 @@ class _AppShellState extends State<AppShell> {
   Widget _buildNavTile(int index) {
     final icon = _tabIcons[index];
     final l10n = AppLocalizations.of(context);
-    final labels = [l10n?.tabChat, l10n?.tabTasks, l10n?.tabPlugins];
-    final label = labels[index] ?? ['Chat', 'Tasks', 'Plugins'][index];
+    final labels = [l10n?.tabTasks, l10n?.tabPlugins];
+    final label = labels[index] ?? ['Tasks', 'Plugins'][index];
     final isSelected = index == widget.selectedTabIndex;
     return ListTile(
       leading: Icon(icon, size: 20),

@@ -78,6 +78,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aboutDeveloper => '개발자: erik';
 
   @override
+  String get retry => 'Retry';
+
+  @override
   String get installedPlugins => '설치된 플러그인';
 
   @override

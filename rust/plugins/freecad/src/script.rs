@@ -1,4 +1,4 @@
-use ai_design_core::ScriptResult;
+use ai_design_core::{proc::read_lossy, ScriptResult};
 use std::io::Write;
 use std::process::{Child, Command, ExitStatus, Stdio};
 use std::sync::mpsc;
@@ -19,8 +19,8 @@ fn wait_with_timeout(mut child: Child) -> Result<(String, String, ExitStatus), S
         .ok_or_else(|| ScriptResult::failure("Failed to open FreeCAD stderr".into()))?;
     let (tx, rx) = mpsc::channel();
     let handle = std::thread::spawn(move || {
-        let out = std::io::read_to_string(stdout).unwrap_or_default();
-        let err = std::io::read_to_string(stderr).unwrap_or_default();
+        let out = read_lossy(stdout);
+        let err = read_lossy(stderr);
         let _ = tx.send((out, err));
     });
 

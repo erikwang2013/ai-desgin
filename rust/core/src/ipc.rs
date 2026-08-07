@@ -1,7 +1,9 @@
 use std::process::{Command, Child, Stdio};
-use std::io::{Read, Write};
+use std::io::Write;
 use std::sync::mpsc;
 use std::time::{Duration, Instant};
+
+use crate::proc::read_lossy;
 
 const SEND_TIMEOUT: Duration = Duration::from_secs(120);
 
@@ -33,25 +35,21 @@ impl IsolatedProcess {
 
         // Drain stdout and stderr on separate threads so a full 64KB pipe on
         // either side cannot deadlock the child; kill and reap on timeout.
-        let mut stdout = child.stdout.take()
+        let stdout = child.stdout.take()
             .ok_or("Failed to open stdout".to_string())?;
-        let mut stderr = child.stderr.take()
+        let stderr = child.stderr.take()
             .ok_or("Failed to open stderr".to_string())?;
         let (tx, rx) = mpsc::channel::<(bool, String)>();
         let out_handle = {
             let tx = tx.clone();
             std::thread::spawn(move || {
-                let mut buf = String::new();
-                let _ = stdout.read_to_string(&mut buf);
-                let _ = tx.send((true, buf));
+                let _ = tx.send((true, read_lossy(stdout)));
             })
         };
         let err_handle = {
             let tx = tx.clone();
             std::thread::spawn(move || {
-                let mut buf = String::new();
-                let _ = stderr.read_to_string(&mut buf);
-                let _ = tx.send((false, buf));
+                let _ = tx.send((false, read_lossy(stderr)));
             })
         };
         drop(tx);

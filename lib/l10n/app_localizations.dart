@@ -250,6 +250,12 @@ abstract class AppLocalizations {
   /// **'Developer: erik'**
   String get aboutDeveloper;
 
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
   /// No description provided for @installedPlugins.
   ///
   /// In en, this message translates to:

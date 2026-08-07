@@ -1,9 +1,19 @@
+use std::io::Read;
 use std::process::{Command, ExitStatus, Stdio};
 use std::sync::mpsc;
 use std::time::{Duration, Instant};
 
 /// Shared hard timeout for script execution (120s), matching the Dart side.
 pub const EXEC_TIMEOUT: Duration = Duration::from_secs(120);
+
+/// Read a stream as bytes and decode leniently: bytes that are not valid
+/// UTF-8 (e.g. GBK output from Windows console apps) are replaced with
+/// U+FFFD instead of failing the whole read.
+pub fn read_lossy<R: Read>(mut reader: R) -> String {
+    let mut buf = Vec::new();
+    let _ = reader.read_to_end(&mut buf);
+    String::from_utf8_lossy(&buf).into_owned()
+}
 
 /// Run a command capturing stdout/stderr on separate reader threads with a
 /// hard timeout. The streams are drained concurrently so a full 64KB pipe on
@@ -31,14 +41,14 @@ pub fn run_command_with_timeout(
     let out_handle = {
         let tx = tx.clone();
         std::thread::spawn(move || {
-            let out = std::io::read_to_string(stdout).unwrap_or_default();
+            let out = read_lossy(stdout);
             let _ = tx.send((true, out));
         })
     };
     let err_handle = {
         let tx = tx.clone();
         std::thread::spawn(move || {
-            let err = std::io::read_to_string(stderr).unwrap_or_default();
+            let err = read_lossy(stderr);
             let _ = tx.send((false, err));
         })
     };

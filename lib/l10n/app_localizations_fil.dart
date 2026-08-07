@@ -79,6 +79,9 @@ class AppLocalizationsFil extends AppLocalizations {
   String get aboutDeveloper => 'Developer: erik';
 
   @override
+  String get retry => 'Retry';
+
+  @override
   String get installedPlugins => 'Mga Naka-install na Plugin';
 
   @override

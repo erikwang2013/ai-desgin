@@ -79,6 +79,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get aboutDeveloper => 'توسعه‌دهنده: erik';
 
   @override
+  String get retry => 'Retry';
+
+  @override
   String get installedPlugins => 'افزونه‌های نصب شده';
 
   @override

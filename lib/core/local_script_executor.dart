@@ -73,8 +73,10 @@ class LocalScriptExecutor {
         runInShell: Platform.isWindows,
       );
       // 启动即并发消费 stdout/stderr，超时 kill 后管道随即关闭。
-      final stdoutFuture = process.stdout.transform(utf8.decoder).join();
-      final stderrFuture = process.stderr.transform(utf8.decoder).join();
+      // Windows 下 Blender 等软件可能输出 GBK 等非 UTF-8 文本，宽容解码避免抛异常。
+      const lenient = Utf8Decoder(allowMalformed: true);
+      final stdoutFuture = process.stdout.transform(lenient).join();
+      final stderrFuture = process.stderr.transform(lenient).join();
       final exitCode = await process.exitCode.timeout(_executeTimeout);
       final output = (await stdoutFuture).trim();
       final stderr = (await stderrFuture).trim();
