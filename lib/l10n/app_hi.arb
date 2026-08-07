@@ -1,133 +1,137 @@
 {
   "@@locale": "hi",
-  "appTitle": "AI Design",
-  "designDomains": "डिज़ाइन क्षेत्र",
-  "navigation": "नेविगेशन",
-  "tabChat": "चैट",
-  "tabTasks": "कार्य",
-  "tabPlugins": "प्लगइन्स",
-  "settings": "सेटिंग्स",
-  "targetSoftware": "लक्ष्य सॉफ़्टवेयर:",
-  "hintText": "अपनी इच्छित डिज़ाइन कार्रवाई का वर्णन करें...",
-  "modelConfig": "मॉडल कॉन्फ़िगरेशन",
-  "modelConfigDesc": "API एंडपॉइंट और कुंजियाँ प्रबंधित करें",
-  "pluginMarket": "प्लगइन मार्केटप्लेस",
-  "pluginMarketDesc": "प्लगइन ब्राउज़ करें और इंस्टॉल करें",
-  "proxySettings": "प्रॉक्सी सेटिंग्स",
-  "proxySettingsDesc": "नेटवर्क प्रॉक्सी कॉन्फ़िगर करें",
-  "about": "के बारे में",
-  "aboutVersion": "AI Design v{version}",
   "@aboutVersion": {
     "placeholders": {
       "version": {}
     }
   },
-  "comingSoon": "जल्द आ रहा है",
-  "aboutDescription1": "एक AI-संचालित डिज़ाइन सॉफ़्टवेयर स्वचालन उपकरण।",
-  "aboutDescription2": "6 डिज़ाइन क्षेत्रों और 62+ प्रमुख डिज़ाइन सॉफ़्टवेयर के लिए AI स्क्रिप्ट जनरेशन और निष्पादन।",
-  "aboutPackageName": "पैकेज का नाम: Ai Desgin",
-  "aboutDeveloper": "डेवलपर: erik",
-  "installedPlugins": "इंस्टॉल किए गए प्लगइन्स",
-  "installPlugin": "प्लगइन इंस्टॉल करें",
-  "connected": "कनेक्टेड",
-  "disconnected": "डिस्कनेक्टेड",
-  "all": "सभी",
-  "inProgress": "प्रगति में",
-  "completed": "पूर्ण",
-  "taskList": "कार्य सूची",
-  "noTasks": "कोई कार्य नहीं",
-  "noTasksHint": "चैट पैनल में डिज़ाइन आवश्यकताएँ दर्ज करें; कार्य यहाँ दिखाई देंगे।",
-  "installed": "इंस्टॉल किया गया ({count})",
-  "@installed": {
-    "placeholders": {
-      "count": {}
-    }
+  "@autoExecute": {
+    "description": "Localized label for autoExecute"
   },
-  "available": "उपलब्ध ({count})",
   "@available": {
     "placeholders": {
       "count": {}
     }
   },
-  "install": "इंस्टॉल करें",
-  "uninstall": "अनइंस्टॉल करें",
-  "installSuccess": "{name} सफलतापूर्वक इंस्टॉल हुआ",
-  "@installSuccess": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "uninstallSuccess": "{name} अनइंस्टॉल किया गया",
-  "@uninstallSuccess": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "ok": "ठीक है",
-  "errorPrefix": "त्रुटि",
-  "echoPrefix": "Echo",
-  "taskCompleted": "कार्य पूर्ण",
-  "taskFailed": "कार्य विफल",
-  "noOutput": "(कोई आउटपुट नहीं)",
-  "unknownError": "अज्ञात त्रुटि",
-  "languageInstruction": "कृपया हिंदी में उत्तर दें।",
-  "language": "भाषा",
-  "apiEndpoint": "API एंडपॉइंट",
-  "apiKey": "API कुंजी",
-  "defaultModel": "डिफ़ॉल्ट मॉडल",
-  "save": "सहेजें",
-  "proxyHost": "प्रॉक्सी होस्ट",
-  "proxyPort": "प्रॉक्सी पोर्ट",
-  "saveSuccess": "सफलतापूर्वक सहेजा गया",
-  "history": "इतिहास",
-  "searchPlugins": "प्लगइन खोजें...",
-  "@searchPlugins": {
-    "description": "Localized label for searchPlugins"
-  },
-  "autoExecute": "स्वचालित",
-  "@autoExecute": {
-    "description": "Localized label for autoExecute"
-  },
-  "manualExecute": "मैन्युअल",
-  "@manualExecute": {
-    "description": "Localized label for manualExecute"
-  },
-  "copied": "कॉपी हो गया",
-  "@copied": {
-    "description": "Localized label for copied"
-  },
-  "copy": "कॉपी करें",
-  "@copy": {
-    "description": "Localized label for copy"
-  },
-  "close": "बंद करें",
-  "cancel": "रद्द करें",
   "@cancel": {
     "description": "Localized label for cancel"
   },
   "@close": {
     "description": "Localized label for close"
   },
-  "tabHistory": "History",
-  "historyList": "History",
-  "noHistory": "No history",
-  "noHistoryHint": "Completed sessions will appear here",
-  "manage": "Manage",
-  "done": "Done",
-  "delete": "Delete",
-  "deleteAll": "Delete All",
-  "deleteSelected": "Delete Selected ({count})",
-  "deleteConfirm": "Delete this session?",
-  "deleteAllConfirm": "Delete all {count} sessions?",
-  "tasksCount": "{count} tasks",
+  "@copied": {
+    "description": "Localized label for copied"
+  },
+  "@copy": {
+    "description": "Localized label for copy"
+  },
+  "@installSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "@installed": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "@manualExecute": {
+    "description": "Localized label for manualExecute"
+  },
+  "@searchPlugins": {
+    "description": "Localized label for searchPlugins"
+  },
+  "@uninstallSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "about": "के बारे में",
+  "aboutDescription1": "एक AI-संचालित डिज़ाइन सॉफ़्टवेयर स्वचालन उपकरण।",
+  "aboutDescription2": "6 डिज़ाइन क्षेत्रों और 62+ प्रमुख डिज़ाइन सॉफ़्टवेयर के लिए AI स्क्रिप्ट जनरेशन और निष्पादन।",
+  "aboutDeveloper": "डेवलपर: erik",
+  "aboutPackageName": "पैकेज का नाम: Ai Desgin",
+  "aboutVersion": "AI Design v{version}",
   "agentBackend": "Agent Backend",
   "agentBackendDesc": "Choose the agent CLI used to generate scripts",
+  "all": "सभी",
+  "apiEndpoint": "API एंडपॉइंट",
+  "apiKey": "API कुंजी",
+  "appTitle": "AI Design",
+  "autoExecute": "स्वचालित",
+  "available": "उपलब्ध ({count})",
   "backendClaude": "Claude Code",
   "backendCodex": "Codex",
   "backendGemini": "Gemini",
-  "claudeVersion": "Claude Code Version",
-  "installClaude": "Install Claude Code 2.1.143",
-  "installingClaude": "Installing...",
+  "backendHermes": "Hermes",
+  "backendOpenclaw": "OpenClaw",
+  "backendOpencode": "OpenCode",
+  "backendReasonix": "Reasonix",
+  "cancel": "रद्द करें",
+  "claudeInstallFailed": "Install failed, check npm environment",
   "claudeUpToDate": "Up to date",
-  "claudeInstallFailed": "Install failed, check npm environment"
+  "claudeVersion": "Claude Code Version",
+  "close": "बंद करें",
+  "comingSoon": "जल्द आ रहा है",
+  "completed": "पूर्ण",
+  "connected": "कनेक्टेड",
+  "copied": "कॉपी हो गया",
+  "copy": "कॉपी करें",
+  "defaultModel": "डिफ़ॉल्ट मॉडल",
+  "delete": "Delete",
+  "deleteAll": "Delete All",
+  "deleteAllConfirm": "Delete all {count} sessions?",
+  "deleteConfirm": "Delete this session?",
+  "deleteSelected": "Delete Selected ({count})",
+  "designDomains": "डिज़ाइन क्षेत्र",
+  "disconnected": "डिस्कनेक्टेड",
+  "done": "Done",
+  "echoPrefix": "Echo",
+  "errorPrefix": "त्रुटि",
+  "hintText": "अपनी इच्छित डिज़ाइन कार्रवाई का वर्णन करें...",
+  "history": "इतिहास",
+  "historyList": "History",
+  "inProgress": "प्रगति में",
+  "install": "इंस्टॉल करें",
+  "installClaude": "Install Claude Code 2.1.143",
+  "installPlugin": "प्लगइन इंस्टॉल करें",
+  "installSuccess": "{name} सफलतापूर्वक इंस्टॉल हुआ",
+  "installed": "इंस्टॉल किया गया ({count})",
+  "installedPlugins": "इंस्टॉल किए गए प्लगइन्स",
+  "installingClaude": "Installing...",
+  "language": "भाषा",
+  "languageInstruction": "कृपया हिंदी में उत्तर दें।",
+  "manage": "Manage",
+  "manualExecute": "मैन्युअल",
+  "modelConfig": "मॉडल कॉन्फ़िगरेशन",
+  "modelConfigDesc": "API एंडपॉइंट और कुंजियाँ प्रबंधित करें",
+  "navigation": "नेविगेशन",
+  "noHistory": "No history",
+  "noHistoryHint": "Completed sessions will appear here",
+  "noOutput": "(कोई आउटपुट नहीं)",
+  "noTasks": "कोई कार्य नहीं",
+  "noTasksHint": "चैट पैनल में डिज़ाइन आवश्यकताएँ दर्ज करें; कार्य यहाँ दिखाई देंगे।",
+  "ok": "ठीक है",
+  "pluginMarket": "प्लगइन मार्केटप्लेस",
+  "pluginMarketDesc": "प्लगइन ब्राउज़ करें और इंस्टॉल करें",
+  "proxyHost": "प्रॉक्सी होस्ट",
+  "proxyPort": "प्रॉक्सी पोर्ट",
+  "proxySettings": "प्रॉक्सी सेटिंग्स",
+  "proxySettingsDesc": "नेटवर्क प्रॉक्सी कॉन्फ़िगर करें",
+  "save": "सहेजें",
+  "saveSuccess": "सफलतापूर्वक सहेजा गया",
+  "searchPlugins": "प्लगइन खोजें...",
+  "settings": "सेटिंग्स",
+  "tabChat": "चैट",
+  "tabHistory": "History",
+  "tabPlugins": "प्लगइन्स",
+  "tabTasks": "कार्य",
+  "targetSoftware": "लक्ष्य सॉफ़्टवेयर:",
+  "taskCompleted": "कार्य पूर्ण",
+  "taskFailed": "कार्य विफल",
+  "taskList": "कार्य सूची",
+  "tasksCount": "{count} tasks",
+  "uninstall": "अनइंस्टॉल करें",
+  "uninstallSuccess": "{name} अनइंस्टॉल किया गया",
+  "unknownError": "अज्ञात त्रुटि"
 }

@@ -118,113 +118,11 @@ abstract class AppLocalizations {
     Locale('zh'),
   ];
 
-  /// No description provided for @appTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'AI Design'**
-  String get appTitle;
-
-  /// No description provided for @designDomains.
-  ///
-  /// In en, this message translates to:
-  /// **'Design Domains'**
-  String get designDomains;
-
-  /// No description provided for @navigation.
-  ///
-  /// In en, this message translates to:
-  /// **'Navigation'**
-  String get navigation;
-
-  /// No description provided for @tabChat.
-  ///
-  /// In en, this message translates to:
-  /// **'Chat'**
-  String get tabChat;
-
-  /// No description provided for @tabTasks.
-  ///
-  /// In en, this message translates to:
-  /// **'Tasks'**
-  String get tabTasks;
-
-  /// No description provided for @tabPlugins.
-  ///
-  /// In en, this message translates to:
-  /// **'Plugins'**
-  String get tabPlugins;
-
-  /// No description provided for @settings.
-  ///
-  /// In en, this message translates to:
-  /// **'Settings'**
-  String get settings;
-
-  /// No description provided for @targetSoftware.
-  ///
-  /// In en, this message translates to:
-  /// **'Target Software:'**
-  String get targetSoftware;
-
-  /// No description provided for @hintText.
-  ///
-  /// In en, this message translates to:
-  /// **'Describe the design operation you want...'**
-  String get hintText;
-
-  /// No description provided for @modelConfig.
-  ///
-  /// In en, this message translates to:
-  /// **'Model Config'**
-  String get modelConfig;
-
-  /// No description provided for @modelConfigDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Manage API endpoint and keys'**
-  String get modelConfigDesc;
-
-  /// No description provided for @pluginMarket.
-  ///
-  /// In en, this message translates to:
-  /// **'Plugin Marketplace'**
-  String get pluginMarket;
-
-  /// No description provided for @pluginMarketDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Browse and install plugins'**
-  String get pluginMarketDesc;
-
-  /// No description provided for @proxySettings.
-  ///
-  /// In en, this message translates to:
-  /// **'Proxy Settings'**
-  String get proxySettings;
-
-  /// No description provided for @proxySettingsDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Configure network proxy'**
-  String get proxySettingsDesc;
-
   /// No description provided for @about.
   ///
   /// In en, this message translates to:
   /// **'About'**
   String get about;
-
-  /// No description provided for @aboutVersion.
-  ///
-  /// In en, this message translates to:
-  /// **'AI Design v{version}'**
-  String aboutVersion(Object version);
-
-  /// No description provided for @comingSoon.
-  ///
-  /// In en, this message translates to:
-  /// **'Coming Soon'**
-  String get comingSoon;
 
   /// No description provided for @aboutDescription1.
   ///
@@ -238,173 +136,41 @@ abstract class AppLocalizations {
   /// **'Covers 6 design domains and 62+ mainstream design software with AI-driven script generation and execution.'**
   String get aboutDescription2;
 
-  /// No description provided for @aboutPackageName.
-  ///
-  /// In en, this message translates to:
-  /// **'Package name: Ai Desgin'**
-  String get aboutPackageName;
-
   /// No description provided for @aboutDeveloper.
   ///
   /// In en, this message translates to:
   /// **'Developer: erik'**
   String get aboutDeveloper;
 
-  /// No description provided for @retry.
+  /// No description provided for @aboutPackageName.
   ///
   /// In en, this message translates to:
-  /// **'Retry'**
-  String get retry;
+  /// **'Package name: Ai Desgin'**
+  String get aboutPackageName;
 
-  /// No description provided for @installedPlugins.
+  /// No description provided for @aboutVersion.
   ///
   /// In en, this message translates to:
-  /// **'Installed Plugins'**
-  String get installedPlugins;
+  /// **'AI Design v{version}'**
+  String aboutVersion(Object version);
 
-  /// No description provided for @installPlugin.
+  /// No description provided for @agentBackend.
   ///
   /// In en, this message translates to:
-  /// **'Install Plugin'**
-  String get installPlugin;
+  /// **'Agent Backend'**
+  String get agentBackend;
 
-  /// No description provided for @connected.
+  /// No description provided for @agentBackendDesc.
   ///
   /// In en, this message translates to:
-  /// **'Connected'**
-  String get connected;
-
-  /// No description provided for @disconnected.
-  ///
-  /// In en, this message translates to:
-  /// **'Disconnected'**
-  String get disconnected;
+  /// **'Choose the agent CLI used to generate scripts'**
+  String get agentBackendDesc;
 
   /// No description provided for @all.
   ///
   /// In en, this message translates to:
   /// **'All'**
   String get all;
-
-  /// No description provided for @inProgress.
-  ///
-  /// In en, this message translates to:
-  /// **'In Progress'**
-  String get inProgress;
-
-  /// No description provided for @completed.
-  ///
-  /// In en, this message translates to:
-  /// **'Completed'**
-  String get completed;
-
-  /// No description provided for @taskList.
-  ///
-  /// In en, this message translates to:
-  /// **'Task List'**
-  String get taskList;
-
-  /// No description provided for @noTasks.
-  ///
-  /// In en, this message translates to:
-  /// **'No Tasks'**
-  String get noTasks;
-
-  /// No description provided for @noTasksHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter your design requirements in the chat panel; tasks will appear here.'**
-  String get noTasksHint;
-
-  /// No description provided for @installed.
-  ///
-  /// In en, this message translates to:
-  /// **'Installed ({count})'**
-  String installed(Object count);
-
-  /// No description provided for @available.
-  ///
-  /// In en, this message translates to:
-  /// **'Available ({count})'**
-  String available(Object count);
-
-  /// No description provided for @install.
-  ///
-  /// In en, this message translates to:
-  /// **'Install'**
-  String get install;
-
-  /// No description provided for @uninstall.
-  ///
-  /// In en, this message translates to:
-  /// **'Uninstall'**
-  String get uninstall;
-
-  /// No description provided for @installSuccess.
-  ///
-  /// In en, this message translates to:
-  /// **'{name} installed successfully'**
-  String installSuccess(Object name);
-
-  /// No description provided for @uninstallSuccess.
-  ///
-  /// In en, this message translates to:
-  /// **'{name} uninstalled'**
-  String uninstallSuccess(Object name);
-
-  /// No description provided for @ok.
-  ///
-  /// In en, this message translates to:
-  /// **'OK'**
-  String get ok;
-
-  /// No description provided for @errorPrefix.
-  ///
-  /// In en, this message translates to:
-  /// **'Error'**
-  String get errorPrefix;
-
-  /// No description provided for @echoPrefix.
-  ///
-  /// In en, this message translates to:
-  /// **'Echo'**
-  String get echoPrefix;
-
-  /// No description provided for @taskCompleted.
-  ///
-  /// In en, this message translates to:
-  /// **'Task completed'**
-  String get taskCompleted;
-
-  /// No description provided for @taskFailed.
-  ///
-  /// In en, this message translates to:
-  /// **'Task failed'**
-  String get taskFailed;
-
-  /// No description provided for @noOutput.
-  ///
-  /// In en, this message translates to:
-  /// **'(no output)'**
-  String get noOutput;
-
-  /// No description provided for @unknownError.
-  ///
-  /// In en, this message translates to:
-  /// **'Unknown error'**
-  String get unknownError;
-
-  /// No description provided for @languageInstruction.
-  ///
-  /// In en, this message translates to:
-  /// **'Please respond in English.'**
-  String get languageInstruction;
-
-  /// No description provided for @language.
-  ///
-  /// In en, this message translates to:
-  /// **'Language'**
-  String get language;
 
   /// No description provided for @apiEndpoint.
   ///
@@ -418,47 +184,11 @@ abstract class AppLocalizations {
   /// **'API Key'**
   String get apiKey;
 
-  /// No description provided for @defaultModel.
+  /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'Default Model'**
-  String get defaultModel;
-
-  /// No description provided for @save.
-  ///
-  /// In en, this message translates to:
-  /// **'Save'**
-  String get save;
-
-  /// No description provided for @proxyHost.
-  ///
-  /// In en, this message translates to:
-  /// **'Proxy Host'**
-  String get proxyHost;
-
-  /// No description provided for @proxyPort.
-  ///
-  /// In en, this message translates to:
-  /// **'Proxy Port'**
-  String get proxyPort;
-
-  /// No description provided for @saveSuccess.
-  ///
-  /// In en, this message translates to:
-  /// **'Saved successfully'**
-  String get saveSuccess;
-
-  /// No description provided for @history.
-  ///
-  /// In en, this message translates to:
-  /// **'History'**
-  String get history;
-
-  /// Localized label for searchPlugins
-  ///
-  /// In en, this message translates to:
-  /// **'Search plugins...'**
-  String get searchPlugins;
+  /// **'AI Design'**
+  String get appTitle;
 
   /// Localized label for autoExecute
   ///
@@ -466,119 +196,11 @@ abstract class AppLocalizations {
   /// **'Auto'**
   String get autoExecute;
 
-  /// Localized label for manualExecute
+  /// No description provided for @available.
   ///
   /// In en, this message translates to:
-  /// **'Manual'**
-  String get manualExecute;
-
-  /// Localized label for copied
-  ///
-  /// In en, this message translates to:
-  /// **'Copied'**
-  String get copied;
-
-  /// Localized label for copy
-  ///
-  /// In en, this message translates to:
-  /// **'Copy'**
-  String get copy;
-
-  /// Localized label for close
-  ///
-  /// In en, this message translates to:
-  /// **'Close'**
-  String get close;
-
-  /// Localized label for cancel
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel'**
-  String get cancel;
-
-  /// No description provided for @tabHistory.
-  ///
-  /// In en, this message translates to:
-  /// **'History'**
-  String get tabHistory;
-
-  /// No description provided for @historyList.
-  ///
-  /// In en, this message translates to:
-  /// **'History'**
-  String get historyList;
-
-  /// No description provided for @noHistory.
-  ///
-  /// In en, this message translates to:
-  /// **'No history'**
-  String get noHistory;
-
-  /// No description provided for @noHistoryHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Completed sessions will appear here'**
-  String get noHistoryHint;
-
-  /// No description provided for @manage.
-  ///
-  /// In en, this message translates to:
-  /// **'Manage'**
-  String get manage;
-
-  /// No description provided for @done.
-  ///
-  /// In en, this message translates to:
-  /// **'Done'**
-  String get done;
-
-  /// No description provided for @delete.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete'**
-  String get delete;
-
-  /// No description provided for @deleteAll.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete All'**
-  String get deleteAll;
-
-  /// No description provided for @deleteSelected.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete Selected ({count})'**
-  String deleteSelected(Object count);
-
-  /// No description provided for @deleteConfirm.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete this session?'**
-  String get deleteConfirm;
-
-  /// No description provided for @deleteAllConfirm.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete all {count} sessions?'**
-  String deleteAllConfirm(Object count);
-
-  /// No description provided for @tasksCount.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} tasks'**
-  String tasksCount(Object count);
-
-  /// No description provided for @agentBackend.
-  ///
-  /// In en, this message translates to:
-  /// **'Agent Backend'**
-  String get agentBackend;
-
-  /// No description provided for @agentBackendDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose the agent CLI used to generate scripts'**
-  String get agentBackendDesc;
+  /// **'Available ({count})'**
+  String available(Object count);
 
   /// No description provided for @backendClaude.
   ///
@@ -598,23 +220,41 @@ abstract class AppLocalizations {
   /// **'Gemini'**
   String get backendGemini;
 
-  /// No description provided for @claudeVersion.
+  /// No description provided for @backendHermes.
   ///
   /// In en, this message translates to:
-  /// **'Claude Code Version'**
-  String get claudeVersion;
+  /// **'Hermes'**
+  String get backendHermes;
 
-  /// No description provided for @installClaude.
+  /// No description provided for @backendOpenclaw.
   ///
   /// In en, this message translates to:
-  /// **'Install Claude Code 2.1.143'**
-  String get installClaude;
+  /// **'OpenClaw'**
+  String get backendOpenclaw;
 
-  /// No description provided for @installingClaude.
+  /// No description provided for @backendOpencode.
   ///
   /// In en, this message translates to:
-  /// **'Installing...'**
-  String get installingClaude;
+  /// **'OpenCode'**
+  String get backendOpencode;
+
+  /// No description provided for @backendReasonix.
+  ///
+  /// In en, this message translates to:
+  /// **'Reasonix'**
+  String get backendReasonix;
+
+  /// Localized label for cancel
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @claudeInstallFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Install failed, check npm environment'**
+  String get claudeInstallFailed;
 
   /// No description provided for @claudeUpToDate.
   ///
@@ -622,11 +262,395 @@ abstract class AppLocalizations {
   /// **'Up to date'**
   String get claudeUpToDate;
 
-  /// No description provided for @claudeInstallFailed.
+  /// No description provided for @claudeVersion.
   ///
   /// In en, this message translates to:
-  /// **'Install failed, check npm environment'**
-  String get claudeInstallFailed;
+  /// **'Claude Code Version'**
+  String get claudeVersion;
+
+  /// Localized label for close
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// No description provided for @comingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming Soon'**
+  String get comingSoon;
+
+  /// No description provided for @completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get completed;
+
+  /// No description provided for @connected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get connected;
+
+  /// Localized label for copied
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get copied;
+
+  /// Localized label for copy
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get copy;
+
+  /// No description provided for @defaultModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Default Model'**
+  String get defaultModel;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @deleteAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete All'**
+  String get deleteAll;
+
+  /// No description provided for @deleteAllConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all {count} sessions?'**
+  String deleteAllConfirm(Object count);
+
+  /// No description provided for @deleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this session?'**
+  String get deleteConfirm;
+
+  /// No description provided for @deleteSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Selected ({count})'**
+  String deleteSelected(Object count);
+
+  /// No description provided for @designDomains.
+  ///
+  /// In en, this message translates to:
+  /// **'Design Domains'**
+  String get designDomains;
+
+  /// No description provided for @disconnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnected'**
+  String get disconnected;
+
+  /// No description provided for @done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
+
+  /// No description provided for @echoPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Echo'**
+  String get echoPrefix;
+
+  /// No description provided for @errorPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get errorPrefix;
+
+  /// No description provided for @hintText.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe the design operation you want...'**
+  String get hintText;
+
+  /// No description provided for @history.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get history;
+
+  /// No description provided for @historyList.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get historyList;
+
+  /// No description provided for @inProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'In Progress'**
+  String get inProgress;
+
+  /// No description provided for @install.
+  ///
+  /// In en, this message translates to:
+  /// **'Install'**
+  String get install;
+
+  /// No description provided for @installClaude.
+  ///
+  /// In en, this message translates to:
+  /// **'Install Claude Code 2.1.143'**
+  String get installClaude;
+
+  /// No description provided for @installPlugin.
+  ///
+  /// In en, this message translates to:
+  /// **'Install Plugin'**
+  String get installPlugin;
+
+  /// No description provided for @installSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} installed successfully'**
+  String installSuccess(Object name);
+
+  /// No description provided for @installed.
+  ///
+  /// In en, this message translates to:
+  /// **'Installed ({count})'**
+  String installed(Object count);
+
+  /// No description provided for @installedPlugins.
+  ///
+  /// In en, this message translates to:
+  /// **'Installed Plugins'**
+  String get installedPlugins;
+
+  /// No description provided for @installingClaude.
+  ///
+  /// In en, this message translates to:
+  /// **'Installing...'**
+  String get installingClaude;
+
+  /// No description provided for @language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get language;
+
+  /// No description provided for @languageInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Please respond in English.'**
+  String get languageInstruction;
+
+  /// No description provided for @manage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage'**
+  String get manage;
+
+  /// Localized label for manualExecute
+  ///
+  /// In en, this message translates to:
+  /// **'Manual'**
+  String get manualExecute;
+
+  /// No description provided for @modelConfig.
+  ///
+  /// In en, this message translates to:
+  /// **'Model Config'**
+  String get modelConfig;
+
+  /// No description provided for @modelConfigDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage API endpoint and keys'**
+  String get modelConfigDesc;
+
+  /// No description provided for @navigation.
+  ///
+  /// In en, this message translates to:
+  /// **'Navigation'**
+  String get navigation;
+
+  /// No description provided for @noHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'No history'**
+  String get noHistory;
+
+  /// No description provided for @noHistoryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed sessions will appear here'**
+  String get noHistoryHint;
+
+  /// No description provided for @noOutput.
+  ///
+  /// In en, this message translates to:
+  /// **'(no output)'**
+  String get noOutput;
+
+  /// No description provided for @noTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'No Tasks'**
+  String get noTasks;
+
+  /// No description provided for @noTasksHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your design requirements in the chat panel; tasks will appear here.'**
+  String get noTasksHint;
+
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
+
+  /// No description provided for @pluginMarket.
+  ///
+  /// In en, this message translates to:
+  /// **'Plugin Marketplace'**
+  String get pluginMarket;
+
+  /// No description provided for @pluginMarketDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse and install plugins'**
+  String get pluginMarketDesc;
+
+  /// No description provided for @proxyHost.
+  ///
+  /// In en, this message translates to:
+  /// **'Proxy Host'**
+  String get proxyHost;
+
+  /// No description provided for @proxyPort.
+  ///
+  /// In en, this message translates to:
+  /// **'Proxy Port'**
+  String get proxyPort;
+
+  /// No description provided for @proxySettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Proxy Settings'**
+  String get proxySettings;
+
+  /// No description provided for @proxySettingsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure network proxy'**
+  String get proxySettingsDesc;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @saveSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved successfully'**
+  String get saveSuccess;
+
+  /// Localized label for searchPlugins
+  ///
+  /// In en, this message translates to:
+  /// **'Search plugins...'**
+  String get searchPlugins;
+
+  /// No description provided for @settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settings;
+
+  /// No description provided for @tabChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat'**
+  String get tabChat;
+
+  /// No description provided for @tabHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get tabHistory;
+
+  /// No description provided for @tabPlugins.
+  ///
+  /// In en, this message translates to:
+  /// **'Plugins'**
+  String get tabPlugins;
+
+  /// No description provided for @tabTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks'**
+  String get tabTasks;
+
+  /// No description provided for @targetSoftware.
+  ///
+  /// In en, this message translates to:
+  /// **'Target Software:'**
+  String get targetSoftware;
+
+  /// No description provided for @taskCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Task completed'**
+  String get taskCompleted;
+
+  /// No description provided for @taskFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Task failed'**
+  String get taskFailed;
+
+  /// No description provided for @taskList.
+  ///
+  /// In en, this message translates to:
+  /// **'Task List'**
+  String get taskList;
+
+  /// No description provided for @tasksCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} tasks'**
+  String tasksCount(Object count);
+
+  /// No description provided for @uninstall.
+  ///
+  /// In en, this message translates to:
+  /// **'Uninstall'**
+  String get uninstall;
+
+  /// No description provided for @uninstallSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} uninstalled'**
+  String uninstallSuccess(Object name);
+
+  /// No description provided for @unknownError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown error'**
+  String get unknownError;
 }
 
 class _AppLocalizationsDelegate

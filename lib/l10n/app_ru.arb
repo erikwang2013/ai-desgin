@@ -1,133 +1,137 @@
 {
   "@@locale": "ru",
-  "appTitle": "AI Design",
-  "designDomains": "Области дизайна",
-  "navigation": "Навигация",
-  "tabChat": "Чат",
-  "tabTasks": "Задачи",
-  "tabPlugins": "Плагины",
-  "settings": "Настройки",
-  "targetSoftware": "Целевое ПО:",
-  "hintText": "Опишите желаемую операцию дизайна...",
-  "modelConfig": "Конфигурация модели",
-  "modelConfigDesc": "Управление endpoint API и ключами",
-  "pluginMarket": "Маркет плагинов",
-  "pluginMarketDesc": "Просмотр и установка плагинов",
-  "proxySettings": "Настройки прокси",
-  "proxySettingsDesc": "Настройка сетевого прокси",
-  "about": "О программе",
-  "aboutVersion": "AI Design v{version}",
   "@aboutVersion": {
     "placeholders": {
       "version": {}
     }
   },
-  "comingSoon": "Скоро",
-  "aboutDescription1": "Инструмент автоматизации дизайна на основе ИИ.",
-  "aboutDescription2": "Охватывает 6 областей дизайна и 62+ программ для автоматизированной генерации скриптов.",
-  "aboutPackageName": "Имя пакета: Ai Desgin",
-  "aboutDeveloper": "Разработчик: erik",
-  "installedPlugins": "Установленные плагины",
-  "installPlugin": "Установить плагин",
-  "connected": "Подключено",
-  "disconnected": "Не подключено",
-  "all": "Все",
-  "inProgress": "В процессе",
-  "completed": "Завершено",
-  "taskList": "Список задач",
-  "noTasks": "Нет задач",
-  "noTasksHint": "Введите требования в чате; задачи появятся здесь.",
-  "installed": "Установлено ({count})",
-  "@installed": {
-    "placeholders": {
-      "count": {}
-    }
+  "@autoExecute": {
+    "description": "Localized label for autoExecute"
   },
-  "available": "Доступно ({count})",
   "@available": {
     "placeholders": {
       "count": {}
     }
   },
-  "install": "Установить",
-  "uninstall": "Удалить",
-  "installSuccess": "{name} успешно установлен",
-  "@installSuccess": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "uninstallSuccess": "{name} удалён",
-  "@uninstallSuccess": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "ok": "OK",
-  "errorPrefix": "Ошибка",
-  "echoPrefix": "Echo",
-  "taskCompleted": "Задача выполнена",
-  "taskFailed": "Ошибка задачи",
-  "noOutput": "(нет вывода)",
-  "unknownError": "Неизвестная ошибка",
-  "languageInstruction": "Пожалуйста, отвечайте на русском языке.",
-  "language": "Язык",
-  "apiEndpoint": "Конечная точка API",
-  "apiKey": "API-ключ",
-  "defaultModel": "Модель по умолчанию",
-  "save": "Сохранить",
-  "proxyHost": "Прокси-хост",
-  "proxyPort": "Прокси-порт",
-  "saveSuccess": "Сохранено",
-  "history": "История",
-  "searchPlugins": "Поиск плагинов...",
-  "@searchPlugins": {
-    "description": "Localized label for searchPlugins"
-  },
-  "autoExecute": "Авто",
-  "@autoExecute": {
-    "description": "Localized label for autoExecute"
-  },
-  "manualExecute": "Вручную",
-  "@manualExecute": {
-    "description": "Localized label for manualExecute"
-  },
-  "copied": "Скопировано",
-  "@copied": {
-    "description": "Localized label for copied"
-  },
-  "copy": "Копировать",
-  "@copy": {
-    "description": "Localized label for copy"
-  },
-  "close": "Закрыть",
-  "cancel": "Отмена",
   "@cancel": {
     "description": "Localized label for cancel"
   },
   "@close": {
     "description": "Localized label for close"
   },
-  "tabHistory": "History",
-  "historyList": "History",
-  "noHistory": "No history",
-  "noHistoryHint": "Completed sessions will appear here",
-  "manage": "Manage",
-  "done": "Done",
-  "delete": "Delete",
-  "deleteAll": "Delete All",
-  "deleteSelected": "Delete Selected ({count})",
-  "deleteConfirm": "Delete this session?",
-  "deleteAllConfirm": "Delete all {count} sessions?",
-  "tasksCount": "{count} tasks",
+  "@copied": {
+    "description": "Localized label for copied"
+  },
+  "@copy": {
+    "description": "Localized label for copy"
+  },
+  "@installSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "@installed": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "@manualExecute": {
+    "description": "Localized label for manualExecute"
+  },
+  "@searchPlugins": {
+    "description": "Localized label for searchPlugins"
+  },
+  "@uninstallSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "about": "О программе",
+  "aboutDescription1": "Инструмент автоматизации дизайна на основе ИИ.",
+  "aboutDescription2": "Охватывает 6 областей дизайна и 62+ программ для автоматизированной генерации скриптов.",
+  "aboutDeveloper": "Разработчик: erik",
+  "aboutPackageName": "Имя пакета: Ai Desgin",
+  "aboutVersion": "AI Design v{version}",
   "agentBackend": "Agent Backend",
   "agentBackendDesc": "Choose the agent CLI used to generate scripts",
+  "all": "Все",
+  "apiEndpoint": "Конечная точка API",
+  "apiKey": "API-ключ",
+  "appTitle": "AI Design",
+  "autoExecute": "Авто",
+  "available": "Доступно ({count})",
   "backendClaude": "Claude Code",
   "backendCodex": "Codex",
   "backendGemini": "Gemini",
-  "claudeVersion": "Claude Code Version",
-  "installClaude": "Install Claude Code 2.1.143",
-  "installingClaude": "Installing...",
+  "backendHermes": "Hermes",
+  "backendOpenclaw": "OpenClaw",
+  "backendOpencode": "OpenCode",
+  "backendReasonix": "Reasonix",
+  "cancel": "Отмена",
+  "claudeInstallFailed": "Install failed, check npm environment",
   "claudeUpToDate": "Up to date",
-  "claudeInstallFailed": "Install failed, check npm environment"
+  "claudeVersion": "Claude Code Version",
+  "close": "Закрыть",
+  "comingSoon": "Скоро",
+  "completed": "Завершено",
+  "connected": "Подключено",
+  "copied": "Скопировано",
+  "copy": "Копировать",
+  "defaultModel": "Модель по умолчанию",
+  "delete": "Delete",
+  "deleteAll": "Delete All",
+  "deleteAllConfirm": "Delete all {count} sessions?",
+  "deleteConfirm": "Delete this session?",
+  "deleteSelected": "Delete Selected ({count})",
+  "designDomains": "Области дизайна",
+  "disconnected": "Не подключено",
+  "done": "Done",
+  "echoPrefix": "Echo",
+  "errorPrefix": "Ошибка",
+  "hintText": "Опишите желаемую операцию дизайна...",
+  "history": "История",
+  "historyList": "History",
+  "inProgress": "В процессе",
+  "install": "Установить",
+  "installClaude": "Install Claude Code 2.1.143",
+  "installPlugin": "Установить плагин",
+  "installSuccess": "{name} успешно установлен",
+  "installed": "Установлено ({count})",
+  "installedPlugins": "Установленные плагины",
+  "installingClaude": "Installing...",
+  "language": "Язык",
+  "languageInstruction": "Пожалуйста, отвечайте на русском языке.",
+  "manage": "Manage",
+  "manualExecute": "Вручную",
+  "modelConfig": "Конфигурация модели",
+  "modelConfigDesc": "Управление endpoint API и ключами",
+  "navigation": "Навигация",
+  "noHistory": "No history",
+  "noHistoryHint": "Completed sessions will appear here",
+  "noOutput": "(нет вывода)",
+  "noTasks": "Нет задач",
+  "noTasksHint": "Введите требования в чате; задачи появятся здесь.",
+  "ok": "OK",
+  "pluginMarket": "Маркет плагинов",
+  "pluginMarketDesc": "Просмотр и установка плагинов",
+  "proxyHost": "Прокси-хост",
+  "proxyPort": "Прокси-порт",
+  "proxySettings": "Настройки прокси",
+  "proxySettingsDesc": "Настройка сетевого прокси",
+  "save": "Сохранить",
+  "saveSuccess": "Сохранено",
+  "searchPlugins": "Поиск плагинов...",
+  "settings": "Настройки",
+  "tabChat": "Чат",
+  "tabHistory": "History",
+  "tabPlugins": "Плагины",
+  "tabTasks": "Задачи",
+  "targetSoftware": "Целевое ПО:",
+  "taskCompleted": "Задача выполнена",
+  "taskFailed": "Ошибка задачи",
+  "taskList": "Список задач",
+  "tasksCount": "{count} tasks",
+  "uninstall": "Удалить",
+  "uninstallSuccess": "{name} удалён",
+  "unknownError": "Неизвестная ошибка"
 }

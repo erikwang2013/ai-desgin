@@ -1,133 +1,137 @@
 {
   "@@locale": "de",
-  "appTitle": "AI Design",
-  "designDomains": "Designbereiche",
-  "navigation": "Navigation",
-  "tabChat": "Chat",
-  "tabTasks": "Aufgaben",
-  "tabPlugins": "Plugins",
-  "settings": "Einstellungen",
-  "targetSoftware": "Zielsoftware:",
-  "hintText": "Beschreiben Sie die gewünschte Design-Operation...",
-  "modelConfig": "Modellkonfiguration",
-  "modelConfigDesc": "API-Endpunkt und Schlüssel verwalten",
-  "pluginMarket": "Plugin-Marktplatz",
-  "pluginMarketDesc": "Plugins durchsuchen und installieren",
-  "proxySettings": "Proxy-Einstellungen",
-  "proxySettingsDesc": "Netzwerk-Proxy konfigurieren",
-  "about": "Über",
-  "aboutVersion": "AI Design v{version}",
   "@aboutVersion": {
     "placeholders": {
       "version": {}
     }
   },
-  "comingSoon": "Demnächst",
-  "aboutDescription1": "Ein KI-gesteuertes Automatisierungstool für Designsoftware.",
-  "aboutDescription2": "Deckt 6 Designbereiche und über 62 Designprogramme mit KI-Skripterstellung ab.",
-  "aboutPackageName": "Paketname: Ai Desgin",
-  "aboutDeveloper": "Entwickler: erik",
-  "installedPlugins": "Installierte Plugins",
-  "installPlugin": "Plugin installieren",
-  "connected": "Verbunden",
-  "disconnected": "Nicht verbunden",
-  "all": "Alle",
-  "inProgress": "In Bearbeitung",
-  "completed": "Abgeschlossen",
-  "taskList": "Aufgabenliste",
-  "noTasks": "Keine Aufgaben",
-  "noTasksHint": "Geben Sie Designanforderungen im Chat ein; Aufgaben erscheinen hier.",
-  "installed": "Installiert ({count})",
-  "@installed": {
-    "placeholders": {
-      "count": {}
-    }
+  "@autoExecute": {
+    "description": "Localized label for autoExecute"
   },
-  "available": "Verfügbar ({count})",
   "@available": {
     "placeholders": {
       "count": {}
     }
   },
-  "install": "Installieren",
-  "uninstall": "Deinstallieren",
-  "installSuccess": "{name} erfolgreich installiert",
-  "@installSuccess": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "uninstallSuccess": "{name} deinstalliert",
-  "@uninstallSuccess": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "ok": "OK",
-  "errorPrefix": "Fehler",
-  "echoPrefix": "Echo",
-  "taskCompleted": "Aufgabe abgeschlossen",
-  "taskFailed": "Aufgabe fehlgeschlagen",
-  "noOutput": "(keine Ausgabe)",
-  "unknownError": "Unbekannter Fehler",
-  "languageInstruction": "Bitte antworten Sie auf Deutsch.",
-  "language": "Sprache",
-  "apiEndpoint": "API-Endpunkt",
-  "apiKey": "API-Schlüssel",
-  "defaultModel": "Standardmodell",
-  "save": "Speichern",
-  "proxyHost": "Proxy-Host",
-  "proxyPort": "Proxy-Port",
-  "saveSuccess": "Erfolgreich gespeichert",
-  "history": "Verlauf",
-  "searchPlugins": "Plugins suchen...",
-  "@searchPlugins": {
-    "description": "Localized label for searchPlugins"
-  },
-  "autoExecute": "Auto",
-  "@autoExecute": {
-    "description": "Localized label for autoExecute"
-  },
-  "manualExecute": "Manuell",
-  "@manualExecute": {
-    "description": "Localized label for manualExecute"
-  },
-  "copied": "Kopiert",
-  "@copied": {
-    "description": "Localized label for copied"
-  },
-  "copy": "Kopieren",
-  "@copy": {
-    "description": "Localized label for copy"
-  },
-  "close": "Schließen",
-  "cancel": "Abbrechen",
   "@cancel": {
     "description": "Localized label for cancel"
   },
   "@close": {
     "description": "Localized label for close"
   },
-  "tabHistory": "History",
-  "historyList": "History",
-  "noHistory": "No history",
-  "noHistoryHint": "Completed sessions will appear here",
-  "manage": "Manage",
-  "done": "Done",
-  "delete": "Delete",
-  "deleteAll": "Delete All",
-  "deleteSelected": "Delete Selected ({count})",
-  "deleteConfirm": "Delete this session?",
-  "deleteAllConfirm": "Delete all {count} sessions?",
-  "tasksCount": "{count} tasks",
+  "@copied": {
+    "description": "Localized label for copied"
+  },
+  "@copy": {
+    "description": "Localized label for copy"
+  },
+  "@installSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "@installed": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "@manualExecute": {
+    "description": "Localized label for manualExecute"
+  },
+  "@searchPlugins": {
+    "description": "Localized label for searchPlugins"
+  },
+  "@uninstallSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "about": "Über",
+  "aboutDescription1": "Ein KI-gesteuertes Automatisierungstool für Designsoftware.",
+  "aboutDescription2": "Deckt 6 Designbereiche und über 62 Designprogramme mit KI-Skripterstellung ab.",
+  "aboutDeveloper": "Entwickler: erik",
+  "aboutPackageName": "Paketname: Ai Desgin",
+  "aboutVersion": "AI Design v{version}",
   "agentBackend": "Agent Backend",
   "agentBackendDesc": "Choose the agent CLI used to generate scripts",
+  "all": "Alle",
+  "apiEndpoint": "API-Endpunkt",
+  "apiKey": "API-Schlüssel",
+  "appTitle": "AI Design",
+  "autoExecute": "Auto",
+  "available": "Verfügbar ({count})",
   "backendClaude": "Claude Code",
   "backendCodex": "Codex",
   "backendGemini": "Gemini",
-  "claudeVersion": "Claude Code Version",
-  "installClaude": "Install Claude Code 2.1.143",
-  "installingClaude": "Installing...",
+  "backendHermes": "Hermes",
+  "backendOpenclaw": "OpenClaw",
+  "backendOpencode": "OpenCode",
+  "backendReasonix": "Reasonix",
+  "cancel": "Abbrechen",
+  "claudeInstallFailed": "Install failed, check npm environment",
   "claudeUpToDate": "Up to date",
-  "claudeInstallFailed": "Install failed, check npm environment"
+  "claudeVersion": "Claude Code Version",
+  "close": "Schließen",
+  "comingSoon": "Demnächst",
+  "completed": "Abgeschlossen",
+  "connected": "Verbunden",
+  "copied": "Kopiert",
+  "copy": "Kopieren",
+  "defaultModel": "Standardmodell",
+  "delete": "Delete",
+  "deleteAll": "Delete All",
+  "deleteAllConfirm": "Delete all {count} sessions?",
+  "deleteConfirm": "Delete this session?",
+  "deleteSelected": "Delete Selected ({count})",
+  "designDomains": "Designbereiche",
+  "disconnected": "Nicht verbunden",
+  "done": "Done",
+  "echoPrefix": "Echo",
+  "errorPrefix": "Fehler",
+  "hintText": "Beschreiben Sie die gewünschte Design-Operation...",
+  "history": "Verlauf",
+  "historyList": "History",
+  "inProgress": "In Bearbeitung",
+  "install": "Installieren",
+  "installClaude": "Install Claude Code 2.1.143",
+  "installPlugin": "Plugin installieren",
+  "installSuccess": "{name} erfolgreich installiert",
+  "installed": "Installiert ({count})",
+  "installedPlugins": "Installierte Plugins",
+  "installingClaude": "Installing...",
+  "language": "Sprache",
+  "languageInstruction": "Bitte antworten Sie auf Deutsch.",
+  "manage": "Manage",
+  "manualExecute": "Manuell",
+  "modelConfig": "Modellkonfiguration",
+  "modelConfigDesc": "API-Endpunkt und Schlüssel verwalten",
+  "navigation": "Navigation",
+  "noHistory": "No history",
+  "noHistoryHint": "Completed sessions will appear here",
+  "noOutput": "(keine Ausgabe)",
+  "noTasks": "Keine Aufgaben",
+  "noTasksHint": "Geben Sie Designanforderungen im Chat ein; Aufgaben erscheinen hier.",
+  "ok": "OK",
+  "pluginMarket": "Plugin-Marktplatz",
+  "pluginMarketDesc": "Plugins durchsuchen und installieren",
+  "proxyHost": "Proxy-Host",
+  "proxyPort": "Proxy-Port",
+  "proxySettings": "Proxy-Einstellungen",
+  "proxySettingsDesc": "Netzwerk-Proxy konfigurieren",
+  "save": "Speichern",
+  "saveSuccess": "Erfolgreich gespeichert",
+  "searchPlugins": "Plugins suchen...",
+  "settings": "Einstellungen",
+  "tabChat": "Chat",
+  "tabHistory": "History",
+  "tabPlugins": "Plugins",
+  "tabTasks": "Aufgaben",
+  "targetSoftware": "Zielsoftware:",
+  "taskCompleted": "Aufgabe abgeschlossen",
+  "taskFailed": "Aufgabe fehlgeschlagen",
+  "taskList": "Aufgabenliste",
+  "tasksCount": "{count} tasks",
+  "uninstall": "Deinstallieren",
+  "uninstallSuccess": "{name} deinstalliert",
+  "unknownError": "Unbekannter Fehler"
 }

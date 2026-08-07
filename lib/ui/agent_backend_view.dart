@@ -4,8 +4,10 @@ import '../core/agent_backend.dart';
 import '../core/cc_runner.dart';
 import '../core/codex_backend.dart';
 import '../core/gemini_backend.dart';
+import '../core/cli_agent_backend.dart';
 
-/// Agent 后端设置页：切换 Claude Code / Codex / Gemini + 固定版本安装。
+/// Agent 后端设置页：切换 Claude Code / Codex / Gemini / OpenCode /
+/// OpenClaw / Hermes / Reasonix + 固定版本安装。
 class AgentBackendView extends StatefulWidget {
   final String? currentBackendId;
   final ValueChanged<String>? onBackendChanged;
@@ -17,7 +19,15 @@ class AgentBackendView extends StatefulWidget {
 }
 
 class _AgentBackendViewState extends State<AgentBackendView> {
-  final List<AgentBackend> _backends = [CCRunner(), CodexBackend(), GeminiBackend()];
+  final List<AgentBackend> _backends = [
+    CCRunner(),
+    CodexBackend(),
+    GeminiBackend(),
+    openCodeBackend,
+    openClawBackend,
+    hermesBackend,
+    reasonixBackend,
+  ];
   late String _selected;
   String? _installedVersion;
   bool _checkedVersion = false;
@@ -59,6 +69,10 @@ class _AgentBackendViewState extends State<AgentBackendView> {
     return switch (id) {
       'codex' => l10n?.backendCodex ?? 'Codex',
       'gemini' => l10n?.backendGemini ?? 'Gemini',
+      'opencode' => l10n?.backendOpencode ?? 'OpenCode',
+      'openclaw' => l10n?.backendOpenclaw ?? 'OpenClaw',
+      'hermes' => l10n?.backendHermes ?? 'Hermes',
+      'reasonix' => l10n?.backendReasonix ?? 'Reasonix',
       _ => l10n?.backendClaude ?? 'Claude Code',
     };
   }

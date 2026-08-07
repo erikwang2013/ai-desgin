@@ -1,134 +1,138 @@
 {
   "@@locale": "zh",
-  "appTitle": "AI Design",
-  "designDomains": "设计领域",
-  "navigation": "导航",
-  "tabChat": "对话",
-  "tabTasks": "任务",
-  "tabPlugins": "插件",
-  "settings": "设置",
-  "targetSoftware": "目标软件：",
-  "hintText": "描述你想要的设计操作...",
-  "modelConfig": "模型配置",
-  "modelConfigDesc": "管理 API endpoint 和密钥",
-  "pluginMarket": "插件市场",
-  "pluginMarketDesc": "浏览和安装插件",
-  "proxySettings": "代理设置",
-  "proxySettingsDesc": "配置网络代理",
-  "about": "关于",
-  "aboutVersion": "AI Design v{version}",
   "@aboutVersion": {
     "placeholders": {
       "version": {}
     }
   },
-  "comingSoon": "即将推出",
-  "aboutDescription1": "AI Design是一个支持 Windows 和 macOS 的桌面应用，通过内置 Claude Code CLI 实现 AI 驱动的多模型调度，自动生成控制脚本并操作各类设计软件。",
-  "aboutDescription2": "覆盖 六大设计领域：Web 设计、广告设计、工业设计、3D 设计、建筑设计、装修设计。",
-  "aboutPackageName": "应用包名称：Ai Desgin",
-  "aboutDeveloper": "开发者：erik",
-  "retry": "重试",
-  "installedPlugins": "已安装插件",
-  "installPlugin": "安装插件",
-  "connected": "已连接",
-  "disconnected": "未连接",
-  "all": "全部",
-  "inProgress": "进行中",
-  "completed": "已完成",
-  "taskList": "任务列表",
-  "noTasks": "暂无任务",
-  "noTasksHint": "在对话面板中输入设计需求，任务将显示在这里",
-  "installed": "已安装 ({count})",
-  "@installed": {
-    "placeholders": {
-      "count": {}
-    }
+  "@autoExecute": {
+    "description": "Localized label for autoExecute"
   },
-  "available": "可安装 ({count})",
   "@available": {
     "placeholders": {
       "count": {}
     }
   },
-  "install": "安装",
-  "uninstall": "卸载",
-  "installSuccess": "{name} 安装成功",
-  "@installSuccess": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "uninstallSuccess": "{name} 已卸载",
-  "@uninstallSuccess": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "ok": "确定",
-  "errorPrefix": "错误",
-  "echoPrefix": "Echo",
-  "taskCompleted": "任务完成",
-  "taskFailed": "任务失败",
-  "noOutput": "(无输出)",
-  "unknownError": "未知错误",
-  "languageInstruction": "请使用中文回复。",
-  "language": "语言",
-  "apiEndpoint": "API 端点",
-  "apiKey": "API 密钥",
-  "defaultModel": "默认模型",
-  "save": "保存",
-  "proxyHost": "代理主机",
-  "proxyPort": "代理端口",
-  "saveSuccess": "保存成功",
-  "history": "历史",
-  "searchPlugins": "搜索插件...",
-  "@searchPlugins": {
-    "description": "Localized label for searchPlugins"
-  },
-  "autoExecute": "自动执行",
-  "@autoExecute": {
-    "description": "Localized label for autoExecute"
-  },
-  "manualExecute": "手动执行",
-  "@manualExecute": {
-    "description": "Localized label for manualExecute"
-  },
-  "copied": "已复制",
-  "@copied": {
-    "description": "Localized label for copied"
-  },
-  "copy": "复制",
-  "@copy": {
-    "description": "Localized label for copy"
-  },
-  "close": "关闭",
-  "cancel": "取消",
   "@cancel": {
     "description": "Localized label for cancel"
   },
   "@close": {
     "description": "Localized label for close"
   },
-  "tabHistory": "历史",
-  "historyList": "历史会话",
-  "noHistory": "暂无历史会话",
-  "noHistoryHint": "完成任务后会话将显示在这里",
-  "manage": "管理",
-  "done": "完成",
-  "delete": "删除",
-  "deleteAll": "全部删除",
-  "deleteSelected": "删除所选 ({count})",
-  "deleteConfirm": "确定删除该会话？",
-  "deleteAllConfirm": "确定删除全部 {count} 个会话？",
-  "tasksCount": "{count} 个任务",
+  "@copied": {
+    "description": "Localized label for copied"
+  },
+  "@copy": {
+    "description": "Localized label for copy"
+  },
+  "@installSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "@installed": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "@manualExecute": {
+    "description": "Localized label for manualExecute"
+  },
+  "@searchPlugins": {
+    "description": "Localized label for searchPlugins"
+  },
+  "@uninstallSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "about": "关于",
+  "aboutDescription1": "AI Design是一个支持 Windows 和 macOS 的桌面应用，通过内置 Claude Code CLI 实现 AI 驱动的多模型调度，自动生成控制脚本并操作各类设计软件。",
+  "aboutDescription2": "覆盖 六大设计领域：Web 设计、广告设计、工业设计、3D 设计、建筑设计、装修设计。",
+  "aboutDeveloper": "开发者：erik",
+  "aboutPackageName": "应用包名称：Ai Desgin",
+  "aboutVersion": "AI Design v{version}",
   "agentBackend": "Agent 后端",
   "agentBackendDesc": "选择用于生成脚本的 Agent CLI",
+  "all": "全部",
+  "apiEndpoint": "API 端点",
+  "apiKey": "API 密钥",
+  "appTitle": "AI Design",
+  "autoExecute": "自动执行",
+  "available": "可安装 ({count})",
   "backendClaude": "Claude Code",
   "backendCodex": "Codex",
   "backendGemini": "Gemini",
-  "claudeVersion": "Claude Code 版本",
-  "installClaude": "安装 Claude Code 2.1.143",
-  "installingClaude": "正在安装…",
+  "backendHermes": "Hermes",
+  "backendOpenclaw": "OpenClaw",
+  "backendOpencode": "OpenCode",
+  "backendReasonix": "Reasonix",
+  "cancel": "取消",
+  "claudeInstallFailed": "安装失败，请检查 npm 环境",
   "claudeUpToDate": "已是最新版本",
-  "claudeInstallFailed": "安装失败，请检查 npm 环境"
+  "claudeVersion": "Claude Code 版本",
+  "close": "关闭",
+  "comingSoon": "即将推出",
+  "completed": "已完成",
+  "connected": "已连接",
+  "copied": "已复制",
+  "copy": "复制",
+  "defaultModel": "默认模型",
+  "delete": "删除",
+  "deleteAll": "全部删除",
+  "deleteAllConfirm": "确定删除全部 {count} 个会话？",
+  "deleteConfirm": "确定删除该会话？",
+  "deleteSelected": "删除所选 ({count})",
+  "designDomains": "设计领域",
+  "disconnected": "未连接",
+  "done": "完成",
+  "echoPrefix": "Echo",
+  "errorPrefix": "错误",
+  "hintText": "描述你想要的设计操作...",
+  "history": "历史",
+  "historyList": "历史会话",
+  "inProgress": "进行中",
+  "install": "安装",
+  "installClaude": "安装 Claude Code 2.1.143",
+  "installPlugin": "安装插件",
+  "installSuccess": "{name} 安装成功",
+  "installed": "已安装 ({count})",
+  "installedPlugins": "已安装插件",
+  "installingClaude": "正在安装…",
+  "language": "语言",
+  "languageInstruction": "请使用中文回复。",
+  "manage": "管理",
+  "manualExecute": "手动执行",
+  "modelConfig": "模型配置",
+  "modelConfigDesc": "管理 API endpoint 和密钥",
+  "navigation": "导航",
+  "noHistory": "暂无历史会话",
+  "noHistoryHint": "完成任务后会话将显示在这里",
+  "noOutput": "(无输出)",
+  "noTasks": "暂无任务",
+  "noTasksHint": "在对话面板中输入设计需求，任务将显示在这里",
+  "ok": "确定",
+  "pluginMarket": "插件市场",
+  "pluginMarketDesc": "浏览和安装插件",
+  "proxyHost": "代理主机",
+  "proxyPort": "代理端口",
+  "proxySettings": "代理设置",
+  "proxySettingsDesc": "配置网络代理",
+  "retry": "重试",
+  "save": "保存",
+  "saveSuccess": "保存成功",
+  "searchPlugins": "搜索插件...",
+  "settings": "设置",
+  "tabChat": "对话",
+  "tabHistory": "历史",
+  "tabPlugins": "插件",
+  "tabTasks": "任务",
+  "targetSoftware": "目标软件：",
+  "taskCompleted": "任务完成",
+  "taskFailed": "任务失败",
+  "taskList": "任务列表",
+  "tasksCount": "{count} 个任务",
+  "uninstall": "卸载",
+  "uninstallSuccess": "{name} 已卸载",
+  "unknownError": "未知错误"
 }

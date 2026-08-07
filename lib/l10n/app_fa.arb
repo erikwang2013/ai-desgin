@@ -1,133 +1,137 @@
 {
   "@@locale": "fa",
-  "appTitle": "AI Design",
-  "designDomains": "حوزه‌های طراحی",
-  "navigation": "ناوبری",
-  "tabChat": "گفتگو",
-  "tabTasks": "وظایف",
-  "tabPlugins": "افزونه‌ها",
-  "settings": "تنظیمات",
-  "targetSoftware": "نرم‌افزار هدف:",
-  "hintText": "عملیات طراحی مورد نظر خود را توضیح دهید...",
-  "modelConfig": "پیکربندی مدل",
-  "modelConfigDesc": "مدیریت endpoint API و کلیدها",
-  "pluginMarket": "بازار افزونه‌ها",
-  "pluginMarketDesc": "مرور و نصب افزونه‌ها",
-  "proxySettings": "تنظیمات پروکسی",
-  "proxySettingsDesc": "پیکربندی پروکسی شبکه",
-  "about": "درباره",
-  "aboutVersion": "AI Design v{version}",
   "@aboutVersion": {
     "placeholders": {
       "version": {}
     }
   },
-  "comingSoon": "به زودی",
-  "aboutDescription1": "ابزار خودکارسازی نرم‌افزار طراحی مبتنی بر هوش مصنوعی.",
-  "aboutDescription2": "پوشش 6 حوزه طراحی و بیش از 62 نرم‌افزار طراحی با تولید و اجرای اسکریپت هوش مصنوعی.",
-  "aboutPackageName": "نام بسته: Ai Desgin",
-  "aboutDeveloper": "توسعه‌دهنده: erik",
-  "installedPlugins": "افزونه‌های نصب شده",
-  "installPlugin": "نصب افزونه",
-  "connected": "متصل",
-  "disconnected": "قطع",
-  "all": "همه",
-  "inProgress": "در حال انجام",
-  "completed": "تکمیل شده",
-  "taskList": "لیست وظایف",
-  "noTasks": "بدون وظیفه",
-  "noTasksHint": "نیازمندی‌های طراحی را در پنل گفتگو وارد کنید؛ وظایف در اینجا نمایش داده می‌شوند.",
-  "installed": "نصب شده ({count})",
-  "@installed": {
-    "placeholders": {
-      "count": {}
-    }
+  "@autoExecute": {
+    "description": "Localized label for autoExecute"
   },
-  "available": "در دسترس ({count})",
   "@available": {
     "placeholders": {
       "count": {}
     }
   },
-  "install": "نصب",
-  "uninstall": "حذف",
-  "installSuccess": "{name} با موفقیت نصب شد",
-  "@installSuccess": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "uninstallSuccess": "{name} حذف شد",
-  "@uninstallSuccess": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "ok": "تأیید",
-  "errorPrefix": "خطا",
-  "echoPrefix": "Echo",
-  "taskCompleted": "وظیفه تکمیل شد",
-  "taskFailed": "وظیفه ناموفق بود",
-  "noOutput": "(بدون خروجی)",
-  "unknownError": "خطای ناشناخته",
-  "languageInstruction": "لطفاً به فارسی پاسخ دهید.",
-  "language": "زبان",
-  "apiEndpoint": "نقطه پایانی API",
-  "apiKey": "کلید API",
-  "defaultModel": "مدل پیش‌فرض",
-  "save": "ذخیره",
-  "proxyHost": "میزبان پروکسی",
-  "proxyPort": "پورت پروکسی",
-  "saveSuccess": "با موفقیت ذخیره شد",
-  "history": "تاریخچه",
-  "searchPlugins": "جستجوی افزونهها...",
-  "@searchPlugins": {
-    "description": "Localized label for searchPlugins"
-  },
-  "autoExecute": "خودکار",
-  "@autoExecute": {
-    "description": "Localized label for autoExecute"
-  },
-  "manualExecute": "دستی",
-  "@manualExecute": {
-    "description": "Localized label for manualExecute"
-  },
-  "copied": "کپی شد",
-  "@copied": {
-    "description": "Localized label for copied"
-  },
-  "copy": "کپی",
-  "@copy": {
-    "description": "Localized label for copy"
-  },
-  "close": "بستن",
-  "cancel": "لغو",
   "@cancel": {
     "description": "Localized label for cancel"
   },
   "@close": {
     "description": "Localized label for close"
   },
-  "tabHistory": "History",
-  "historyList": "History",
-  "noHistory": "No history",
-  "noHistoryHint": "Completed sessions will appear here",
-  "manage": "Manage",
-  "done": "Done",
-  "delete": "Delete",
-  "deleteAll": "Delete All",
-  "deleteSelected": "Delete Selected ({count})",
-  "deleteConfirm": "Delete this session?",
-  "deleteAllConfirm": "Delete all {count} sessions?",
-  "tasksCount": "{count} tasks",
+  "@copied": {
+    "description": "Localized label for copied"
+  },
+  "@copy": {
+    "description": "Localized label for copy"
+  },
+  "@installSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "@installed": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "@manualExecute": {
+    "description": "Localized label for manualExecute"
+  },
+  "@searchPlugins": {
+    "description": "Localized label for searchPlugins"
+  },
+  "@uninstallSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "about": "درباره",
+  "aboutDescription1": "ابزار خودکارسازی نرم‌افزار طراحی مبتنی بر هوش مصنوعی.",
+  "aboutDescription2": "پوشش 6 حوزه طراحی و بیش از 62 نرم‌افزار طراحی با تولید و اجرای اسکریپت هوش مصنوعی.",
+  "aboutDeveloper": "توسعه‌دهنده: erik",
+  "aboutPackageName": "نام بسته: Ai Desgin",
+  "aboutVersion": "AI Design v{version}",
   "agentBackend": "Agent Backend",
   "agentBackendDesc": "Choose the agent CLI used to generate scripts",
+  "all": "همه",
+  "apiEndpoint": "نقطه پایانی API",
+  "apiKey": "کلید API",
+  "appTitle": "AI Design",
+  "autoExecute": "خودکار",
+  "available": "در دسترس ({count})",
   "backendClaude": "Claude Code",
   "backendCodex": "Codex",
   "backendGemini": "Gemini",
-  "claudeVersion": "Claude Code Version",
-  "installClaude": "Install Claude Code 2.1.143",
-  "installingClaude": "Installing...",
+  "backendHermes": "Hermes",
+  "backendOpenclaw": "OpenClaw",
+  "backendOpencode": "OpenCode",
+  "backendReasonix": "Reasonix",
+  "cancel": "لغو",
+  "claudeInstallFailed": "Install failed, check npm environment",
   "claudeUpToDate": "Up to date",
-  "claudeInstallFailed": "Install failed, check npm environment"
+  "claudeVersion": "Claude Code Version",
+  "close": "بستن",
+  "comingSoon": "به زودی",
+  "completed": "تکمیل شده",
+  "connected": "متصل",
+  "copied": "کپی شد",
+  "copy": "کپی",
+  "defaultModel": "مدل پیش‌فرض",
+  "delete": "Delete",
+  "deleteAll": "Delete All",
+  "deleteAllConfirm": "Delete all {count} sessions?",
+  "deleteConfirm": "Delete this session?",
+  "deleteSelected": "Delete Selected ({count})",
+  "designDomains": "حوزه‌های طراحی",
+  "disconnected": "قطع",
+  "done": "Done",
+  "echoPrefix": "Echo",
+  "errorPrefix": "خطا",
+  "hintText": "عملیات طراحی مورد نظر خود را توضیح دهید...",
+  "history": "تاریخچه",
+  "historyList": "History",
+  "inProgress": "در حال انجام",
+  "install": "نصب",
+  "installClaude": "Install Claude Code 2.1.143",
+  "installPlugin": "نصب افزونه",
+  "installSuccess": "{name} با موفقیت نصب شد",
+  "installed": "نصب شده ({count})",
+  "installedPlugins": "افزونه‌های نصب شده",
+  "installingClaude": "Installing...",
+  "language": "زبان",
+  "languageInstruction": "لطفاً به فارسی پاسخ دهید.",
+  "manage": "Manage",
+  "manualExecute": "دستی",
+  "modelConfig": "پیکربندی مدل",
+  "modelConfigDesc": "مدیریت endpoint API و کلیدها",
+  "navigation": "ناوبری",
+  "noHistory": "No history",
+  "noHistoryHint": "Completed sessions will appear here",
+  "noOutput": "(بدون خروجی)",
+  "noTasks": "بدون وظیفه",
+  "noTasksHint": "نیازمندی‌های طراحی را در پنل گفتگو وارد کنید؛ وظایف در اینجا نمایش داده می‌شوند.",
+  "ok": "تأیید",
+  "pluginMarket": "بازار افزونه‌ها",
+  "pluginMarketDesc": "مرور و نصب افزونه‌ها",
+  "proxyHost": "میزبان پروکسی",
+  "proxyPort": "پورت پروکسی",
+  "proxySettings": "تنظیمات پروکسی",
+  "proxySettingsDesc": "پیکربندی پروکسی شبکه",
+  "save": "ذخیره",
+  "saveSuccess": "با موفقیت ذخیره شد",
+  "searchPlugins": "جستجوی افزونهها...",
+  "settings": "تنظیمات",
+  "tabChat": "گفتگو",
+  "tabHistory": "History",
+  "tabPlugins": "افزونه‌ها",
+  "tabTasks": "وظایف",
+  "targetSoftware": "نرم‌افزار هدف:",
+  "taskCompleted": "وظیفه تکمیل شد",
+  "taskFailed": "وظیفه ناموفق بود",
+  "taskList": "لیست وظایف",
+  "tasksCount": "{count} tasks",
+  "uninstall": "حذف",
+  "uninstallSuccess": "{name} حذف شد",
+  "unknownError": "خطای ناشناخته"
 }

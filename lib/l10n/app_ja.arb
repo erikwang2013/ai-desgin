@@ -1,133 +1,137 @@
 {
   "@@locale": "ja",
-  "appTitle": "AI Design",
-  "designDomains": "デザイン分野",
-  "navigation": "ナビゲーション",
-  "tabChat": "チャット",
-  "tabTasks": "タスク",
-  "tabPlugins": "プラグイン",
-  "settings": "設定",
-  "targetSoftware": "対象ソフトウェア：",
-  "hintText": "実行したいデザイン操作を説明してください...",
-  "modelConfig": "モデル設定",
-  "modelConfigDesc": "APIエンドポイントとキーを管理",
-  "pluginMarket": "プラグインマーケット",
-  "pluginMarketDesc": "プラグインの参照とインストール",
-  "proxySettings": "プロキシ設定",
-  "proxySettingsDesc": "ネットワークプロキシを設定",
-  "about": "について",
-  "aboutVersion": "AI Design v{version}",
   "@aboutVersion": {
     "placeholders": {
       "version": {}
     }
   },
-  "comingSoon": "近日公開",
-  "aboutDescription1": "AI駆動のデザインソフトウェア自動化ツール。",
-  "aboutDescription2": "6つのデザイン分野、62以上の主要デザインソフトウェアに対応するAIスクリプト生成と実行。",
-  "aboutPackageName": "パッケージ名：Ai Desgin",
-  "aboutDeveloper": "開発者: erik",
-  "installedPlugins": "インストール済みプラグイン",
-  "installPlugin": "プラグインをインストール",
-  "connected": "接続済み",
-  "disconnected": "未接続",
-  "all": "すべて",
-  "inProgress": "進行中",
-  "completed": "完了",
-  "taskList": "タスク一覧",
-  "noTasks": "タスクなし",
-  "noTasksHint": "チャットパネルにデザイン要件を入力すると、タスクがここに表示されます。",
-  "installed": "インストール済み ({count})",
-  "@installed": {
-    "placeholders": {
-      "count": {}
-    }
+  "@autoExecute": {
+    "description": "Localized label for autoExecute"
   },
-  "available": "インストール可能 ({count})",
   "@available": {
     "placeholders": {
       "count": {}
     }
   },
-  "install": "インストール",
-  "uninstall": "アンインストール",
-  "installSuccess": "{name} インストール成功",
-  "@installSuccess": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "uninstallSuccess": "{name} アンインストール済み",
-  "@uninstallSuccess": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "ok": "OK",
-  "errorPrefix": "エラー",
-  "echoPrefix": "Echo",
-  "taskCompleted": "タスク完了",
-  "taskFailed": "タスク失敗",
-  "noOutput": "(出力なし)",
-  "unknownError": "不明なエラー",
-  "languageInstruction": "日本語で返信してください。",
-  "language": "言語",
-  "apiEndpoint": "API エンドポイント",
-  "apiKey": "API キー",
-  "defaultModel": "デフォルトモデル",
-  "save": "保存",
-  "proxyHost": "プロキシホスト",
-  "proxyPort": "プロキシポート",
-  "saveSuccess": "保存しました",
-  "history": "履歴",
-  "searchPlugins": "プラグインを検索...",
-  "@searchPlugins": {
-    "description": "Localized label for searchPlugins"
-  },
-  "autoExecute": "自動",
-  "@autoExecute": {
-    "description": "Localized label for autoExecute"
-  },
-  "manualExecute": "手動",
-  "@manualExecute": {
-    "description": "Localized label for manualExecute"
-  },
-  "copied": "コピーしました",
-  "@copied": {
-    "description": "Localized label for copied"
-  },
-  "copy": "コピー",
-  "@copy": {
-    "description": "Localized label for copy"
-  },
-  "close": "閉じる",
-  "cancel": "キャンセル",
   "@cancel": {
     "description": "Localized label for cancel"
   },
   "@close": {
     "description": "Localized label for close"
   },
-  "tabHistory": "History",
-  "historyList": "History",
-  "noHistory": "No history",
-  "noHistoryHint": "Completed sessions will appear here",
-  "manage": "Manage",
-  "done": "Done",
-  "delete": "Delete",
-  "deleteAll": "Delete All",
-  "deleteSelected": "Delete Selected ({count})",
-  "deleteConfirm": "Delete this session?",
-  "deleteAllConfirm": "Delete all {count} sessions?",
-  "tasksCount": "{count} tasks",
+  "@copied": {
+    "description": "Localized label for copied"
+  },
+  "@copy": {
+    "description": "Localized label for copy"
+  },
+  "@installSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "@installed": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "@manualExecute": {
+    "description": "Localized label for manualExecute"
+  },
+  "@searchPlugins": {
+    "description": "Localized label for searchPlugins"
+  },
+  "@uninstallSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "about": "について",
+  "aboutDescription1": "AI駆動のデザインソフトウェア自動化ツール。",
+  "aboutDescription2": "6つのデザイン分野、62以上の主要デザインソフトウェアに対応するAIスクリプト生成と実行。",
+  "aboutDeveloper": "開発者: erik",
+  "aboutPackageName": "パッケージ名：Ai Desgin",
+  "aboutVersion": "AI Design v{version}",
   "agentBackend": "Agent Backend",
   "agentBackendDesc": "Choose the agent CLI used to generate scripts",
+  "all": "すべて",
+  "apiEndpoint": "API エンドポイント",
+  "apiKey": "API キー",
+  "appTitle": "AI Design",
+  "autoExecute": "自動",
+  "available": "インストール可能 ({count})",
   "backendClaude": "Claude Code",
   "backendCodex": "Codex",
   "backendGemini": "Gemini",
-  "claudeVersion": "Claude Code Version",
-  "installClaude": "Install Claude Code 2.1.143",
-  "installingClaude": "Installing...",
+  "backendHermes": "Hermes",
+  "backendOpenclaw": "OpenClaw",
+  "backendOpencode": "OpenCode",
+  "backendReasonix": "Reasonix",
+  "cancel": "キャンセル",
+  "claudeInstallFailed": "Install failed, check npm environment",
   "claudeUpToDate": "Up to date",
-  "claudeInstallFailed": "Install failed, check npm environment"
+  "claudeVersion": "Claude Code Version",
+  "close": "閉じる",
+  "comingSoon": "近日公開",
+  "completed": "完了",
+  "connected": "接続済み",
+  "copied": "コピーしました",
+  "copy": "コピー",
+  "defaultModel": "デフォルトモデル",
+  "delete": "Delete",
+  "deleteAll": "Delete All",
+  "deleteAllConfirm": "Delete all {count} sessions?",
+  "deleteConfirm": "Delete this session?",
+  "deleteSelected": "Delete Selected ({count})",
+  "designDomains": "デザイン分野",
+  "disconnected": "未接続",
+  "done": "Done",
+  "echoPrefix": "Echo",
+  "errorPrefix": "エラー",
+  "hintText": "実行したいデザイン操作を説明してください...",
+  "history": "履歴",
+  "historyList": "History",
+  "inProgress": "進行中",
+  "install": "インストール",
+  "installClaude": "Install Claude Code 2.1.143",
+  "installPlugin": "プラグインをインストール",
+  "installSuccess": "{name} インストール成功",
+  "installed": "インストール済み ({count})",
+  "installedPlugins": "インストール済みプラグイン",
+  "installingClaude": "Installing...",
+  "language": "言語",
+  "languageInstruction": "日本語で返信してください。",
+  "manage": "Manage",
+  "manualExecute": "手動",
+  "modelConfig": "モデル設定",
+  "modelConfigDesc": "APIエンドポイントとキーを管理",
+  "navigation": "ナビゲーション",
+  "noHistory": "No history",
+  "noHistoryHint": "Completed sessions will appear here",
+  "noOutput": "(出力なし)",
+  "noTasks": "タスクなし",
+  "noTasksHint": "チャットパネルにデザイン要件を入力すると、タスクがここに表示されます。",
+  "ok": "OK",
+  "pluginMarket": "プラグインマーケット",
+  "pluginMarketDesc": "プラグインの参照とインストール",
+  "proxyHost": "プロキシホスト",
+  "proxyPort": "プロキシポート",
+  "proxySettings": "プロキシ設定",
+  "proxySettingsDesc": "ネットワークプロキシを設定",
+  "save": "保存",
+  "saveSuccess": "保存しました",
+  "searchPlugins": "プラグインを検索...",
+  "settings": "設定",
+  "tabChat": "チャット",
+  "tabHistory": "History",
+  "tabPlugins": "プラグイン",
+  "tabTasks": "タスク",
+  "targetSoftware": "対象ソフトウェア：",
+  "taskCompleted": "タスク完了",
+  "taskFailed": "タスク失敗",
+  "taskList": "タスク一覧",
+  "tasksCount": "{count} tasks",
+  "uninstall": "アンインストール",
+  "uninstallSuccess": "{name} アンインストール済み",
+  "unknownError": "不明なエラー"
 }

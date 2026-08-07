@@ -9,6 +9,7 @@ import 'core/cc_process_manager.dart';
 import 'core/cc_runner.dart';
 import 'core/codex_backend.dart';
 import 'core/gemini_backend.dart';
+import 'core/cli_agent_backend.dart';
 import 'core/model_router.dart';
 import 'core/task_orchestrator.dart';
 import 'core/session_store.dart';
@@ -186,6 +187,10 @@ class _MainShellState extends State<_MainShell> {
     final backend = switch (backendId) {
       'codex' => CodexBackend(apiKey: _openaiKey),
       'gemini' => GeminiBackend(apiKey: _geminiKey),
+      'opencode' => openCodeBackend,
+      'openclaw' => openClawBackend,
+      'hermes' => hermesBackend,
+      'reasonix' => reasonixBackend,
       _ => ccRunner,
     };
     _orchestrator = TaskOrchestrator(
@@ -238,6 +243,10 @@ class _MainShellState extends State<_MainShell> {
     _orchestrator.backend = switch (id) {
       'codex' => CodexBackend(apiKey: _openaiKey),
       'gemini' => GeminiBackend(apiKey: _geminiKey),
+      'opencode' => openCodeBackend,
+      'openclaw' => openClawBackend,
+      'hermes' => hermesBackend,
+      'reasonix' => reasonixBackend,
       _ => CCRunner(),
     };
     SharedPreferences.getInstance().then((prefs) {

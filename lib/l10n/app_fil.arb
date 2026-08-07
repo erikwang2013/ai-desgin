@@ -1,133 +1,137 @@
 {
   "@@locale": "fil",
-  "appTitle": "AI Design",
-  "designDomains": "Mga Domain ng Disenyo",
-  "navigation": "Nabigasyon",
-  "tabChat": "Chat",
-  "tabTasks": "Mga Gawain",
-  "tabPlugins": "Mga Plugin",
-  "settings": "Mga Setting",
-  "targetSoftware": "Target na Software:",
-  "hintText": "Ilarawan ang nais na operasyon ng disenyo...",
-  "modelConfig": "Configuration ng Modelo",
-  "modelConfigDesc": "Pamahalaan ang API endpoint at mga susi",
-  "pluginMarket": "Plugin Marketplace",
-  "pluginMarketDesc": "Mag-browse at mag-install ng mga plugin",
-  "proxySettings": "Mga Setting ng Proxy",
-  "proxySettingsDesc": "I-configure ang network proxy",
-  "about": "Tungkol Sa",
-  "aboutVersion": "AI Design v{version}",
   "@aboutVersion": {
     "placeholders": {
       "version": {}
     }
   },
-  "comingSoon": "Malapit Na",
-  "aboutDescription1": "Isang AI-driven na tool sa automation ng design software.",
-  "aboutDescription2": "Sakop ang 6 na domain ng disenyo at 62+ pangunahing design software gamit ang AI script generation.",
-  "aboutPackageName": "Pangalan ng package: Ai Desgin",
-  "aboutDeveloper": "Developer: erik",
-  "installedPlugins": "Mga Naka-install na Plugin",
-  "installPlugin": "Mag-install ng Plugin",
-  "connected": "Nakakonekta",
-  "disconnected": "Hindi Nakakonekta",
-  "all": "Lahat",
-  "inProgress": "Isinasagawa",
-  "completed": "Tapos Na",
-  "taskList": "Listahan ng Gawain",
-  "noTasks": "Walang Gawain",
-  "noTasksHint": "Ilagay ang mga kinakailangan sa disenyo sa chat panel; lalabas dito ang mga gawain.",
-  "installed": "Naka-install ({count})",
-  "@installed": {
-    "placeholders": {
-      "count": {}
-    }
+  "@autoExecute": {
+    "description": "Localized label for autoExecute"
   },
-  "available": "Available ({count})",
   "@available": {
     "placeholders": {
       "count": {}
     }
   },
-  "install": "I-install",
-  "uninstall": "I-uninstall",
-  "installSuccess": "Matagumpay na na-install ang {name}",
-  "@installSuccess": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "uninstallSuccess": "Na-uninstall ang {name}",
-  "@uninstallSuccess": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "ok": "OK",
-  "errorPrefix": "Error",
-  "echoPrefix": "Echo",
-  "taskCompleted": "Tapos na ang gawain",
-  "taskFailed": "Nabigo ang gawain",
-  "noOutput": "(walang output)",
-  "unknownError": "Hindi kilalang error",
-  "languageInstruction": "Mangyaring tumugon sa wikang Filipino.",
-  "language": "Wika",
-  "apiEndpoint": "API Endpoint",
-  "apiKey": "API Key",
-  "defaultModel": "Default na Modelo",
-  "save": "I-save",
-  "proxyHost": "Proxy Host",
-  "proxyPort": "Proxy Port",
-  "saveSuccess": "Matagumpay na na-save",
-  "history": "Kasaysayan",
-  "searchPlugins": "Maghanap ng mga plugin...",
-  "@searchPlugins": {
-    "description": "Localized label for searchPlugins"
-  },
-  "autoExecute": "Auto",
-  "@autoExecute": {
-    "description": "Localized label for autoExecute"
-  },
-  "manualExecute": "Manual",
-  "@manualExecute": {
-    "description": "Localized label for manualExecute"
-  },
-  "copied": "Nakopya",
-  "@copied": {
-    "description": "Localized label for copied"
-  },
-  "copy": "Kopyahin",
-  "@copy": {
-    "description": "Localized label for copy"
-  },
-  "close": "Isara",
-  "cancel": "Kanselahin",
   "@cancel": {
     "description": "Localized label for cancel"
   },
   "@close": {
     "description": "Localized label for close"
   },
-  "tabHistory": "History",
-  "historyList": "History",
-  "noHistory": "No history",
-  "noHistoryHint": "Completed sessions will appear here",
-  "manage": "Manage",
-  "done": "Done",
-  "delete": "Delete",
-  "deleteAll": "Delete All",
-  "deleteSelected": "Delete Selected ({count})",
-  "deleteConfirm": "Delete this session?",
-  "deleteAllConfirm": "Delete all {count} sessions?",
-  "tasksCount": "{count} tasks",
+  "@copied": {
+    "description": "Localized label for copied"
+  },
+  "@copy": {
+    "description": "Localized label for copy"
+  },
+  "@installSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "@installed": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "@manualExecute": {
+    "description": "Localized label for manualExecute"
+  },
+  "@searchPlugins": {
+    "description": "Localized label for searchPlugins"
+  },
+  "@uninstallSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "about": "Tungkol Sa",
+  "aboutDescription1": "Isang AI-driven na tool sa automation ng design software.",
+  "aboutDescription2": "Sakop ang 6 na domain ng disenyo at 62+ pangunahing design software gamit ang AI script generation.",
+  "aboutDeveloper": "Developer: erik",
+  "aboutPackageName": "Pangalan ng package: Ai Desgin",
+  "aboutVersion": "AI Design v{version}",
   "agentBackend": "Agent Backend",
   "agentBackendDesc": "Choose the agent CLI used to generate scripts",
+  "all": "Lahat",
+  "apiEndpoint": "API Endpoint",
+  "apiKey": "API Key",
+  "appTitle": "AI Design",
+  "autoExecute": "Auto",
+  "available": "Available ({count})",
   "backendClaude": "Claude Code",
   "backendCodex": "Codex",
   "backendGemini": "Gemini",
-  "claudeVersion": "Claude Code Version",
-  "installClaude": "Install Claude Code 2.1.143",
-  "installingClaude": "Installing...",
+  "backendHermes": "Hermes",
+  "backendOpenclaw": "OpenClaw",
+  "backendOpencode": "OpenCode",
+  "backendReasonix": "Reasonix",
+  "cancel": "Kanselahin",
+  "claudeInstallFailed": "Install failed, check npm environment",
   "claudeUpToDate": "Up to date",
-  "claudeInstallFailed": "Install failed, check npm environment"
+  "claudeVersion": "Claude Code Version",
+  "close": "Isara",
+  "comingSoon": "Malapit Na",
+  "completed": "Tapos Na",
+  "connected": "Nakakonekta",
+  "copied": "Nakopya",
+  "copy": "Kopyahin",
+  "defaultModel": "Default na Modelo",
+  "delete": "Delete",
+  "deleteAll": "Delete All",
+  "deleteAllConfirm": "Delete all {count} sessions?",
+  "deleteConfirm": "Delete this session?",
+  "deleteSelected": "Delete Selected ({count})",
+  "designDomains": "Mga Domain ng Disenyo",
+  "disconnected": "Hindi Nakakonekta",
+  "done": "Done",
+  "echoPrefix": "Echo",
+  "errorPrefix": "Error",
+  "hintText": "Ilarawan ang nais na operasyon ng disenyo...",
+  "history": "Kasaysayan",
+  "historyList": "History",
+  "inProgress": "Isinasagawa",
+  "install": "I-install",
+  "installClaude": "Install Claude Code 2.1.143",
+  "installPlugin": "Mag-install ng Plugin",
+  "installSuccess": "Matagumpay na na-install ang {name}",
+  "installed": "Naka-install ({count})",
+  "installedPlugins": "Mga Naka-install na Plugin",
+  "installingClaude": "Installing...",
+  "language": "Wika",
+  "languageInstruction": "Mangyaring tumugon sa wikang Filipino.",
+  "manage": "Manage",
+  "manualExecute": "Manual",
+  "modelConfig": "Configuration ng Modelo",
+  "modelConfigDesc": "Pamahalaan ang API endpoint at mga susi",
+  "navigation": "Nabigasyon",
+  "noHistory": "No history",
+  "noHistoryHint": "Completed sessions will appear here",
+  "noOutput": "(walang output)",
+  "noTasks": "Walang Gawain",
+  "noTasksHint": "Ilagay ang mga kinakailangan sa disenyo sa chat panel; lalabas dito ang mga gawain.",
+  "ok": "OK",
+  "pluginMarket": "Plugin Marketplace",
+  "pluginMarketDesc": "Mag-browse at mag-install ng mga plugin",
+  "proxyHost": "Proxy Host",
+  "proxyPort": "Proxy Port",
+  "proxySettings": "Mga Setting ng Proxy",
+  "proxySettingsDesc": "I-configure ang network proxy",
+  "save": "I-save",
+  "saveSuccess": "Matagumpay na na-save",
+  "searchPlugins": "Maghanap ng mga plugin...",
+  "settings": "Mga Setting",
+  "tabChat": "Chat",
+  "tabHistory": "History",
+  "tabPlugins": "Mga Plugin",
+  "tabTasks": "Mga Gawain",
+  "targetSoftware": "Target na Software:",
+  "taskCompleted": "Tapos na ang gawain",
+  "taskFailed": "Nabigo ang gawain",
+  "taskList": "Listahan ng Gawain",
+  "tasksCount": "{count} tasks",
+  "uninstall": "I-uninstall",
+  "uninstallSuccess": "Na-uninstall ang {name}",
+  "unknownError": "Hindi kilalang error"
 }

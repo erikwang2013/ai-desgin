@@ -1,133 +1,137 @@
 {
   "@@locale": "ar",
-  "appTitle": "AI Design",
-  "designDomains": "مجالات التصميم",
-  "navigation": "التنقل",
-  "tabChat": "المحادثة",
-  "tabTasks": "المهام",
-  "tabPlugins": "الإضافات",
-  "settings": "الإعدادات",
-  "targetSoftware": "البرنامج المستهدف:",
-  "hintText": "صف عملية التصميم التي تريدها...",
-  "modelConfig": "إعدادات النموذج",
-  "modelConfigDesc": "إدارة نقطة نهاية API والمفاتيح",
-  "pluginMarket": "سوق الإضافات",
-  "pluginMarketDesc": "تصفح وتثبيت الإضافات",
-  "proxySettings": "إعدادات الوكيل",
-  "proxySettingsDesc": "تكوين وكيل الشبكة",
-  "about": "حول",
-  "aboutVersion": "AI Design v{version}",
   "@aboutVersion": {
     "placeholders": {
       "version": {}
     }
   },
-  "comingSoon": "قريباً",
-  "aboutDescription1": "أداة أتمتة برامج التصميم مدعومة بالذكاء الاصطناعي.",
-  "aboutDescription2": "تغطي 6 مجالات تصميم وأكثر من 62 برنامج تصميم مع إنشاء وتنفيذ النصوص بالذكاء الاصطناعي.",
-  "aboutPackageName": "اسم الحزمة: Ai Desgin",
-  "aboutDeveloper": "المطوّر: erik",
-  "installedPlugins": "الإضافات المثبتة",
-  "installPlugin": "تثبيت إضافة",
-  "connected": "متصل",
-  "disconnected": "غير متصل",
-  "all": "الكل",
-  "inProgress": "قيد التنفيذ",
-  "completed": "مكتمل",
-  "taskList": "قائمة المهام",
-  "noTasks": "لا توجد مهام",
-  "noTasksHint": "أدخل متطلبات التصميم في لوحة المحادثة؛ ستظهر المهام هنا.",
-  "installed": "مثبت ({count})",
-  "@installed": {
-    "placeholders": {
-      "count": {}
-    }
+  "@autoExecute": {
+    "description": "Localized label for autoExecute"
   },
-  "available": "متاح ({count})",
   "@available": {
     "placeholders": {
       "count": {}
     }
   },
-  "install": "تثبيت",
-  "uninstall": "إلغاء التثبيت",
-  "installSuccess": "تم تثبيت {name} بنجاح",
-  "@installSuccess": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "uninstallSuccess": "تم إلغاء تثبيت {name}",
-  "@uninstallSuccess": {
-    "placeholders": {
-      "name": {}
-    }
-  },
-  "ok": "موافق",
-  "errorPrefix": "خطأ",
-  "echoPrefix": "Echo",
-  "taskCompleted": "اكتملت المهمة",
-  "taskFailed": "فشلت المهمة",
-  "noOutput": "(لا يوجد مخرجات)",
-  "unknownError": "خطأ غير معروف",
-  "languageInstruction": "الرجاء الرد باللغة العربية.",
-  "language": "اللغة",
-  "apiEndpoint": "نقطة نهاية API",
-  "apiKey": "مفتاح API",
-  "defaultModel": "النموذج الافتراضي",
-  "save": "حفظ",
-  "proxyHost": "مضيف الوكيل",
-  "proxyPort": "منفذ الوكيل",
-  "saveSuccess": "تم الحفظ بنجاح",
-  "history": "السجل",
-  "searchPlugins": "ابحث عن الإضافات...",
-  "@searchPlugins": {
-    "description": "Localized label for searchPlugins"
-  },
-  "autoExecute": "تلقائي",
-  "@autoExecute": {
-    "description": "Localized label for autoExecute"
-  },
-  "manualExecute": "يدوي",
-  "@manualExecute": {
-    "description": "Localized label for manualExecute"
-  },
-  "copied": "تم النسخ",
-  "@copied": {
-    "description": "Localized label for copied"
-  },
-  "copy": "نسخ",
-  "@copy": {
-    "description": "Localized label for copy"
-  },
-  "close": "إغلاق",
-  "cancel": "إلغاء",
   "@cancel": {
     "description": "Localized label for cancel"
   },
   "@close": {
     "description": "Localized label for close"
   },
-  "tabHistory": "History",
-  "historyList": "History",
-  "noHistory": "No history",
-  "noHistoryHint": "Completed sessions will appear here",
-  "manage": "Manage",
-  "done": "Done",
-  "delete": "Delete",
-  "deleteAll": "Delete All",
-  "deleteSelected": "Delete Selected ({count})",
-  "deleteConfirm": "Delete this session?",
-  "deleteAllConfirm": "Delete all {count} sessions?",
-  "tasksCount": "{count} tasks",
+  "@copied": {
+    "description": "Localized label for copied"
+  },
+  "@copy": {
+    "description": "Localized label for copy"
+  },
+  "@installSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "@installed": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "@manualExecute": {
+    "description": "Localized label for manualExecute"
+  },
+  "@searchPlugins": {
+    "description": "Localized label for searchPlugins"
+  },
+  "@uninstallSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "about": "حول",
+  "aboutDescription1": "أداة أتمتة برامج التصميم مدعومة بالذكاء الاصطناعي.",
+  "aboutDescription2": "تغطي 6 مجالات تصميم وأكثر من 62 برنامج تصميم مع إنشاء وتنفيذ النصوص بالذكاء الاصطناعي.",
+  "aboutDeveloper": "المطوّر: erik",
+  "aboutPackageName": "اسم الحزمة: Ai Desgin",
+  "aboutVersion": "AI Design v{version}",
   "agentBackend": "Agent Backend",
   "agentBackendDesc": "Choose the agent CLI used to generate scripts",
+  "all": "الكل",
+  "apiEndpoint": "نقطة نهاية API",
+  "apiKey": "مفتاح API",
+  "appTitle": "AI Design",
+  "autoExecute": "تلقائي",
+  "available": "متاح ({count})",
   "backendClaude": "Claude Code",
   "backendCodex": "Codex",
   "backendGemini": "Gemini",
-  "claudeVersion": "Claude Code Version",
-  "installClaude": "Install Claude Code 2.1.143",
-  "installingClaude": "Installing...",
+  "backendHermes": "Hermes",
+  "backendOpenclaw": "OpenClaw",
+  "backendOpencode": "OpenCode",
+  "backendReasonix": "Reasonix",
+  "cancel": "إلغاء",
+  "claudeInstallFailed": "Install failed, check npm environment",
   "claudeUpToDate": "Up to date",
-  "claudeInstallFailed": "Install failed, check npm environment"
+  "claudeVersion": "Claude Code Version",
+  "close": "إغلاق",
+  "comingSoon": "قريباً",
+  "completed": "مكتمل",
+  "connected": "متصل",
+  "copied": "تم النسخ",
+  "copy": "نسخ",
+  "defaultModel": "النموذج الافتراضي",
+  "delete": "Delete",
+  "deleteAll": "Delete All",
+  "deleteAllConfirm": "Delete all {count} sessions?",
+  "deleteConfirm": "Delete this session?",
+  "deleteSelected": "Delete Selected ({count})",
+  "designDomains": "مجالات التصميم",
+  "disconnected": "غير متصل",
+  "done": "Done",
+  "echoPrefix": "Echo",
+  "errorPrefix": "خطأ",
+  "hintText": "صف عملية التصميم التي تريدها...",
+  "history": "السجل",
+  "historyList": "History",
+  "inProgress": "قيد التنفيذ",
+  "install": "تثبيت",
+  "installClaude": "Install Claude Code 2.1.143",
+  "installPlugin": "تثبيت إضافة",
+  "installSuccess": "تم تثبيت {name} بنجاح",
+  "installed": "مثبت ({count})",
+  "installedPlugins": "الإضافات المثبتة",
+  "installingClaude": "Installing...",
+  "language": "اللغة",
+  "languageInstruction": "الرجاء الرد باللغة العربية.",
+  "manage": "Manage",
+  "manualExecute": "يدوي",
+  "modelConfig": "إعدادات النموذج",
+  "modelConfigDesc": "إدارة نقطة نهاية API والمفاتيح",
+  "navigation": "التنقل",
+  "noHistory": "No history",
+  "noHistoryHint": "Completed sessions will appear here",
+  "noOutput": "(لا يوجد مخرجات)",
+  "noTasks": "لا توجد مهام",
+  "noTasksHint": "أدخل متطلبات التصميم في لوحة المحادثة؛ ستظهر المهام هنا.",
+  "ok": "موافق",
+  "pluginMarket": "سوق الإضافات",
+  "pluginMarketDesc": "تصفح وتثبيت الإضافات",
+  "proxyHost": "مضيف الوكيل",
+  "proxyPort": "منفذ الوكيل",
+  "proxySettings": "إعدادات الوكيل",
+  "proxySettingsDesc": "تكوين وكيل الشبكة",
+  "save": "حفظ",
+  "saveSuccess": "تم الحفظ بنجاح",
+  "searchPlugins": "ابحث عن الإضافات...",
+  "settings": "الإعدادات",
+  "tabChat": "المحادثة",
+  "tabHistory": "History",
+  "tabPlugins": "الإضافات",
+  "tabTasks": "المهام",
+  "targetSoftware": "البرنامج المستهدف:",
+  "taskCompleted": "اكتملت المهمة",
+  "taskFailed": "فشلت المهمة",
+  "taskList": "قائمة المهام",
+  "tasksCount": "{count} tasks",
+  "uninstall": "إلغاء التثبيت",
+  "uninstallSuccess": "تم إلغاء تثبيت {name}",
+  "unknownError": "خطأ غير معروف"
 }
