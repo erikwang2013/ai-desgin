@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -68,15 +68,15 @@ jobs:
           mkdir -p "release/$VERSION/Ai Desgin"
           cp -R build/linux/x64/release/bundle/* "release/$VERSION/Ai Desgin/"
           cd "release/$VERSION"
-          tar -czf "Ai Desgin-$VERSION.tar.gz" "Ai Desgin"
+          tar -czf "Ai Desgin-$VERSION-linux.tar.gz" "Ai Desgin"
           # .deb：dpkg-deb 零额外依赖；runner 自带 $ORIGIN/lib RUNPATH，库放 lib/ 子目录即可被 dlopen
           mkdir -p packaging/DEBIAN packaging/usr/bin packaging/usr/lib/ai-design-studio
           cp -R "Ai Desgin/." packaging/usr/lib/ai-design-studio/
           ln -s /usr/lib/ai-design-studio/ai_design_studio packaging/usr/bin/ai-design-studio
           printf 'Package: ai-design-studio\nVersion: %s\nSection: graphics\nPriority: optional\nArchitecture: amd64\nMaintainer: erik <erik.xyz>\nDescription: AI-driven design software automation tool\n' "$VERSION" > packaging/DEBIAN/control
-          dpkg-deb --build --root-owner-group packaging "Ai Desgin-$VERSION.deb"
+          dpkg-deb --build --root-owner-group packaging "Ai Desgin-$VERSION-linux.deb"
           # .tar.xz：xz 压缩
-          tar -cJf "Ai Desgin-$VERSION.tar.xz" "Ai Desgin"
+          tar -cJf "Ai Desgin-$VERSION-linux.tar.xz" "Ai Desgin"
           # AppImage：官方 appimagetool（--appimage-extract-and-run 免 FUSE）
           curl -sL https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -o /tmp/appimagetool
           chmod +x /tmp/appimagetool
@@ -86,7 +86,7 @@ jobs:
           chmod +x appimage/AppDir/AppRun
           printf '[Desktop Entry]\nName=AI Design Studio\nExec=ai_design_studio\nIcon=icon\nType=Application\nCategories=Graphics;\n' > appimage/AppDir/ai-design-studio.desktop
           python3 -c "import struct,zlib;c=lambda t,d:(lambda n:struct.pack('>I',len(d))+n+struct.pack('>I',zlib.crc32(n)&0xffffffff))(t+d);ihdr=struct.pack('>IIBBBBB',64,64,8,2,0,0,0);raw=b''.join(b'\x00'+b'\x2e\x7d\x32'*64 for _ in range(64));open('appimage/AppDir/icon.png','wb').write(b'\x89PNG\r\n\x1a\n'+c(b'IHDR',ihdr)+c(b'IDAT',zlib.compress(raw))+c(b'IEND',b''))"
-          /tmp/appimagetool --appimage-extract-and-run appimage/AppDir "Ai Desgin-$VERSION.AppImage"
+          /tmp/appimagetool --appimage-extract-and-run appimage/AppDir "Ai Desgin-$VERSION-linux.AppImage"
           # rpm：rpmbuild（apt 装 rpm 包）
           sudo apt-get update
           sudo apt-get install -y rpm
@@ -113,7 +113,7 @@ jobs:
           /usr/bin/ai-design-studio
           EOF
           rpmbuild -bb --define "_topdir $(pwd)/rpmbuild" rpmbuild/SPECS/ai-design-studio.spec
-          cp rpmbuild/RPMS/x86_64/ai-design-studio-$VERSION-1.x86_64.rpm "Ai Desgin-$VERSION.rpm"
+          cp rpmbuild/RPMS/x86_64/ai-design-studio-$VERSION-1.x86_64.rpm "Ai Desgin-$VERSION-linux.rpm"
 
       - name: Build & package Windows
         if: runner.os == 'Windows'
@@ -126,7 +126,7 @@ jobs:
           mkdir -p "release/$VERSION/Ai Desgin"
           cp -R build/windows/x64/runner/Release/* "release/$VERSION/Ai Desgin/"
           cd "release/$VERSION"
-          powershell -Command "Compress-Archive -Path 'Ai Desgin' -DestinationPath 'Ai Desgin-$VERSION.zip' -Force"
+          powershell -Command "Compress-Archive -Path 'Ai Desgin' -DestinationPath 'Ai Desgin-$VERSION-windows.zip' -Force"
 
       # macOS CI 有真机环境：嵌入 dylib + 修 install name + ad-hoc 签名
       # （Flutter 构建已自带 @executable_path/../Frameworks rpath，勿重复添加）
@@ -143,7 +143,7 @@ jobs:
           mkdir -p "release/$VERSION"
           cp -R "$APP" "release/$VERSION/Ai Desgin.app"
           cd "release/$VERSION"
-          zip -r "Ai Desgin-$VERSION.zip" "Ai Desgin.app"
+          zip -r "Ai Desgin-$VERSION-macos.zip" "Ai Desgin.app"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -157,3 +157,21 @@ jobs:
             release/**/*.AppImage
             release/**/*.zip
           if-no-files-found: error
+
+  release:
+    name: Publish GitHub Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ai-design-studio-*
+          merge-multiple: true
+          path: release-pkgs
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-pkgs/**
+          fail_on_unmatched_files: true

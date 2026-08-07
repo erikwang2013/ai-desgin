@@ -258,9 +258,9 @@ flutter run -d windows        # 或 -d macos / -d linux
 
 | 格式 | 安装方式 |
 |------|----------|
-| `.deb` | `sudo apt install ./Ai Desgin-<版本>.deb` |
-| `.rpm` | `sudo dnf install Ai Desgin-<版本>.rpm`（或 `sudo rpm -i`） |
-| `.AppImage` | `chmod +x Ai Desgin-<版本>.AppImage && ./Ai Desgin-<版本>.AppImage` |
+| `.deb` | `sudo apt install ./Ai Desgin-<版本>-linux.deb` |
+| `.rpm` | `sudo dnf install Ai Desgin-<版本>-linux.rpm`（或 `sudo rpm -i`） |
+| `.AppImage` | `chmod +x Ai Desgin-<版本>-linux.AppImage && ./Ai Desgin-<版本>-linux.AppImage` |
 | `.tar.gz` / `.tar.xz` | 解压后运行 `Ai Desgin/ai_design_studio` |
 
 **Windows**：解压 `.zip`，运行 `Ai Desgin\ai_design_studio.exe`。
@@ -288,9 +288,9 @@ flutter_rust_bridge_codegen generate
 
 | 平台 | 产物 |
 |------|------|
-| Linux | `Ai Desgin-<版本>.tar.gz` / `.tar.xz` / `.deb` / `.rpm` / `.AppImage`（均含 `libai_design_core.so`） |
-| Windows | `Ai Desgin-<版本>.zip`（含 `ai_design_core.dll`） |
-| macOS | `Ai Desgin-<版本>.zip`（.app 内嵌 `libai_design_core.dylib` + ad-hoc 签名） |
+| Linux | `Ai Desgin-<版本>-linux.tar.gz` / `.tar.xz` / `.deb` / `.rpm` / `.AppImage`（均含 `libai_design_core.so`） |
+| Windows | `Ai Desgin-<版本>-windows.zip`（含 `ai_design_core.dll`） |
+| macOS | `Ai Desgin-<版本>-macos.zip`（.app 内嵌 `libai_design_core.dylib` + ad-hoc 签名） |
 
 产物在 Actions 页面 Artifacts 中下载。Flutter 固定 3.44.2（匹配本机 Dart 3.12.2）。
 注意：Windows / macOS 首轮构建可能暴露 Linux 未验证过的平台差异（39 个插件 crate），

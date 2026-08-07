@@ -231,9 +231,9 @@ Rust environment needed.**
 
 | Format | Install |
 |--------|---------|
-| `.deb` | `sudo apt install ./Ai Desgin-<version>.deb` |
-| `.rpm` | `sudo dnf install Ai Desgin-<version>.rpm` (or `sudo rpm -i`) |
-| `.AppImage` | `chmod +x Ai Desgin-<version>.AppImage && ./Ai Desgin-<version>.AppImage` |
+| `.deb` | `sudo apt install ./Ai Desgin-<version>-linux.deb` |
+| `.rpm` | `sudo dnf install Ai Desgin-<version>-linux.rpm` (or `sudo rpm -i`) |
+| `.AppImage` | `chmod +x Ai Desgin-<version>-linux.AppImage && ./Ai Desgin-<version>-linux.AppImage` |
 | `.tar.gz` / `.tar.xz` | extract and run `Ai Desgin/ai_design_studio` |
 
 **Windows**: unzip the `.zip`, run `Ai Desgin\ai_design_studio.exe`.
@@ -264,9 +264,9 @@ macos runners and packages them automatically:
 
 | Platform | Artifact |
 |----------|----------|
-| Linux | `Ai Desgin-<version>.tar.gz` / `.tar.xz` / `.deb` / `.rpm` / `.AppImage` (all include `libai_design_core.so`) |
-| Windows | `Ai Desgin-<version>.zip` (includes `ai_design_core.dll`) |
-| macOS | `Ai Desgin-<version>.zip` (.app embeds `libai_design_core.dylib` + ad-hoc signed) |
+| Linux | `Ai Desgin-<version>-linux.tar.gz` / `.tar.xz` / `.deb` / `.rpm` / `.AppImage` (all include `libai_design_core.so`) |
+| Windows | `Ai Desgin-<version>-windows.zip` (includes `ai_design_core.dll`) |
+| macOS | `Ai Desgin-<version>-macos.zip` (.app embeds `libai_design_core.dylib` + ad-hoc signed) |
 
 Artifacts are downloadable from the Actions page. Flutter is pinned to 3.44.2
 (matches local Dart 3.12.2). Note: the first Windows / macOS builds may surface

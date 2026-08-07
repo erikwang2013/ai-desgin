@@ -21,8 +21,8 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     # 本机无 macOS 环境无法验证 rpath/签名。
     cp -R build/macos/Build/Products/Release/ai_design_studio.app "$RELEASE_DIR/Ai Desgin.app"
     cd "$RELEASE_DIR"
-    zip -r "Ai Desgin-$VERSION.zip" "Ai Desgin.app"
-    echo "macOS package: $RELEASE_DIR/Ai Desgin-$VERSION.zip"
+    zip -r "Ai Desgin-$VERSION-macos.zip" "Ai Desgin.app"
+    echo "macOS package: $RELEASE_DIR/Ai Desgin-$VERSION-macos.zip"
 
 elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
     echo "--- Creating Windows package ---"
@@ -32,8 +32,8 @@ elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
     mkdir -p "$RELEASE_DIR/Ai Desgin"
     cp -R build/windows/x64/runner/Release/* "$RELEASE_DIR/Ai Desgin/"
     cd "$RELEASE_DIR"
-    powershell Compress-Archive -Path "Ai Desgin" -DestinationPath "Ai Desgin-$VERSION.zip"
-    echo "Windows package: $RELEASE_DIR/Ai Desgin-$VERSION.zip"
+    powershell Compress-Archive -Path "Ai Desgin" -DestinationPath "Ai Desgin-$VERSION-windows.zip"
+    echo "Windows package: $RELEASE_DIR/Ai Desgin-$VERSION-windows.zip"
 
 else
     echo "--- Creating Linux package ---"
@@ -41,6 +41,6 @@ else
     mkdir -p "$RELEASE_DIR/Ai Desgin"
     cp -R build/linux/x64/release/bundle/* "$RELEASE_DIR/Ai Desgin/"
     cd "$RELEASE_DIR"
-    tar -czf "Ai Desgin-$VERSION.tar.gz" "Ai Desgin"
-    echo "Linux package: $RELEASE_DIR/Ai Desgin-$VERSION.tar.gz"
+    tar -czf "Ai Desgin-$VERSION-linux.tar.gz" "Ai Desgin"
+    echo "Linux package: $RELEASE_DIR/Ai Desgin-$VERSION-linux.tar.gz"
 fi
