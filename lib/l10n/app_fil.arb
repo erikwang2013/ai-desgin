@@ -25,6 +25,7 @@
   "comingSoon": "Malapit Na",
   "aboutDescription1": "Isang AI-driven na tool sa automation ng design software.",
   "aboutDescription2": "Sakop ang 6 na domain ng disenyo at 62+ pangunahing design software gamit ang AI script generation.",
+  "aboutPackageName": "Pangalan ng package: Ai Desgin",
   "aboutDeveloper": "Developer: erik",
   "installedPlugins": "Mga Naka-install na Plugin",
   "installPlugin": "Mag-install ng Plugin",
@@ -100,11 +101,11 @@
     "description": "Localized label for copy"
   },
   "close": "Isara",
-    "cancel": "Kanselahin",
+  "cancel": "Kanselahin",
   "@cancel": {
     "description": "Localized label for cancel"
   },
-"@close": {
+  "@close": {
     "description": "Localized label for close"
   }
 }

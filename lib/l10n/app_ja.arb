@@ -25,6 +25,7 @@
   "comingSoon": "近日公開",
   "aboutDescription1": "AI駆動のデザインソフトウェア自動化ツール。",
   "aboutDescription2": "6つのデザイン分野、62以上の主要デザインソフトウェアに対応するAIスクリプト生成と実行。",
+  "aboutPackageName": "パッケージ名：Ai Desgin",
   "aboutDeveloper": "開発者: erik",
   "installedPlugins": "インストール済みプラグイン",
   "installPlugin": "プラグインをインストール",
@@ -100,11 +101,11 @@
     "description": "Localized label for copy"
   },
   "close": "閉じる",
-    "cancel": "キャンセル",
+  "cancel": "キャンセル",
   "@cancel": {
     "description": "Localized label for cancel"
   },
-"@close": {
+  "@close": {
     "description": "Localized label for close"
   }
 }

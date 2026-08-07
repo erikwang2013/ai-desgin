@@ -73,6 +73,9 @@ class AppLocalizationsFa extends AppLocalizations {
       'پوشش 6 حوزه طراحی و بیش از 62 نرم‌افزار طراحی با تولید و اجرای اسکریپت هوش مصنوعی.';
 
   @override
+  String get aboutPackageName => 'نام بسته: Ai Desgin';
+
+  @override
   String get aboutDeveloper => 'توسعه‌دهنده: erik';
 
   @override

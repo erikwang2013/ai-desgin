@@ -25,6 +25,7 @@
   "comingSoon": "Demnächst",
   "aboutDescription1": "Ein KI-gesteuertes Automatisierungstool für Designsoftware.",
   "aboutDescription2": "Deckt 6 Designbereiche und über 62 Designprogramme mit KI-Skripterstellung ab.",
+  "aboutPackageName": "Paketname: Ai Desgin",
   "aboutDeveloper": "Entwickler: erik",
   "installedPlugins": "Installierte Plugins",
   "installPlugin": "Plugin installieren",
@@ -100,11 +101,11 @@
     "description": "Localized label for copy"
   },
   "close": "Schließen",
-    "cancel": "Abbrechen",
+  "cancel": "Abbrechen",
   "@cancel": {
     "description": "Localized label for cancel"
   },
-"@close": {
+  "@close": {
     "description": "Localized label for close"
   }
 }

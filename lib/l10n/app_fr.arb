@@ -25,6 +25,7 @@
   "comingSoon": "Bientôt disponible",
   "aboutDescription1": "Un outil d'automatisation de conception piloté par l'IA.",
   "aboutDescription2": "Couvre 6 domaines de conception et plus de 62 logiciels avec génération de scripts par IA.",
+  "aboutPackageName": "Nom du paquet : Ai Desgin",
   "aboutDeveloper": "Développeur : erik",
   "installedPlugins": "Plugins installés",
   "installPlugin": "Installer un plugin",
@@ -100,11 +101,11 @@
     "description": "Localized label for copy"
   },
   "close": "Fermer",
-    "cancel": "Annuler",
+  "cancel": "Annuler",
   "@cancel": {
     "description": "Localized label for cancel"
   },
-"@close": {
+  "@close": {
     "description": "Localized label for close"
   }
 }

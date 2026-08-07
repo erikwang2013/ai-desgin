@@ -25,6 +25,7 @@
   "comingSoon": "जल्द आ रहा है",
   "aboutDescription1": "एक AI-संचालित डिज़ाइन सॉफ़्टवेयर स्वचालन उपकरण।",
   "aboutDescription2": "6 डिज़ाइन क्षेत्रों और 62+ प्रमुख डिज़ाइन सॉफ़्टवेयर के लिए AI स्क्रिप्ट जनरेशन और निष्पादन।",
+  "aboutPackageName": "पैकेज का नाम: Ai Desgin",
   "aboutDeveloper": "डेवलपर: erik",
   "installedPlugins": "इंस्टॉल किए गए प्लगइन्स",
   "installPlugin": "प्लगइन इंस्टॉल करें",
@@ -100,11 +101,11 @@
     "description": "Localized label for copy"
   },
   "close": "बंद करें",
-    "cancel": "रद्द करें",
+  "cancel": "रद्द करें",
   "@cancel": {
     "description": "Localized label for cancel"
   },
-"@close": {
+  "@close": {
     "description": "Localized label for close"
   }
 }

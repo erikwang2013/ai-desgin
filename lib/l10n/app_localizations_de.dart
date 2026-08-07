@@ -73,6 +73,9 @@ class AppLocalizationsDe extends AppLocalizations {
       'Deckt 6 Designbereiche und über 62 Designprogramme mit KI-Skripterstellung ab.';
 
   @override
+  String get aboutPackageName => 'Paketname: Ai Desgin';
+
+  @override
   String get aboutDeveloper => 'Entwickler: erik';
 
   @override

@@ -25,6 +25,7 @@
   "comingSoon": "Próximamente",
   "aboutDescription1": "Una herramienta de automatización de diseño impulsada por IA.",
   "aboutDescription2": "Cubre 6 dominios de diseño y más de 62 software de diseño con generación de scripts por IA.",
+  "aboutPackageName": "Nombre del paquete: Ai Desgin",
   "aboutDeveloper": "Desarrollador: erik",
   "installedPlugins": "Plugins instalados",
   "installPlugin": "Instalar plugin",
@@ -100,11 +101,11 @@
     "description": "Localized label for copy"
   },
   "close": "Cerrar",
-    "cancel": "Cancelar",
+  "cancel": "Cancelar",
   "@cancel": {
     "description": "Localized label for cancel"
   },
-"@close": {
+  "@close": {
     "description": "Localized label for close"
   }
 }

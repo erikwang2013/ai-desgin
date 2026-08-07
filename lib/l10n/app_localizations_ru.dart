@@ -73,6 +73,9 @@ class AppLocalizationsRu extends AppLocalizations {
       'Охватывает 6 областей дизайна и 62+ программ для автоматизированной генерации скриптов.';
 
   @override
+  String get aboutPackageName => 'Имя пакета: Ai Desgin';
+
+  @override
   String get aboutDeveloper => 'Разработчик: erik';
 
   @override

@@ -19,28 +19,28 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     flutter build macos --release
     # TODO(真机验证): 将 libai_design_core.dylib 拷入 .app/Contents/Frameworks 并 codesign；
     # 本机无 macOS 环境无法验证 rpath/签名。
-    cp -R build/macos/Build/Products/Release/ai_design_studio.app "$RELEASE_DIR/"
+    cp -R build/macos/Build/Products/Release/ai_design_studio.app "$RELEASE_DIR/Ai Desgin.app"
     cd "$RELEASE_DIR"
-    zip -r "AI-Design-Studio-macOS-$VERSION.zip" ai_design_studio.app
-    echo "macOS package: $RELEASE_DIR/AI-Design-Studio-macOS-$VERSION.zip"
+    zip -r "Ai Desgin-$VERSION.zip" "Ai Desgin.app"
+    echo "macOS package: $RELEASE_DIR/Ai Desgin-$VERSION.zip"
 
 elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
     echo "--- Creating Windows package ---"
     flutter build windows --release
     # FFI 动态库拷入 runner 目录，RustLib.init() 从可执行目录 dlopen
     cp rust/target/release/ai_design_core.dll build/windows/x64/runner/Release/
-    mkdir -p "$RELEASE_DIR/AI-Design-Studio"
-    cp -R build/windows/x64/runner/Release/* "$RELEASE_DIR/AI-Design-Studio/"
+    mkdir -p "$RELEASE_DIR/Ai Desgin"
+    cp -R build/windows/x64/runner/Release/* "$RELEASE_DIR/Ai Desgin/"
     cd "$RELEASE_DIR"
-    powershell Compress-Archive -Path "AI-Design-Studio" -DestinationPath "AI-Design-Studio-Windows-$VERSION.zip"
-    echo "Windows package: $RELEASE_DIR/AI-Design-Studio-Windows-$VERSION.zip"
+    powershell Compress-Archive -Path "Ai Desgin" -DestinationPath "Ai Desgin-$VERSION.zip"
+    echo "Windows package: $RELEASE_DIR/Ai Desgin-$VERSION.zip"
 
 else
     echo "--- Creating Linux package ---"
     flutter build linux --release
-    mkdir -p "$RELEASE_DIR/AI-Design-Studio"
-    cp -R build/linux/x64/release/bundle/* "$RELEASE_DIR/AI-Design-Studio/"
+    mkdir -p "$RELEASE_DIR/Ai Desgin"
+    cp -R build/linux/x64/release/bundle/* "$RELEASE_DIR/Ai Desgin/"
     cd "$RELEASE_DIR"
-    tar -czf "AI-Design-Studio-Linux-$VERSION.tar.gz" AI-Design-Studio
-    echo "Linux package: $RELEASE_DIR/AI-Design-Studio-Linux-$VERSION.tar.gz"
+    tar -czf "Ai Desgin-$VERSION.tar.gz" "Ai Desgin"
+    echo "Linux package: $RELEASE_DIR/Ai Desgin-$VERSION.tar.gz"
 fi

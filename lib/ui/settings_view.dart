@@ -113,6 +113,8 @@ class SettingsView extends StatelessWidget {
             Text(l10n?.aboutDescription1 ?? 'An AI-driven design software automation tool.'),
             const SizedBox(height: 8),
             Text(l10n?.aboutDescription2 ?? 'Covers 6 design domains and 62+ mainstream design software with AI-driven script generation and execution.'),
+            const SizedBox(height: 8),
+            Text(l10n?.aboutPackageName ?? 'Package name: Ai Desgin'),
             const SizedBox(height: 12),
             InkWell(
               onTap: () =>

@@ -72,6 +72,9 @@ class AppLocalizationsKo extends AppLocalizations {
       '6개 디자인 분야와 62개 이상의 주요 디자인 소프트웨어를 위한 AI 스크립트 생성 및 실행.';
 
   @override
+  String get aboutPackageName => '패키지 이름: Ai Desgin';
+
+  @override
   String get aboutDeveloper => '개발자: erik';
 
   @override

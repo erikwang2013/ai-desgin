@@ -231,14 +231,14 @@ Rust environment needed.**
 
 | Format | Install |
 |--------|---------|
-| `.deb` | `sudo apt install ./AI-Design-Studio-Linux-<version>.deb` |
-| `.rpm` | `sudo dnf install AI-Design-Studio-Linux-<version>.rpm` (or `sudo rpm -i`) |
-| `.AppImage` | `chmod +x AI-Design-Studio-Linux-<version>.AppImage && ./AI-Design-Studio-Linux-<version>.AppImage` |
-| `.tar.gz` / `.tar.xz` | extract and run `AI-Design-Studio/ai_design_studio` |
+| `.deb` | `sudo apt install ./Ai Desgin-<version>.deb` |
+| `.rpm` | `sudo dnf install Ai Desgin-<version>.rpm` (or `sudo rpm -i`) |
+| `.AppImage` | `chmod +x Ai Desgin-<version>.AppImage && ./Ai Desgin-<version>.AppImage` |
+| `.tar.gz` / `.tar.xz` | extract and run `Ai Desgin/ai_design_studio` |
 
-**Windows**: unzip the `.zip`, run `AI-Design-Studio\ai_design_studio.exe`.
+**Windows**: unzip the `.zip`, run `Ai Desgin\ai_design_studio.exe`.
 
-**macOS**: unzip the `.zip`, drag `ai_design_studio.app` to Applications.
+**macOS**: unzip the `.zip`, drag `Ai Desgin.app` to Applications.
 If Gatekeeper blocks first launch: right-click → Open → Open.
 
 ### Rust Kernel Integration
@@ -264,9 +264,9 @@ macos runners and packages them automatically:
 
 | Platform | Artifact |
 |----------|----------|
-| Linux | `AI-Design-Studio-Linux-<version>.tar.gz` / `.tar.xz` / `.deb` / `.rpm` / `.AppImage` (all include `libai_design_core.so`) |
-| Windows | `AI-Design-Studio-Windows-<version>.zip` (includes `ai_design_core.dll`) |
-| macOS | `AI-Design-Studio-macOS-<version>.zip` (.app embeds `libai_design_core.dylib` + ad-hoc signed) |
+| Linux | `Ai Desgin-<version>.tar.gz` / `.tar.xz` / `.deb` / `.rpm` / `.AppImage` (all include `libai_design_core.so`) |
+| Windows | `Ai Desgin-<version>.zip` (includes `ai_design_core.dll`) |
+| macOS | `Ai Desgin-<version>.zip` (.app embeds `libai_design_core.dylib` + ad-hoc signed) |
 
 Artifacts are downloadable from the Actions page. Flutter is pinned to 3.44.2
 (matches local Dart 3.12.2). Note: the first Windows / macOS builds may surface

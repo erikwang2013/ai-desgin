@@ -72,6 +72,9 @@ class AppLocalizationsJa extends AppLocalizations {
       '6つのデザイン分野、62以上の主要デザインソフトウェアに対応するAIスクリプト生成と実行。';
 
   @override
+  String get aboutPackageName => 'パッケージ名：Ai Desgin';
+
+  @override
   String get aboutDeveloper => '開発者: erik';
 
   @override

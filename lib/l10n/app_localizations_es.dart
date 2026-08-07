@@ -73,6 +73,9 @@ class AppLocalizationsEs extends AppLocalizations {
       'Cubre 6 dominios de diseño y más de 62 software de diseño con generación de scripts por IA.';
 
   @override
+  String get aboutPackageName => 'Nombre del paquete: Ai Desgin';
+
+  @override
   String get aboutDeveloper => 'Desarrollador: erik';
 
   @override

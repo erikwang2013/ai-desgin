@@ -25,6 +25,7 @@
   "comingSoon": "به زودی",
   "aboutDescription1": "ابزار خودکارسازی نرم‌افزار طراحی مبتنی بر هوش مصنوعی.",
   "aboutDescription2": "پوشش 6 حوزه طراحی و بیش از 62 نرم‌افزار طراحی با تولید و اجرای اسکریپت هوش مصنوعی.",
+  "aboutPackageName": "نام بسته: Ai Desgin",
   "aboutDeveloper": "توسعه‌دهنده: erik",
   "installedPlugins": "افزونه‌های نصب شده",
   "installPlugin": "نصب افزونه",
@@ -100,11 +101,11 @@
     "description": "Localized label for copy"
   },
   "close": "بستن",
-    "cancel": "لغو",
+  "cancel": "لغو",
   "@cancel": {
     "description": "Localized label for cancel"
   },
-"@close": {
+  "@close": {
     "description": "Localized label for close"
   }
 }

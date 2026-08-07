@@ -73,6 +73,9 @@ class AppLocalizationsAr extends AppLocalizations {
       'تغطي 6 مجالات تصميم وأكثر من 62 برنامج تصميم مع إنشاء وتنفيذ النصوص بالذكاء الاصطناعي.';
 
   @override
+  String get aboutPackageName => 'اسم الحزمة: Ai Desgin';
+
+  @override
   String get aboutDeveloper => 'المطوّر: erik';
 
   @override

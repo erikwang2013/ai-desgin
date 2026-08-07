@@ -258,14 +258,14 @@ flutter run -d windows        # 或 -d macos / -d linux
 
 | 格式 | 安装方式 |
 |------|----------|
-| `.deb` | `sudo apt install ./AI-Design-Studio-Linux-<版本>.deb` |
-| `.rpm` | `sudo dnf install AI-Design-Studio-Linux-<版本>.rpm`（或 `sudo rpm -i`） |
-| `.AppImage` | `chmod +x AI-Design-Studio-Linux-<版本>.AppImage && ./AI-Design-Studio-Linux-<版本>.AppImage` |
-| `.tar.gz` / `.tar.xz` | 解压后运行 `AI-Design-Studio/ai_design_studio` |
+| `.deb` | `sudo apt install ./Ai Desgin-<版本>.deb` |
+| `.rpm` | `sudo dnf install Ai Desgin-<版本>.rpm`（或 `sudo rpm -i`） |
+| `.AppImage` | `chmod +x Ai Desgin-<版本>.AppImage && ./Ai Desgin-<版本>.AppImage` |
+| `.tar.gz` / `.tar.xz` | 解压后运行 `Ai Desgin/ai_design_studio` |
 
-**Windows**：解压 `.zip`，运行 `AI-Design-Studio\ai_design_studio.exe`。
+**Windows**：解压 `.zip`，运行 `Ai Desgin\ai_design_studio.exe`。
 
-**macOS**：解压 `.zip`，将 `ai_design_studio.app` 拖入「应用程序」。
+**macOS**：解压 `.zip`，将 `Ai Desgin.app` 拖入「应用程序」。
 首次打开若被 Gatekeeper 拦截：右键 → 打开 → 打开。
 
 ### Rust 内核集成
@@ -288,9 +288,9 @@ flutter_rust_bridge_codegen generate
 
 | 平台 | 产物 |
 |------|------|
-| Linux | `AI-Design-Studio-Linux-<版本>.tar.gz` / `.tar.xz` / `.deb` / `.rpm` / `.AppImage`（均含 `libai_design_core.so`） |
-| Windows | `AI-Design-Studio-Windows-<版本>.zip`（含 `ai_design_core.dll`） |
-| macOS | `AI-Design-Studio-macOS-<版本>.zip`（.app 内嵌 `libai_design_core.dylib` + ad-hoc 签名） |
+| Linux | `Ai Desgin-<版本>.tar.gz` / `.tar.xz` / `.deb` / `.rpm` / `.AppImage`（均含 `libai_design_core.so`） |
+| Windows | `Ai Desgin-<版本>.zip`（含 `ai_design_core.dll`） |
+| macOS | `Ai Desgin-<版本>.zip`（.app 内嵌 `libai_design_core.dylib` + ad-hoc 签名） |
 
 产物在 Actions 页面 Artifacts 中下载。Flutter 固定 3.44.2（匹配本机 Dart 3.12.2）。
 注意：Windows / macOS 首轮构建可能暴露 Linux 未验证过的平台差异（39 个插件 crate），

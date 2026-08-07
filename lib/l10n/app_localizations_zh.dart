@@ -65,10 +65,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get comingSoon => '即将推出';
 
   @override
-  String get aboutDescription1 => '一款 AI 驱动的设计软件自动化工具。';
+  String get aboutDescription1 =>
+      'AI Design是一个支持 Windows 和 macOS 的桌面应用，通过内置 Claude Code CLI 实现 AI 驱动的多模型调度，自动生成控制脚本并操作各类设计软件。';
 
   @override
-  String get aboutDescription2 => '覆盖 6 大设计领域、62 款主流设计软件的 AI 驱动脚本生成与执行。';
+  String get aboutDescription2 => '覆盖 六大设计领域：Web 设计、广告设计、工业设计、3D 设计、建筑设计、装修设计。';
+
+  @override
+  String get aboutPackageName => '应用包名称：Ai Desgin';
 
   @override
   String get aboutDeveloper => '开发者：erik';

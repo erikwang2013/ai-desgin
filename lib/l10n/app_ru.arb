@@ -25,6 +25,7 @@
   "comingSoon": "Скоро",
   "aboutDescription1": "Инструмент автоматизации дизайна на основе ИИ.",
   "aboutDescription2": "Охватывает 6 областей дизайна и 62+ программ для автоматизированной генерации скриптов.",
+  "aboutPackageName": "Имя пакета: Ai Desgin",
   "aboutDeveloper": "Разработчик: erik",
   "installedPlugins": "Установленные плагины",
   "installPlugin": "Установить плагин",
@@ -100,11 +101,11 @@
     "description": "Localized label for copy"
   },
   "close": "Закрыть",
-    "cancel": "Отмена",
+  "cancel": "Отмена",
   "@cancel": {
     "description": "Localized label for cancel"
   },
-"@close": {
+  "@close": {
     "description": "Localized label for close"
   }
 }
