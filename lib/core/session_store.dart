@@ -204,6 +204,17 @@ class SessionStore {
     });
   }
 
+  /// 单事务内批量删除，失败则全部回滚。
+  Future<void> deleteMany(List<String> sessionIds) async {
+    if (sessionIds.isEmpty) return;
+    await _db.transaction((txn) async {
+      for (final id in sessionIds) {
+        await txn.delete('task_records', where: 'session_id = ?', whereArgs: [id]);
+        await txn.delete('sessions', where: 'id = ?', whereArgs: [id]);
+      }
+    });
+  }
+
   String _escapeLike(String value) {
     return value.replaceAll('\\', '\\\\').replaceAll('%', '\\%').replaceAll('_', '\\_');
   }

@@ -208,4 +208,46 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get cancel => 'Отмена';
+
+  @override
+  String get tabHistory => 'History';
+
+  @override
+  String get historyList => 'History';
+
+  @override
+  String get noHistory => 'No history';
+
+  @override
+  String get noHistoryHint => 'Completed sessions will appear here';
+
+  @override
+  String get manage => 'Manage';
+
+  @override
+  String get done => 'Done';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get deleteAll => 'Delete All';
+
+  @override
+  String deleteSelected(Object count) {
+    return 'Delete Selected ($count)';
+  }
+
+  @override
+  String get deleteConfirm => 'Delete this session?';
+
+  @override
+  String deleteAllConfirm(Object count) {
+    return 'Delete all $count sessions?';
+  }
+
+  @override
+  String tasksCount(Object count) {
+    return '$count tasks';
+  }
 }

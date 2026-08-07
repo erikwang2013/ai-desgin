@@ -102,11 +102,23 @@
     "description": "Localized label for copy"
   },
   "close": "Close",
-    "cancel": "Cancel",
+  "cancel": "Cancel",
   "@cancel": {
     "description": "Localized label for cancel"
   },
-"@close": {
+  "@close": {
     "description": "Localized label for close"
-  }
+  },
+  "tabHistory": "History",
+  "historyList": "History",
+  "noHistory": "No history",
+  "noHistoryHint": "Completed sessions will appear here",
+  "manage": "Manage",
+  "done": "Done",
+  "delete": "Delete",
+  "deleteAll": "Delete All",
+  "deleteSelected": "Delete Selected ({count})",
+  "deleteConfirm": "Delete this session?",
+  "deleteAllConfirm": "Delete all {count} sessions?",
+  "tasksCount": "{count} tasks"
 }

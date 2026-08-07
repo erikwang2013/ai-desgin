@@ -102,11 +102,23 @@
     "description": "Localized label for copy"
   },
   "close": "关闭",
-    "cancel": "取消",
+  "cancel": "取消",
   "@cancel": {
     "description": "Localized label for cancel"
   },
-"@close": {
+  "@close": {
     "description": "Localized label for close"
-  }
+  },
+  "tabHistory": "历史",
+  "historyList": "历史会话",
+  "noHistory": "暂无历史会话",
+  "noHistoryHint": "完成任务后会话将显示在这里",
+  "manage": "管理",
+  "done": "完成",
+  "delete": "删除",
+  "deleteAll": "全部删除",
+  "deleteSelected": "删除所选 ({count})",
+  "deleteConfirm": "确定删除该会话？",
+  "deleteAllConfirm": "确定删除全部 {count} 个会话？",
+  "tasksCount": "{count} 个任务"
 }

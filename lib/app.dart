@@ -18,6 +18,7 @@ import 'core/locale_provider.dart';
 import 'ui/shell.dart';
 import 'ui/chat_view.dart';
 import 'ui/task_dashboard.dart';
+import 'ui/history_view.dart';
 import 'ui/software_panel.dart';
 import 'ui/settings_view.dart';
 
@@ -83,6 +84,7 @@ class _MainShellState extends State<_MainShell> {
   CCProcessManager? _ccManager;
   SessionStore? _sessionStore;
   final _dashboardKey = GlobalKey<TaskDashboardState>();
+  final _historyKey = GlobalKey<HistoryViewState>();
   final Map<String, bool> _connectionStatus = {};
   final Map<DesignCategory, String> _lastSoftwarePerDomain = {};
   final Map<DesignCategory, List<SoftwareOption>> _cachedOptions = {};
@@ -281,7 +283,10 @@ class _MainShellState extends State<_MainShell> {
 
     final session = _orchestrator.getCurrentSession(sw);
     if (session != null && _sessionStore != null) {
-      try { await _sessionStore!.save(session); } catch (_) {}
+      try {
+        await _sessionStore!.save(session);
+        _historyKey.currentState?.reload();
+      } catch (_) {}
     }
 
     if (!mounted) return '';
@@ -344,6 +349,11 @@ class _MainShellState extends State<_MainShell> {
             key: _dashboardKey,
             sessionStore: _sessionStore,
             onCancel: _ready ? _cancelAndPersist : null,
+            resolveSoftwareName: (id) => _pluginManager.get(id)?.name ?? id,
+          ),
+          HistoryView(
+            key: _historyKey,
+            sessionStore: _sessionStore,
             resolveSoftwareName: (id) => _pluginManager.get(id)?.name ?? id,
           ),
           SoftwarePanel(

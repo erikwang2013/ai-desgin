@@ -207,4 +207,46 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get cancel => '取消';
+
+  @override
+  String get tabHistory => '历史';
+
+  @override
+  String get historyList => '历史会话';
+
+  @override
+  String get noHistory => '暂无历史会话';
+
+  @override
+  String get noHistoryHint => '完成任务后会话将显示在这里';
+
+  @override
+  String get manage => '管理';
+
+  @override
+  String get done => '完成';
+
+  @override
+  String get delete => '删除';
+
+  @override
+  String get deleteAll => '全部删除';
+
+  @override
+  String deleteSelected(Object count) {
+    return '删除所选 ($count)';
+  }
+
+  @override
+  String get deleteConfirm => '确定删除该会话？';
+
+  @override
+  String deleteAllConfirm(Object count) {
+    return '确定删除全部 $count 个会话？';
+  }
+
+  @override
+  String tasksCount(Object count) {
+    return '$count 个任务';
+  }
 }
