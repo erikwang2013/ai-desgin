@@ -120,5 +120,15 @@
   "deleteSelected": "删除所选 ({count})",
   "deleteConfirm": "确定删除该会话？",
   "deleteAllConfirm": "确定删除全部 {count} 个会话？",
-  "tasksCount": "{count} 个任务"
+  "tasksCount": "{count} 个任务",
+  "agentBackend": "Agent 后端",
+  "agentBackendDesc": "选择用于生成脚本的 Agent CLI",
+  "backendClaude": "Claude Code",
+  "backendCodex": "Codex",
+  "backendGemini": "Gemini",
+  "claudeVersion": "Claude Code 版本",
+  "installClaude": "安装 Claude Code 2.1.143",
+  "installingClaude": "正在安装…",
+  "claudeUpToDate": "已是最新版本",
+  "claudeInstallFailed": "安装失败，请检查 npm 环境"
 }

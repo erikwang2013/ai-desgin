@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:logging/logging.dart';
 import 'package:uuid/uuid.dart';
 import '../models/software_capabilities.dart';
+import 'agent_backend.dart';
 import 'cc_runner.dart';
 
 final _log = Logger('CCProcessManager');
@@ -34,7 +35,7 @@ class CCProcessManager {
   final Map<String, CCSession> _sessions = {};
   final Map<String, List<String>> _taskKeysBySession = {};
   Timer? _evictionTimer;
-  CCRunner? _runner;
+  AgentBackend? _runner;
 
   CCProcessManager({this.maxProcesses = 3, this.idleTimeoutSeconds = 300});
 
@@ -131,7 +132,7 @@ class CCProcessManager {
     required String sessionId,
     required String task,
     required String model,
-    CCRunner? runner,
+    AgentBackend? runner,
     String? scriptLanguage,
     String? taskKey,
   }) async {

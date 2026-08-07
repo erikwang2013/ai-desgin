@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'agent_backend.dart';
 import 'plugin_manager.dart';
 import 'cc_process_manager.dart';
 import 'cc_runner.dart';
@@ -28,7 +29,7 @@ class TaskOrchestrator {
   final PluginManager _pluginManager;
   final CCProcessManager _ccManager;
   final ModelRouter _modelRouter;
-  final CCRunner _ccRunner;
+  AgentBackend backend;
   final int maxConcurrent;
   final int maxQueueSize;
 
@@ -43,13 +44,13 @@ class TaskOrchestrator {
     required PluginManager pluginManager,
     required CCProcessManager ccManager,
     required ModelRouter modelRouter,
-    CCRunner? ccRunner,
+    AgentBackend? backend,
     this.maxConcurrent = 3,
     this.maxQueueSize = 100,
   })  : _pluginManager = pluginManager,
         _ccManager = ccManager,
         _modelRouter = modelRouter,
-        _ccRunner = ccRunner ?? CCRunner();
+        backend = backend ?? CCRunner();
 
   Future<TaskRecord> submitTask({
     required DesignCategory domain,
@@ -92,13 +93,21 @@ class TaskOrchestrator {
     _tasks[record.id] = record;
 
     try {
-      final model = _modelRouter.route(domain: domain, task: task, overrideModel: overrideModel);
+      final isClaude = backend.id == 'claude';
+      final model = isClaude
+          ? _modelRouter.route(domain: domain, task: task, overrideModel: overrideModel)
+          : null;
       final state = await plugin.getCurrentState();
-      final ccSession = _ccManager.createSession(software: softwareName, capabilities: plugin.capabilities, state: state);
+      String? ccSessionId;
+      if (isClaude) {
+        ccSessionId = _ccManager
+            .createSession(software: softwareName, capabilities: plugin.capabilities, state: state)
+            .id;
+      }
 
       // 生成失败（API 报错、无脚本、会话失效）时不得把任务描述当脚本执行。
       TaskRecord failGenerated(String error) {
-        _ccManager.closeSession(ccSession.id);
+        if (ccSessionId != null) _ccManager.closeSession(ccSessionId);
         if (_tasks[record.id]?.status == TaskStatus.cancelled) {
           return _tasks[record.id]!;
         }
@@ -112,28 +121,46 @@ class TaskOrchestrator {
       }
 
       String generatedScript = task;
-      if (await _ccRunner.isAvailable()) {
+      if (await backend.isAvailable()) {
         try {
-          final generated = await _ccManager.executeWithClaude(
-            sessionId: ccSession.id, task: task, model: model,
-            runner: _ccRunner, scriptLanguage: plugin.scriptLanguage,
-            taskKey: record.id,
-          );
-          if (generated['success'] == false || generated['script'] == null) {
-            return failGenerated(
-              (generated['error'] as String?) ?? 'Claude Code failed to generate a script',
+          if (isClaude) {
+            final generated = await _ccManager.executeWithClaude(
+              sessionId: ccSessionId!, task: task, model: model!,
+              runner: backend, scriptLanguage: plugin.scriptLanguage,
+              taskKey: record.id,
             );
+            if (generated['success'] == false || generated['script'] == null) {
+              return failGenerated(
+                (generated['error'] as String?) ?? 'Claude Code failed to generate a script',
+              );
+            }
+            generatedScript = generated['script'] as String;
+          } else {
+            final generated = await backend.execute(
+              task: task,
+              software: softwareName,
+              capabilities: plugin.capabilities.toJson(),
+              state: state.toJson(),
+              model: model,
+              scriptLanguage: plugin.scriptLanguage,
+              key: record.id,
+            );
+            if (!generated.success || generated.script == null) {
+              return failGenerated(
+                generated.error ?? '${backend.displayName} failed to generate a script',
+              );
+            }
+            generatedScript = generated.script!;
           }
-          generatedScript = generated['script'] as String;
         } catch (_) {
-          return failGenerated('Claude Code execution failed');
+          return failGenerated('${backend.displayName} execution failed');
         }
       }
 
-      // A cancel during Claude generation kills the CLI process; do not
-      // run the local script for a task the user already cancelled.
+      // A cancel during generation kills the CLI process; do not run the
+      // local script for a task the user already cancelled.
       if (_tasks[record.id]?.status == TaskStatus.cancelled) {
-        _ccManager.closeSession(ccSession.id);
+        if (ccSessionId != null) _ccManager.closeSession(ccSessionId);
         return _tasks[record.id]!;
       }
 
@@ -142,7 +169,7 @@ class TaskOrchestrator {
         result = await plugin.execute(generatedScript);
       } finally {
         // 本地脚本异常退出时也关闭 CC 会话，避免泄漏到空闲驱逐。
-        _ccManager.closeSession(ccSession.id);
+        if (ccSessionId != null) _ccManager.closeSession(ccSessionId);
       }
 
       // A cancel during local execution must not overwrite the cancelled
@@ -169,7 +196,7 @@ class TaskOrchestrator {
       _tasks[record.id] = updated;
 
       _getOrCreateSession(domain, softwareName).addRecord(
-        task: task, script: scriptContent, scriptLanguage: plugin.scriptLanguage, modelUsed: model,
+        task: task, script: scriptContent, scriptLanguage: plugin.scriptLanguage, modelUsed: model ?? '',
         status: result.success ? TaskStatus.completed : TaskStatus.failed,
       );
 
@@ -230,7 +257,7 @@ class TaskOrchestrator {
     }
 
     if (task.status == TaskStatus.running) {
-      _ccRunner.cancel(key: taskId);
+      backend.cancel(key: taskId);
     }
     _tasks[taskId] = cancelled;
     _recordCancelledInSession(task);

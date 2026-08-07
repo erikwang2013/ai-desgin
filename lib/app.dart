@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:path_provider/path_provider.dart';
 import 'l10n/app_localizations.dart';
 import 'models/session.dart';
 import 'models/task_record.dart';
 import 'core/plugin_manager.dart';
 import 'core/cc_process_manager.dart';
 import 'core/cc_runner.dart';
+import 'core/codex_backend.dart';
+import 'core/gemini_backend.dart';
 import 'core/model_router.dart';
 import 'core/task_orchestrator.dart';
 import 'core/session_store.dart';
+import 'core/db_opener.dart';
 import 'core/builtin_plugins.dart';
 import 'core/local_script_executor.dart';
 import 'core/locale_provider.dart';
@@ -89,6 +90,8 @@ class _MainShellState extends State<_MainShell> {
   final Map<DesignCategory, String> _lastSoftwarePerDomain = {};
   final Map<DesignCategory, List<SoftwareOption>> _cachedOptions = {};
   final Map<DesignCategory, String> _cachedOptionsSignature = {};
+  String? _openaiKey;
+  String? _geminiKey;
   bool _ready = false;
 
   @override
@@ -171,22 +174,30 @@ class _MainShellState extends State<_MainShell> {
       // Saved settings are optional; defaults apply otherwise
     }
     CCRunner.responseLanguage = widget.localeProvider.languageInstruction;
+    String backendId = 'claude';
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      backendId = prefs.getString('agent_backend') ?? 'claude';
+      _openaiKey = prefs.getString('openai_api_key');
+      _geminiKey = prefs.getString('gemini_api_key');
+    } catch (_) {
+      // Defaults to Claude
+    }
+    final backend = switch (backendId) {
+      'codex' => CodexBackend(apiKey: _openaiKey),
+      'gemini' => GeminiBackend(apiKey: _geminiKey),
+      _ => ccRunner,
+    };
     _orchestrator = TaskOrchestrator(
       pluginManager: _pluginManager,
       ccManager: ccManager,
       modelRouter: modelRouter,
-      ccRunner: ccRunner,
+      backend: backend,
     );
 
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final db = await openDatabase(
-        '${dir.path}/sessions.db',
-        version: 1,
-        onCreate: SessionStore.onCreate,
-        onUpgrade: SessionStore.onUpgrade,
-      );
-      _sessionStore = SessionStore(db);
+      final db = await openEncryptedSessionDb();
+      if (db != null) _sessionStore = SessionStore(db);
     } catch (_) {
       // Non-critical; app works without persistence
     }
@@ -221,6 +232,18 @@ class _MainShellState extends State<_MainShell> {
   }
 
   void _onTabSelected(int tab) => setState(() => _currentTab = tab);
+
+  /// 切换 Agent 后端：立即生效并持久化，重启后保持。
+  void _onBackendChanged(String id) {
+    _orchestrator.backend = switch (id) {
+      'codex' => CodexBackend(apiKey: _openaiKey),
+      'gemini' => GeminiBackend(apiKey: _geminiKey),
+      _ => CCRunner(),
+    };
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.setString('agent_backend', id);
+    }).catchError((_) {});
+  }
   void _onDomainChanged(DesignCategory domain) {
     final remembered = _lastSoftwarePerDomain[domain];
     final domainPlugins = _pluginManager.getByCategory(domain);
@@ -335,6 +358,8 @@ class _MainShellState extends State<_MainShell> {
       pluginManager: _pluginManager,
       localeProvider: widget.localeProvider,
       modelRouter: _ready ? _orchestrator.modelRouter : null,
+      currentBackendId: _ready ? _orchestrator.backend.id : null,
+      onBackendChanged: _ready ? _onBackendChanged : null,
       child: IndexedStack(
         index: _currentTab,
         children: [

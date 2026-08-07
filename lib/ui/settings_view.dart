@@ -7,14 +7,24 @@ import '../core/plugin_manager.dart';
 import '../core/model_router.dart';
 import '../core/locale_provider.dart';
 import '../core/cc_runner.dart';
+import 'agent_backend_view.dart';
 import 'plugin_marketplace.dart';
 
 class SettingsView extends StatelessWidget {
   final PluginManager? pluginManager;
   final LocaleProvider? localeProvider;
   final ModelRouter? modelRouter;
+  final String? currentBackendId;
+  final ValueChanged<String>? onBackendChanged;
 
-  const SettingsView({super.key, this.pluginManager, this.localeProvider, this.modelRouter});
+  const SettingsView({
+    super.key,
+    this.pluginManager,
+    this.localeProvider,
+    this.modelRouter,
+    this.currentBackendId,
+    this.onBackendChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +40,20 @@ class SettingsView extends StatelessWidget {
                     localeProvider?.locale.languageCode ?? 'zh'] ??
                 '中文'),
             onTap: () => _showLanguagePicker(context),
+          ),
+          ListTile(
+            leading: const Icon(Icons.smart_toy_outlined),
+            title: Text(l10n?.agentBackend ?? 'Agent Backend'),
+            subtitle: Text(l10n?.agentBackendDesc ?? 'Choose the agent CLI used to generate scripts'),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => AgentBackendView(
+                  currentBackendId: currentBackendId,
+                  onBackendChanged: onBackendChanged,
+                ),
+              ),
+            ),
           ),
           ListTile(
             leading: const Icon(Icons.api),

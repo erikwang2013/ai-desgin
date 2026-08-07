@@ -251,4 +251,35 @@ class AppLocalizationsAr extends AppLocalizations {
   String tasksCount(Object count) {
     return '$count tasks';
   }
+
+  @override
+  String get agentBackend => 'Agent Backend';
+
+  @override
+  String get agentBackendDesc =>
+      'Choose the agent CLI used to generate scripts';
+
+  @override
+  String get backendClaude => 'Claude Code';
+
+  @override
+  String get backendCodex => 'Codex';
+
+  @override
+  String get backendGemini => 'Gemini';
+
+  @override
+  String get claudeVersion => 'Claude Code Version';
+
+  @override
+  String get installClaude => 'Install Claude Code 2.1.143';
+
+  @override
+  String get installingClaude => 'Installing...';
+
+  @override
+  String get claudeUpToDate => 'Up to date';
+
+  @override
+  String get claudeInstallFailed => 'Install failed, check npm environment';
 }

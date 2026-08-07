@@ -140,7 +140,7 @@ void main() {
       pluginManager: pluginManager,
       ccManager: ccManager,
       modelRouter: modelRouter,
-      ccRunner: FakeCCRunner(),
+      backend: FakeCCRunner(),
       maxConcurrent: 2,
     );
   });
@@ -171,7 +171,7 @@ void main() {
       pluginManager: pluginManager,
       ccManager: ccManager,
       modelRouter: modelRouter,
-      ccRunner: FakeCCRunner(),
+      backend: FakeCCRunner(),
       maxConcurrent: 1,
     );
     final t1 = tight.submitTask(domain: DesignCategory.web, softwareName: 'gated', task: 'first');
@@ -234,7 +234,7 @@ void main() {
       pluginManager: pluginManager,
       ccManager: ccManager,
       modelRouter: modelRouter,
-      ccRunner: runner,
+      backend: runner,
       maxConcurrent: 1,
     );
     final future = orch.submitTask(domain: DesignCategory.web, softwareName: 'echo', task: 'slow');
@@ -255,7 +255,7 @@ void main() {
       pluginManager: pluginManager,
       ccManager: ccManager,
       modelRouter: modelRouter,
-      ccRunner: FailingGeneratorRunner(),
+      backend: FailingGeneratorRunner(),
       maxConcurrent: 1,
     );
     final result = await orch.submitTask(
@@ -294,7 +294,7 @@ void main() {
       pluginManager: pluginManager,
       ccManager: ccManager,
       modelRouter: modelRouter,
-      ccRunner: FakeCCRunner(),
+      backend: FakeCCRunner(),
       maxConcurrent: 1,
       maxQueueSize: 0,
     );

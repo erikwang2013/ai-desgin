@@ -119,5 +119,15 @@
   "deleteSelected": "Delete Selected ({count})",
   "deleteConfirm": "Delete this session?",
   "deleteAllConfirm": "Delete all {count} sessions?",
-  "tasksCount": "{count} tasks"
+  "tasksCount": "{count} tasks",
+  "agentBackend": "Agent Backend",
+  "agentBackendDesc": "Choose the agent CLI used to generate scripts",
+  "backendClaude": "Claude Code",
+  "backendCodex": "Codex",
+  "backendGemini": "Gemini",
+  "claudeVersion": "Claude Code Version",
+  "installClaude": "Install Claude Code 2.1.143",
+  "installingClaude": "Installing...",
+  "claudeUpToDate": "Up to date",
+  "claudeInstallFailed": "Install failed, check npm environment"
 }

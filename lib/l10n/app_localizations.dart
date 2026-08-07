@@ -567,6 +567,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} tasks'**
   String tasksCount(Object count);
+
+  /// No description provided for @agentBackend.
+  ///
+  /// In en, this message translates to:
+  /// **'Agent Backend'**
+  String get agentBackend;
+
+  /// No description provided for @agentBackendDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the agent CLI used to generate scripts'**
+  String get agentBackendDesc;
+
+  /// No description provided for @backendClaude.
+  ///
+  /// In en, this message translates to:
+  /// **'Claude Code'**
+  String get backendClaude;
+
+  /// No description provided for @backendCodex.
+  ///
+  /// In en, this message translates to:
+  /// **'Codex'**
+  String get backendCodex;
+
+  /// No description provided for @backendGemini.
+  ///
+  /// In en, this message translates to:
+  /// **'Gemini'**
+  String get backendGemini;
+
+  /// No description provided for @claudeVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Claude Code Version'**
+  String get claudeVersion;
+
+  /// No description provided for @installClaude.
+  ///
+  /// In en, this message translates to:
+  /// **'Install Claude Code 2.1.143'**
+  String get installClaude;
+
+  /// No description provided for @installingClaude.
+  ///
+  /// In en, this message translates to:
+  /// **'Installing...'**
+  String get installingClaude;
+
+  /// No description provided for @claudeUpToDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to date'**
+  String get claudeUpToDate;
+
+  /// No description provided for @claudeInstallFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Install failed, check npm environment'**
+  String get claudeInstallFailed;
 }
 
 class _AppLocalizationsDelegate

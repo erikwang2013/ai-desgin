@@ -249,4 +249,34 @@ class AppLocalizationsZh extends AppLocalizations {
   String tasksCount(Object count) {
     return '$count 个任务';
   }
+
+  @override
+  String get agentBackend => 'Agent 后端';
+
+  @override
+  String get agentBackendDesc => '选择用于生成脚本的 Agent CLI';
+
+  @override
+  String get backendClaude => 'Claude Code';
+
+  @override
+  String get backendCodex => 'Codex';
+
+  @override
+  String get backendGemini => 'Gemini';
+
+  @override
+  String get claudeVersion => 'Claude Code 版本';
+
+  @override
+  String get installClaude => '安装 Claude Code 2.1.143';
+
+  @override
+  String get installingClaude => '正在安装…';
+
+  @override
+  String get claudeUpToDate => '已是最新版本';
+
+  @override
+  String get claudeInstallFailed => '安装失败，请检查 npm 环境';
 }

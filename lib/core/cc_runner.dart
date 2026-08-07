@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
+import 'agent_backend.dart';
+import 'text_codec.dart';
 
 final _log = Logger('CCRunner');
 
@@ -39,7 +41,10 @@ class CCResult {
   }
 }
 
-class CCRunner {
+class CCRunner implements AgentBackend {
+  /// 内置 Claude Code 固定版本（npm 安装目标）。
+  static const pinnedClaudeVersion = '2.1.143';
+
   /// Proxy env vars (e.g. HTTP_PROXY/HTTPS_PROXY) applied to CLI subprocesses.
   static Map<String, String>? proxyEnvironment;
 
@@ -64,7 +69,48 @@ class CCRunner {
 
   String get _cliPath => claudeCliPath ?? 'claude';
 
+  @override
+  String get id => 'claude';
+
+  @override
+  String get displayName => 'Claude Code';
+
+  @override
+  String? get defaultModel => null;
+
+  /// 已安装 Claude Code 的版本（取前三个点分数字段），未安装返回 null。
+  static Future<String?> installedVersion() async {
+    try {
+      final result = await Process.run(
+        'claude',
+        ['--version'],
+      ).timeout(const Duration(seconds: 10));
+      if (result.exitCode != 0) return null;
+      final match = RegExp(r'(\d+)\.(\d+)\.(\d+)')
+          .firstMatch((result.stdout as String).trim());
+      if (match == null) return null;
+      return '${match.group(1)}.${match.group(2)}.${match.group(3)}';
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// 通过 npm 全局安装固定版本 Claude Code。
+  static Future<bool> installPinnedVersion() async {
+    try {
+      final result = await Process.run(
+        'npm',
+        ['install', '-g', '@anthropic-ai/claude-code@$pinnedClaudeVersion'],
+        runInShell: Platform.isWindows,
+      ).timeout(const Duration(minutes: 10));
+      return result.exitCode == 0;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Kill the process for [key]; without a key, kill all tracked processes.
+  @override
   void cancel({String? key}) {
     if (key != null) {
       _processes.remove(key)?.kill();
@@ -77,6 +123,7 @@ class CCRunner {
   }
 
   /// Check if Claude Code CLI is available (cached for 60s)
+  @override
   Future<bool> isAvailable() async {
     if (_cachedAvailable != null && _lastAvailabilityCheck != null) {
       if (DateTime.now().difference(_lastAvailabilityCheck!) < _availabilityCacheTtl) {
@@ -102,6 +149,7 @@ class CCRunner {
 
   /// Send a design task to Claude Code and get back a generated script.
   /// [key] identifies the task so it can be cancelled independently.
+  @override
   Future<CCResult> execute({
     required String task,
     required String software,
@@ -137,10 +185,11 @@ class CCRunner {
       _processes[taskKey] = process;
 
       // 启动即并发消费 stdout/stderr，避免子进程边读边写时 64KB 管道死锁。
-      // Windows 控制台可能输出 GBK 等非 UTF-8 文本，宽容解码避免抛异常。
-      const lenient = Utf8Decoder(allowMalformed: true);
-      final stdoutFuture = process.stdout.transform(lenient).join();
-      final stderrFuture = process.stderr.transform(lenient).join();
+      // Windows 控制台可能输出 GBK 等非 UTF-8 文本，缓冲字节后按编码解码。
+      final stdoutFuture =
+          process.stdout.fold<List<int>>(<int>[], (acc, chunk) => acc..addAll(chunk));
+      final stderrFuture =
+          process.stderr.fold<List<int>>(<int>[], (acc, chunk) => acc..addAll(chunk));
       process.stdin.write(prompt);
       await process.stdin.flush();
       await process.stdin.close();
@@ -148,8 +197,8 @@ class CCRunner {
       final exitCode = await process.exitCode.timeout(timeout);
       final results = await Future.wait([stdoutFuture, stderrFuture]).timeout(timeout);
       _processes.remove(taskKey);
-      final output = results[0];
-      final errors = results[1];
+      final output = decodeConsoleOutput(results[0]);
+      final errors = decodeConsoleOutput(results[1]);
 
       // 非零退出（API key 错误、崩溃）时 stdout 里的文本不是生成脚本。
       if (exitCode != 0) {
