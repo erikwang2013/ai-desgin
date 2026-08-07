@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import '../models/plugin.dart';
+import 'text_codec.dart';
 
 /// CLI 可执行命令映射：这些软件支持命令行执行生成的脚本。
 /// 切片器（Cura/PrusaSlicer 等）的 CLI 只接受模型文件或 key=value 设置，
@@ -73,13 +73,14 @@ class LocalScriptExecutor {
         runInShell: Platform.isWindows,
       );
       // 启动即并发消费 stdout/stderr，超时 kill 后管道随即关闭。
-      // Windows 下 Blender 等软件可能输出 GBK 等非 UTF-8 文本，宽容解码避免抛异常。
-      const lenient = Utf8Decoder(allowMalformed: true);
-      final stdoutFuture = process.stdout.transform(lenient).join();
-      final stderrFuture = process.stderr.transform(lenient).join();
+      // Windows 下 Blender 等软件可能输出 GBK 等非 UTF-8 文本，缓冲字节后按编码解码。
+      final stdoutFuture =
+          process.stdout.fold<List<int>>(<int>[], (acc, chunk) => acc..addAll(chunk));
+      final stderrFuture =
+          process.stderr.fold<List<int>>(<int>[], (acc, chunk) => acc..addAll(chunk));
       final exitCode = await process.exitCode.timeout(_executeTimeout);
-      final output = (await stdoutFuture).trim();
-      final stderr = (await stderrFuture).trim();
+      final output = decodeConsoleOutput(await stdoutFuture).trim();
+      final stderr = decodeConsoleOutput(await stderrFuture).trim();
       if (exitCode == 0) {
         return ScriptResult.success(
           output: '$pluginName 脚本执行成功\n${output.isEmpty ? stderr : output}',

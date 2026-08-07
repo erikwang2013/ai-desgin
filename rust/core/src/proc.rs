@@ -6,13 +6,17 @@ use std::time::{Duration, Instant};
 /// Shared hard timeout for script execution (120s), matching the Dart side.
 pub const EXEC_TIMEOUT: Duration = Duration::from_secs(120);
 
-/// Read a stream as bytes and decode leniently: bytes that are not valid
-/// UTF-8 (e.g. GBK output from Windows console apps) are replaced with
-/// U+FFFD instead of failing the whole read.
+/// Read a stream as bytes and decode: strict UTF-8 first; on failure fall
+/// back to GBK (Windows console apps like Blender often emit GBK bytes),
+/// which never fails, so non-UTF-8 output is decoded instead of becoming
+/// U+FFFD garbage.
 pub fn read_lossy<R: Read>(mut reader: R) -> String {
     let mut buf = Vec::new();
     let _ = reader.read_to_end(&mut buf);
-    String::from_utf8_lossy(&buf).into_owned()
+    match std::str::from_utf8(&buf) {
+        Ok(s) => s.to_string(),
+        Err(_) => encoding_rs::GBK.decode(&buf).0.into_owned(),
+    }
 }
 
 /// Run a command capturing stdout/stderr on separate reader threads with a

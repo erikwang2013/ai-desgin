@@ -113,7 +113,7 @@ jobs:
           /usr/bin/ai-design-studio
           EOF
           rpmbuild -bb --define "_topdir $(pwd)/rpmbuild" rpmbuild/SPECS/ai-design-studio.spec
-          cp rpmbuild/RPMS/x86_64/ai-design-studio-$VERSION-1.x86_64.rpm "Ai Desgin-$VERSION-linux.rpm"
+          cp rpmbuild/RPMS/x86_64/ai-design-$VERSION-1.x86_64.rpm "Ai Desgin-$VERSION-linux.rpm"
 
       - name: Build & package Windows
         if: runner.os == 'Windows'

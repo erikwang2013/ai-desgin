@@ -15,6 +15,8 @@ class AppShell extends StatefulWidget {
   final PluginManager? pluginManager;
   final LocaleProvider? localeProvider;
   final ModelRouter? modelRouter;
+  final String? currentBackendId;
+  final ValueChanged<String>? onBackendChanged;
 
   const AppShell({
     super.key,
@@ -26,6 +28,8 @@ class AppShell extends StatefulWidget {
     this.pluginManager,
     this.localeProvider,
     this.modelRouter,
+    this.currentBackendId,
+    this.onBackendChanged,
   });
 
   @override
@@ -43,6 +47,8 @@ class _AppShellState extends State<AppShell> {
   ];
 
   static const _tabIcons = [Icons.list_alt, Icons.extension, Icons.history];
+  // 导航项 → IndexedStack 实际 index（app.dart children: Chat=0, Tasks=1, History=2, Plugins=3）。
+  static const _tabStackIndices = [1, 3, 2];
 
   @override
   Widget build(BuildContext context) {
@@ -106,6 +112,8 @@ class _AppShellState extends State<AppShell> {
                   pluginManager: widget.pluginManager,
                   localeProvider: widget.localeProvider,
                   modelRouter: widget.modelRouter,
+                  currentBackendId: widget.currentBackendId,
+                  onBackendChanged: widget.onBackendChanged,
                 ),
               ),
             ),
@@ -115,18 +123,19 @@ class _AppShellState extends State<AppShell> {
     );
   }
 
-  Widget _buildNavTile(int index) {
-    final icon = _tabIcons[index];
+  Widget _buildNavTile(int i) {
+    final icon = _tabIcons[i];
+    final stackIndex = _tabStackIndices[i];
     final l10n = AppLocalizations.of(context);
     final labels = [l10n?.tabTasks, l10n?.tabPlugins, l10n?.tabHistory];
-    final label = labels[index] ?? ['Tasks', 'Plugins', 'History'][index];
-    final isSelected = index == widget.selectedTabIndex;
+    final label = labels[i] ?? ['Tasks', 'Plugins', 'History'][i];
+    final isSelected = stackIndex == widget.selectedTabIndex;
     return ListTile(
       leading: Icon(icon, size: 20),
       title: Text(label, style: const TextStyle(fontSize: 14)),
       dense: true,
       selected: isSelected,
-      onTap: () => widget.onTabSelected?.call(index),
+      onTap: () => widget.onTabSelected?.call(stackIndex),
     );
   }
 
