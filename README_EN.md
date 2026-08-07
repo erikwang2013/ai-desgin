@@ -213,6 +213,34 @@ scripts\build_windows.bat         # Windows
 flutter run -d windows            # or -d macos / -d linux
 ```
 
+### Install Release Builds
+
+Download the package for your platform from
+[Releases](https://github.com/erikwang2013/ai-desgin/releases). **No Flutter /
+Rust environment needed.**
+
+**Runtime requirements**
+
+- Windows 10 / 11 (64-bit)
+- macOS 11+ (Intel / Apple Silicon)
+- Linux x86_64 with the GTK3 runtime (Ubuntu 20.04+ / Debian 11+ / Fedora 38+ etc.)
+- RAM ≥ 4GB, disk ≥ 300MB
+- At least one target design app (Figma / Blender / Photoshop, etc.)
+
+**Linux**
+
+| Format | Install |
+|--------|---------|
+| `.deb` | `sudo apt install ./AI-Design-Studio-Linux-<version>.deb` |
+| `.rpm` | `sudo dnf install AI-Design-Studio-Linux-<version>.rpm` (or `sudo rpm -i`) |
+| `.AppImage` | `chmod +x AI-Design-Studio-Linux-<version>.AppImage && ./AI-Design-Studio-Linux-<version>.AppImage` |
+| `.tar.gz` / `.tar.xz` | extract and run `AI-Design-Studio/ai_design_studio` |
+
+**Windows**: unzip the `.zip`, run `AI-Design-Studio\ai_design_studio.exe`.
+
+**macOS**: unzip the `.zip`, drag `ai_design_studio.app` to Applications.
+If Gatekeeper blocks first launch: right-click → Open → Open.
+
 ### Rust Kernel Integration
 
 At startup the app loads the Rust kernel via flutter_rust_bridge

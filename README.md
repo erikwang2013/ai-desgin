@@ -241,6 +241,33 @@ scripts\build_windows.bat     # Windows
 flutter run -d windows        # 或 -d macos / -d linux
 ```
 
+### 安装发行版
+
+从 [Releases](https://github.com/erikwang2013/ai-desgin/releases) 下载对应平台的
+安装包，**无需安装 Flutter / Rust 环境**。
+
+**运行环境要求**
+
+- Windows 10 / 11（64 位）
+- macOS 11+（Intel / Apple Silicon）
+- Linux x86_64，需 GTK3 运行库（Ubuntu 20.04+ / Debian 11+ / Fedora 38+ 等）
+- 内存 ≥ 4GB，磁盘 ≥ 300MB
+- 至少一款目标设计软件（Figma / Blender / Photoshop 等）
+
+**Linux**
+
+| 格式 | 安装方式 |
+|------|----------|
+| `.deb` | `sudo apt install ./AI-Design-Studio-Linux-<版本>.deb` |
+| `.rpm` | `sudo dnf install AI-Design-Studio-Linux-<版本>.rpm`（或 `sudo rpm -i`） |
+| `.AppImage` | `chmod +x AI-Design-Studio-Linux-<版本>.AppImage && ./AI-Design-Studio-Linux-<版本>.AppImage` |
+| `.tar.gz` / `.tar.xz` | 解压后运行 `AI-Design-Studio/ai_design_studio` |
+
+**Windows**：解压 `.zip`，运行 `AI-Design-Studio\ai_design_studio.exe`。
+
+**macOS**：解压 `.zip`，将 `ai_design_studio.app` 拖入「应用程序」。
+首次打开若被 Gatekeeper 拦截：右键 → 打开 → 打开。
+
 ### Rust 内核集成
 
 App 启动时通过 flutter_rust_bridge 加载 Rust 内核（`libai_design_core.so` / `.dll` / `.dylib`），

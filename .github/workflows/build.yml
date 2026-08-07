@@ -105,7 +105,7 @@ jobs:
 
           %install
           mkdir -p %{buildroot}/usr/lib/ai-design-studio %{buildroot}/usr/bin
-          cp -R AI-Design-Studio/. %{buildroot}/usr/lib/ai-design-studio/
+          cp -R "$(pwd)/AI-Design-Studio/." %{buildroot}/usr/lib/ai-design-studio/
           ln -s /usr/lib/ai-design-studio/ai_design_studio %{buildroot}/usr/bin/ai-design-studio
 
           %files
