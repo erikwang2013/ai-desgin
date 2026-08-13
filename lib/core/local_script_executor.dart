@@ -1,15 +1,14 @@
 import 'dart:async';
 import 'dart:io';
 import '../models/plugin.dart';
+import 'script_executor_configs.dart';
 import 'text_codec.dart';
 
-/// CLI 可执行命令映射：这些软件支持命令行执行生成的脚本。
+/// CLI 可执行命令注册表：这些软件支持命令行执行生成的脚本。
 /// 切片器（Cura/PrusaSlicer 等）的 CLI 只接受模型文件或 key=value 设置，
 /// 无法执行生成脚本，故不列入——保持「生成脚本，提示手动执行」的诚实回退。
-const Map<String, String> _cliExecutables = {
-  'blender': 'blender',
-  'freecad': 'freecad',
-  'openscad': 'openscad',
+final Map<String, ScriptExecutorConfig> _cliExecutables = {
+  for (final config in defaultExecutorConfigs()) config.pluginId: config,
 };
 
 class LocalScriptExecutor {
@@ -25,8 +24,10 @@ class LocalScriptExecutor {
   bool hasCommand(String pluginId) => _cliExecutables.containsKey(pluginId);
 
   Future<bool> checkAvailable(String pluginId) async {
-    final exe = _cliExecutables[pluginId];
-    if (exe == null) return false;
+    final config = _cliExecutables[pluginId];
+    if (config == null || !config.supportsPlatform(Platform.operatingSystem)) {
+      return false;
+    }
     final now = DateTime.now();
     if (_lastCacheCheck != null &&
         now.difference(_lastCacheCheck!) < _cacheTtl &&
@@ -36,8 +37,8 @@ class LocalScriptExecutor {
     var available = false;
     try {
       final result = await Process.run(
-        exe,
-        ['--version'],
+        config.executable,
+        config.probeArgs,
         runInShell: Platform.isWindows,
       ).timeout(_probeTimeout);
       available = result.exitCode == 0;
@@ -54,8 +55,8 @@ class LocalScriptExecutor {
     String pluginName,
     String script,
   ) async {
-    final exe = _cliExecutables[pluginId];
-    if (exe == null) {
+    final config = _cliExecutables[pluginId];
+    if (config == null || !config.supportsPlatform(Platform.operatingSystem)) {
       return ScriptResult.success(output: _fallbackMessage(pluginName, script));
     }
 
@@ -63,11 +64,11 @@ class LocalScriptExecutor {
     Process? process;
     try {
       tempDir = await Directory.systemTemp.createTemp('ai_design_');
-      final scriptPath = await _writeScriptFile(tempDir, pluginId, script);
-      final args = _buildArgs(pluginId, scriptPath, tempDir);
+      final scriptPath = await _writeScriptFile(tempDir, config, script);
+      final args = config.args(scriptPath, tempDir);
 
       process = await Process.start(
-        exe,
+        config.executable,
         args,
         environment: {...Platform.environment, 'AI_DESIGN_SCRIPT': scriptPath},
         runInShell: Platform.isWindows,
@@ -91,7 +92,6 @@ class LocalScriptExecutor {
       );
     } on ProcessException catch (e) {
       _availableCache[pluginId] = false;
-      // 与 checkAvailable 的 TTL 计算保持一致。
       _lastCacheCheck = DateTime.now();
       return ScriptResult.success(
         output: _fallbackMessage(pluginName, script, detail: e.message),
@@ -113,34 +113,12 @@ class LocalScriptExecutor {
 
   Future<String> _writeScriptFile(
     Directory tempDir,
-    String pluginId,
+    ScriptExecutorConfig config,
     String script,
   ) async {
-    final ext = switch (pluginId) {
-      'blender' || 'freecad' => 'py',
-      'openscad' => 'scad',
-      _ => 'txt',
-    };
-    final file = File('${tempDir.path}/script.$ext');
+    final file = File('${tempDir.path}/script.${config.scriptExtension}');
     await file.writeAsString(script);
     return file.path;
-  }
-
-  List<String> _buildArgs(String pluginId, String scriptPath, Directory tempDir) {
-    switch (pluginId) {
-      case 'blender':
-        return ['--background', '--python', scriptPath];
-      case 'freecad':
-        // Script path passed via env var to avoid shell-quoting/path-embedding issues.
-        return [
-          '-c',
-          'import os; exec(open(os.environ["AI_DESIGN_SCRIPT"], encoding="utf-8").read())',
-        ];
-      case 'openscad':
-        return ['-o', '${tempDir.path}/out.stl', scriptPath];
-      default:
-        return [scriptPath];
-    }
   }
 
   String _fallbackMessage(String pluginName, String script, {String? detail}) {

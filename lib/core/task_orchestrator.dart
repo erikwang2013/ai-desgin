@@ -4,6 +4,7 @@ import 'plugin_manager.dart';
 import 'cc_process_manager.dart';
 import 'cc_runner.dart';
 import 'model_router.dart';
+import 'artifact_verifier.dart';
 import '../models/session.dart';
 import '../models/task_record.dart';
 import '../models/plugin.dart';
@@ -58,6 +59,8 @@ class TaskOrchestrator {
     required String task,
     String? overrideModel,
     String? taskId,
+    int maxIterations = 3,
+    ArtifactVerifier? verifier,
   }) async {
     final plugin = _pluginManager.get(softwareName);
     if (plugin == null) {
@@ -157,16 +160,75 @@ class TaskOrchestrator {
         }
       }
 
-      // A cancel during generation kills the CLI process; do not run the
-      // local script for a task the user already cancelled.
-      if (_tasks[record.id]?.status == TaskStatus.cancelled) {
-        if (ccSessionId != null) _ccManager.closeSession(ccSessionId);
-        return _tasks[record.id]!;
-      }
-
-      ScriptResult result;
+      // 创作闭环：生成→执行→验证→反馈→重新生成，直到验证通过或达上限。
+      // 取消语义：循环顶部与循环后各保留一次取消检查，与单轮版本一致。
+      final effectiveMax = maxIterations > 0 ? maxIterations : 1;
+      final iterationLog = <String>[];
+      var feedback = '';
+      var iterationsRun = 0;
+      ScriptResult? result;
       try {
-        result = await plugin.execute(generatedScript);
+        for (var iteration = 1; iteration <= effectiveMax; iteration++) {
+          // A cancel during generation kills the CLI process; do not run the
+          // local script for a task the user already cancelled.
+          if (_tasks[record.id]?.status == TaskStatus.cancelled) {
+            return _tasks[record.id]!;
+          }
+
+          if (iteration > 1) {
+            final enrichedTask =
+                '$task\n\n【第 ${iteration - 1} 轮执行反馈】\n$feedback\n请根据反馈修正脚本后重新生成。';
+            // A cancel during regeneration must not run the stale script.
+            if (_tasks[record.id]?.status == TaskStatus.cancelled) {
+              return _tasks[record.id]!;
+            }
+            if (isClaude) {
+              final generated = await _ccManager.executeWithClaude(
+                sessionId: ccSessionId!, task: enrichedTask, model: model!,
+                runner: backend, scriptLanguage: plugin.scriptLanguage,
+                taskKey: record.id,
+              );
+              if (generated['success'] == false || generated['script'] == null) {
+                iterationLog.add('第 $iteration 轮重新生成失败: ${generated['error']}');
+                break;
+              }
+              generatedScript = generated['script'] as String;
+            } else {
+              final generated = await backend.execute(
+                task: enrichedTask,
+                software: softwareName,
+                capabilities: plugin.capabilities.toJson(),
+                state: state.toJson(),
+                model: model,
+                scriptLanguage: plugin.scriptLanguage,
+                key: record.id,
+              );
+              if (!generated.success || generated.script == null) {
+                iterationLog.add('第 $iteration 轮重新生成失败: ${generated.error}');
+                break;
+              }
+              generatedScript = generated.script!;
+            }
+          }
+
+          result = await plugin.execute(generatedScript);
+          iterationsRun = iteration;
+          iterationLog.add(
+            '第 $iteration 轮执行: ${result.success ? '成功' : '失败'}'
+            '${result.error != null ? ' - ${result.error}' : ''}',
+          );
+          if (result.success) {
+            if (verifier == null) break;
+            final verification = await verifier.verify(result);
+            iterationLog.add(
+              '第 $iteration 轮验证: ${verification.passed ? '通过' : '未通过 - ${verification.summary}'}',
+            );
+            if (verification.passed) break;
+            feedback = '执行成功但验证未通过: ${verification.summary}';
+          } else {
+            feedback = '执行失败: ${result.error}';
+          }
+        }
       } finally {
         // 本地脚本异常退出时也关闭 CC 会话，避免泄漏到空闲驱逐。
         if (ccSessionId != null) _ccManager.closeSession(ccSessionId);
@@ -178,7 +240,7 @@ class TaskOrchestrator {
         return _tasks[record.id]!;
       }
 
-      final scriptContent = result.output ?? '';
+      final scriptContent = result?.output ?? '';
 
       final updated = TaskRecord(
         id: record.id,
@@ -187,9 +249,12 @@ class TaskOrchestrator {
         script: scriptContent,
         scriptLanguage: plugin.scriptLanguage,
         modelUsed: model,
-        status: result.success ? TaskStatus.completed : TaskStatus.failed,
-        error: result.error,
-        artifacts: result.artifacts,
+        status: result?.success == true ? TaskStatus.completed : TaskStatus.failed,
+        error: result?.error,
+        artifacts: result?.artifacts ?? const [],
+        iterations: iterationsRun > 0 ? iterationsRun : 1,
+        maxIterations: effectiveMax,
+        iterationLog: iterationLog,
         createdAt: record.createdAt,
         completedAt: DateTime.now(),
       );
@@ -197,7 +262,7 @@ class TaskOrchestrator {
 
       _getOrCreateSession(domain, softwareName).addRecord(
         task: task, script: scriptContent, scriptLanguage: plugin.scriptLanguage, modelUsed: model ?? '',
-        status: result.success ? TaskStatus.completed : TaskStatus.failed,
+        status: result?.success == true ? TaskStatus.completed : TaskStatus.failed,
       );
 
       return updated;

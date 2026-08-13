@@ -14,6 +14,9 @@ class TaskRecord {
   final TaskStatus status;
   final String? error;
   final List<String> artifacts;
+  final int iterations;
+  final int maxIterations;
+  final List<String> iterationLog;
   final DateTime createdAt;
   final DateTime? completedAt;
 
@@ -27,6 +30,9 @@ class TaskRecord {
     this.status = TaskStatus.pending,
     this.error,
     this.artifacts = const [],
+    this.iterations = 1,
+    this.maxIterations = 1,
+    this.iterationLog = const [],
     DateTime? createdAt,
     this.completedAt,
   })  : id = id ?? _uuid.v4(),

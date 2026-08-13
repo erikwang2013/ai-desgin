@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ai_design_studio/core/task_orchestrator.dart';
+import 'package:ai_design_studio/core/artifact_verifier.dart';
 import 'package:ai_design_studio/core/plugin_manager.dart';
 import 'package:ai_design_studio/core/cc_process_manager.dart';
 import 'package:ai_design_studio/core/cc_runner.dart';
@@ -28,6 +29,20 @@ class EchoPlugin extends DesignPlugin {
   }
   @override Future<ScriptResult> preview(String script) async => ScriptResult.success(output: 'preview: $script');
   @override Future<SoftwareState> getCurrentState() async => const SoftwareState();
+}
+
+/// Plugin whose execute() always fails — exercises the closed-loop retry.
+class FailingEchoPlugin extends EchoPlugin {
+  int executeCount = 0;
+
+  @override
+  String get id => 'failing';
+
+  @override
+  Future<ScriptResult> execute(String script, {ProgressCallback? onProgress}) async {
+    executeCount++;
+    return ScriptResult.failure(error: 'simulated failure $executeCount');
+  }
 }
 
 class FakeCCRunner extends CCRunner {
@@ -149,6 +164,30 @@ void main() {
     final task = await orchestrator.submitTask(domain: DesignCategory.web, softwareName: 'echo', task: 'say hello');
     expect(task.status, TaskStatus.completed);
     expect(task.task, 'say hello');
+  });
+
+  test('closed loop retries up to maxIterations when execution keeps failing', () async {
+    final failing = FailingEchoPlugin();
+    pluginManager.register(failing);
+    final task = await orchestrator.submitTask(
+      domain: DesignCategory.web, softwareName: 'failing', task: 'create',
+      maxIterations: 3,
+    );
+    expect(task.status, TaskStatus.failed);
+    expect(failing.executeCount, 3);
+    expect(task.iterations, 3);
+    expect(task.maxIterations, 3);
+    expect(task.iterationLog, hasLength(greaterThanOrEqualTo(3)));
+  });
+
+  test('closed loop verifies result and stops on pass', () async {
+    final task = await orchestrator.submitTask(
+      domain: DesignCategory.web, softwareName: 'echo', task: 'say hello',
+      verifier: const ArtifactVerifier(),
+    );
+    expect(task.status, TaskStatus.completed);
+    expect(task.iterations, 1);
+    expect(task.iterationLog, contains(contains('验证: 通过')));
   });
 
   test('submitTask fails for unknown software', () async {
