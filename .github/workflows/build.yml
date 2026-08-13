@@ -70,10 +70,10 @@ jobs:
           cd "release/$VERSION"
           tar -czf "Ai Desgin-$VERSION-linux.tar.gz" "Ai Desgin"
           # .deb：dpkg-deb 零额外依赖；runner 自带 $ORIGIN/lib RUNPATH，库放 lib/ 子目录即可被 dlopen
-          mkdir -p packaging/DEBIAN packaging/usr/bin packaging/usr/lib/ai-design-studio
-          cp -R "Ai Desgin/." packaging/usr/lib/ai-design-studio/
-          ln -s /usr/lib/ai-design-studio/ai_design_studio packaging/usr/bin/ai-design-studio
-          printf 'Package: ai-design-studio\nVersion: %s\nSection: graphics\nPriority: optional\nArchitecture: amd64\nMaintainer: erik <erik.xyz>\nDescription: AI-driven design software automation tool\n' "$VERSION" > packaging/DEBIAN/control
+          mkdir -p packaging/DEBIAN packaging/usr/bin packaging/usr/lib/ai-design
+          cp -R "Ai Desgin/." packaging/usr/lib/ai-design/
+          ln -s /usr/lib/ai-design/ai_design_studio packaging/usr/bin/ai-design
+          printf 'Package: ai-design\nVersion: %s\nSection: graphics\nPriority: optional\nArchitecture: amd64\nMaintainer: erik <erik.xyz>\nDescription: AI-driven design software automation tool\n' "$VERSION" > packaging/DEBIAN/control
           dpkg-deb --build --root-owner-group packaging "Ai Desgin-$VERSION-linux.deb"
           # .tar.xz：xz 压缩
           tar -cJf "Ai Desgin-$VERSION-linux.tar.xz" "Ai Desgin"
@@ -82,18 +82,18 @@ jobs:
           chmod +x /tmp/appimagetool
           mkdir -p appimage/AppDir/usr/bin
           cp -R "Ai Desgin/." appimage/AppDir/usr/
-          printf '#!/bin/sh\nHERE="$(dirname "$(readlink -f "${0}")")"\nexport PATH="$HERE/usr/bin:$PATH"\nexport LD_LIBRARY_PATH="$HERE/usr/lib:$LD_LIBRARY_PATH"\nexec ai_design_studio "$@"\n' > appimage/AppDir/AppRun
+          printf '#!/bin/sh\nHERE="$(dirname "$(readlink -f "${0}")")"\nexport PATH="$HERE/usr:$HERE/usr/bin:$PATH"\nexport LD_LIBRARY_PATH="$HERE/usr/lib:$LD_LIBRARY_PATH"\nexec ai_design_studio "$@"\n' > appimage/AppDir/AppRun
           chmod +x appimage/AppDir/AppRun
-          printf '[Desktop Entry]\nName=AI Design Studio\nExec=ai_design_studio\nIcon=icon\nType=Application\nCategories=Graphics;\n' > appimage/AppDir/ai-design-studio.desktop
+          printf '[Desktop Entry]\nName=AI Design\nExec=ai_design_studio\nIcon=icon\nType=Application\nCategories=Graphics;\n' > appimage/AppDir/ai-design.desktop
           python3 -c "import struct,zlib;c=lambda t,d:(lambda n:struct.pack('>I',len(d))+n+struct.pack('>I',zlib.crc32(n)&0xffffffff))(t+d);ihdr=struct.pack('>IIBBBBB',64,64,8,2,0,0,0);raw=b''.join(b'\x00'+b'\x2e\x7d\x32'*64 for _ in range(64));open('appimage/AppDir/icon.png','wb').write(b'\x89PNG\r\n\x1a\n'+c(b'IHDR',ihdr)+c(b'IDAT',zlib.compress(raw))+c(b'IEND',b''))"
           /tmp/appimagetool --appimage-extract-and-run appimage/AppDir "Ai Desgin-$VERSION-linux.AppImage"
           # rpm：rpmbuild（apt 装 rpm 包）
           sudo apt-get update
           sudo apt-get install -y rpm
           mkdir -p rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
-          cat > rpmbuild/SPECS/ai-design-studio.spec <<EOF
+          cat > rpmbuild/SPECS/ai-design.spec <<EOF
           %global debug_package %{nil}
-          Name: ai-design-studio
+          Name: ai-design
           Version: $VERSION
           Release: 1
           Summary: AI-driven design software automation tool
@@ -104,16 +104,16 @@ jobs:
           AI-driven design software automation tool.
 
           %install
-          mkdir -p %{buildroot}/usr/lib/ai-design-studio %{buildroot}/usr/bin
-          cp -R "$(pwd)/Ai Desgin/." %{buildroot}/usr/lib/ai-design-studio/
-          ln -s /usr/lib/ai-design-studio/ai_design_studio %{buildroot}/usr/bin/ai-design-studio
+          mkdir -p %{buildroot}/usr/lib/ai-design %{buildroot}/usr/bin
+          cp -R "$(pwd)/Ai Desgin/." %{buildroot}/usr/lib/ai-design/
+          ln -s /usr/lib/ai-design/ai_design_studio %{buildroot}/usr/bin/ai-design
 
           %files
-          /usr/lib/ai-design-studio
-          /usr/bin/ai-design-studio
+          /usr/lib/ai-design
+          /usr/bin/ai-design
           EOF
-          rpmbuild -bb --define "_topdir $(pwd)/rpmbuild" rpmbuild/SPECS/ai-design-studio.spec
-          cp rpmbuild/RPMS/x86_64/ai-design-studio-$VERSION-1.x86_64.rpm "Ai Desgin-$VERSION-linux.rpm"
+          rpmbuild -bb --define "_topdir $(pwd)/rpmbuild" rpmbuild/SPECS/ai-design.spec
+          cp rpmbuild/RPMS/x86_64/ai-design-$VERSION-1.x86_64.rpm "Ai Desgin-$VERSION-linux.rpm"
 
       - name: Build & package Windows
         if: runner.os == 'Windows'
@@ -148,7 +148,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ai-design-studio-${{ matrix.platform }}-${{ github.sha }}
+          name: ai-design-${{ matrix.platform }}-${{ github.sha }}
           path: |
             release/**/*.tar.gz
             release/**/*.tar.xz
@@ -167,7 +167,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: ai-design-studio-*
+          pattern: ai-design-*
           merge-multiple: true
           path: release-pkgs
       - name: Create GitHub Release
