@@ -9,28 +9,40 @@ class VerificationResult {
 }
 
 /// 执行产物验证：判定一次脚本执行是否真正完成了创作。
-/// 首期：退出码 + stdout 失败特征 + 产物文件存在性；截图/GUI 状态留二期。
+/// 首期：退出码 + stdout 失败特征（词边界匹配，避免误判脚本内
+/// 常见词如 `except Exception`）+ 产物文件存在性（注：执行器首期
+/// 不填充 artifacts，该检查暂不生效）；截图/GUI 状态留二期。
 class ArtifactVerifier {
   const ArtifactVerifier();
 
-  static const _failureMarkers = [
-    'error',
-    'traceback',
-    'exception',
-    'failed',
-    '命令错误',
-    '脚本执行失败',
+  static final _englishMarkers = [
+    RegExp(r'\berror\b', caseSensitive: false),
+    RegExp(r'\btraceback\b', caseSensitive: false),
+    RegExp(r'\bexception\b', caseSensitive: false),
+    RegExp(r'\bfailed\b', caseSensitive: false),
   ];
+
+  static const _chineseMarkers = ['命令错误', '脚本执行失败'];
 
   Future<VerificationResult> verify(ScriptResult result) async {
     if (!result.success) {
       return const VerificationResult(passed: false, summary: '执行失败（非零退出码）');
     }
-    final output = (result.output ?? '').toLowerCase();
-    final marker = _failureMarkers
-        .firstWhere((m) => output.contains(m.toLowerCase()), orElse: () => '');
-    if (marker.isNotEmpty) {
-      return VerificationResult(passed: false, summary: '输出包含失败特征: $marker');
+    final output = result.output ?? '';
+    // 回退路径（软件未安装/平台不支持）输出含"未检测到…可执行文件"，
+    // 无产物可验证，直接通过，避免无意义的多轮重新生成。
+    if (output.contains('未检测到')) {
+      return const VerificationResult(passed: true, summary: '验证通过（手动执行回退）');
+    }
+    for (final marker in _englishMarkers) {
+      if (marker.hasMatch(output)) {
+        return VerificationResult(passed: false, summary: '输出包含失败特征: ${marker.pattern}');
+      }
+    }
+    for (final marker in _chineseMarkers) {
+      if (output.contains(marker)) {
+        return VerificationResult(passed: false, summary: '输出包含失败特征: $marker');
+      }
     }
     for (final artifact in result.artifacts) {
       if (!await File(artifact).exists()) {

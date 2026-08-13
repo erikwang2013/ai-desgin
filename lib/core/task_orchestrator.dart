@@ -15,6 +15,8 @@ class _QueuedTask {
   final String task;
   final String? overrideModel;
   final String pendingId;
+  final int maxIterations;
+  final ArtifactVerifier? verifier;
   final Completer<TaskRecord> completer;
 
   _QueuedTask({
@@ -23,6 +25,8 @@ class _QueuedTask {
     required this.task,
     this.overrideModel,
     required this.pendingId,
+    this.maxIterations = 3,
+    this.verifier,
   }) : completer = Completer<TaskRecord>();
 }
 
@@ -84,6 +88,8 @@ class TaskOrchestrator {
         task: task,
         overrideModel: overrideModel,
         pendingId: pending.id,
+        maxIterations: maxIterations,
+        verifier: verifier,
       );
       _taskQueue.add(queued);
       _processQueue();
@@ -166,6 +172,7 @@ class TaskOrchestrator {
       final iterationLog = <String>[];
       var feedback = '';
       var iterationsRun = 0;
+      var lastVerification = const VerificationResult(passed: true, summary: '');
       ScriptResult? result;
       try {
         for (var iteration = 1; iteration <= effectiveMax; iteration++) {
@@ -178,10 +185,6 @@ class TaskOrchestrator {
           if (iteration > 1) {
             final enrichedTask =
                 '$task\n\n【第 ${iteration - 1} 轮执行反馈】\n$feedback\n请根据反馈修正脚本后重新生成。';
-            // A cancel during regeneration must not run the stale script.
-            if (_tasks[record.id]?.status == TaskStatus.cancelled) {
-              return _tasks[record.id]!;
-            }
             if (isClaude) {
               final generated = await _ccManager.executeWithClaude(
                 sessionId: ccSessionId!, task: enrichedTask, model: model!,
@@ -209,6 +212,10 @@ class TaskOrchestrator {
               }
               generatedScript = generated.script!;
             }
+            // A cancel during regeneration must not run the stale script.
+            if (_tasks[record.id]?.status == TaskStatus.cancelled) {
+              return _tasks[record.id]!;
+            }
           }
 
           result = await plugin.execute(generatedScript);
@@ -220,6 +227,7 @@ class TaskOrchestrator {
           if (result.success) {
             if (verifier == null) break;
             final verification = await verifier.verify(result);
+            lastVerification = verification;
             iterationLog.add(
               '第 $iteration 轮验证: ${verification.passed ? '通过' : '未通过 - ${verification.summary}'}',
             );
@@ -241,6 +249,12 @@ class TaskOrchestrator {
       }
 
       final scriptContent = result?.output ?? '';
+      // 验证未通过时即使脚本执行成功也算失败——闭环的核心语义。
+      final verificationPassed = lastVerification.passed;
+      final taskSucceeded = result?.success == true && verificationPassed;
+      final taskError = result?.success == true && !verificationPassed
+          ? '验证未通过: ${lastVerification.summary}'
+          : result?.error;
 
       final updated = TaskRecord(
         id: record.id,
@@ -249,8 +263,8 @@ class TaskOrchestrator {
         script: scriptContent,
         scriptLanguage: plugin.scriptLanguage,
         modelUsed: model,
-        status: result?.success == true ? TaskStatus.completed : TaskStatus.failed,
-        error: result?.error,
+        status: taskSucceeded ? TaskStatus.completed : TaskStatus.failed,
+        error: taskError,
         artifacts: result?.artifacts ?? const [],
         iterations: iterationsRun > 0 ? iterationsRun : 1,
         maxIterations: effectiveMax,
@@ -262,7 +276,7 @@ class TaskOrchestrator {
 
       _getOrCreateSession(domain, softwareName).addRecord(
         task: task, script: scriptContent, scriptLanguage: plugin.scriptLanguage, modelUsed: model ?? '',
-        status: result?.success == true ? TaskStatus.completed : TaskStatus.failed,
+        status: taskSucceeded ? TaskStatus.completed : TaskStatus.failed,
       );
 
       return updated;
@@ -306,6 +320,9 @@ class TaskOrchestrator {
       status: TaskStatus.cancelled,
       error: task.error,
       artifacts: task.artifacts,
+      iterations: task.iterations,
+      maxIterations: task.maxIterations,
+      iterationLog: task.iterationLog,
       createdAt: task.createdAt,
       completedAt: DateTime.now(),
     );
@@ -358,6 +375,8 @@ class TaskOrchestrator {
       task: queued.task,
       overrideModel: queued.overrideModel,
       taskId: queued.pendingId,
+      maxIterations: queued.maxIterations,
+      verifier: queued.verifier,
     ).then((result) {
       if (!queued.completer.isCompleted) {
         queued.completer.complete(result);

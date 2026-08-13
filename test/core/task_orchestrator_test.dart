@@ -45,6 +45,33 @@ class FailingEchoPlugin extends EchoPlugin {
   }
 }
 
+/// Plugin that fails once then succeeds — the closed-loop's core value path.
+class FailOncePlugin extends EchoPlugin {
+  int executeCount = 0;
+
+  @override
+  String get id => 'failonce';
+
+  @override
+  Future<ScriptResult> execute(String script, {ProgressCallback? onProgress}) async {
+    executeCount++;
+    if (executeCount == 1) {
+      return ScriptResult.failure(error: 'first attempt failed');
+    }
+    return ScriptResult.success(output: 'executed: $script');
+  }
+}
+
+/// Verifier that always fails — exercises verification-exhaustion failure.
+class _NeverPassVerifier extends ArtifactVerifier {
+  const _NeverPassVerifier();
+
+  @override
+  Future<VerificationResult> verify(ScriptResult result) async {
+    return const VerificationResult(passed: false, summary: 'always fails');
+  }
+}
+
 class FakeCCRunner extends CCRunner {
   final bool available;
   FakeCCRunner({this.available = false});
@@ -188,6 +215,41 @@ void main() {
     expect(task.status, TaskStatus.completed);
     expect(task.iterations, 1);
     expect(task.iterationLog, contains(contains('验证: 通过')));
+  });
+
+  test('closed loop retries after first failure and succeeds on second', () async {
+    final failOnce = FailOncePlugin();
+    pluginManager.register(failOnce);
+    final task = await orchestrator.submitTask(
+      domain: DesignCategory.web, softwareName: 'failonce', task: 'create',
+      maxIterations: 3,
+    );
+    expect(task.status, TaskStatus.completed);
+    expect(failOnce.executeCount, 2);
+    expect(task.iterations, 2);
+  });
+
+  test('maxIterations=1 disables the closed-loop retry', () async {
+    final failing = FailingEchoPlugin();
+    pluginManager.register(failing);
+    final task = await orchestrator.submitTask(
+      domain: DesignCategory.web, softwareName: 'failing', task: 'create',
+      maxIterations: 1,
+    );
+    expect(task.status, TaskStatus.failed);
+    expect(failing.executeCount, 1);
+    expect(task.maxIterations, 1);
+  });
+
+  test('verification failure exhausts retries and marks task failed', () async {
+    final task = await orchestrator.submitTask(
+      domain: DesignCategory.web, softwareName: 'echo', task: 'say hello',
+      maxIterations: 2,
+      verifier: _NeverPassVerifier(),
+    );
+    expect(task.status, TaskStatus.failed);
+    expect(task.error, contains('验证未通过'));
+    expect(task.iterations, 2);
   });
 
   test('submitTask fails for unknown software', () async {
