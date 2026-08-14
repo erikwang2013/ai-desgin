@@ -190,6 +190,12 @@ abstract class AppLocalizations {
   /// **'AI Design'**
   String get appTitle;
 
+  /// No description provided for @artifacts.
+  ///
+  /// In en, this message translates to:
+  /// **'Artifacts'**
+  String get artifacts;
+
   /// Localized label for autoExecute
   ///
   /// In en, this message translates to:
@@ -664,11 +670,23 @@ abstract class AppLocalizations {
   /// **'Export Markdown'**
   String get exportMarkdown;
 
+  /// No description provided for @openDirectory.
+  ///
+  /// In en, this message translates to:
+  /// **'Open directory'**
+  String get openDirectory;
+
   /// No description provided for @openFailed.
   ///
   /// In en, this message translates to:
   /// **'Open failed'**
   String get openFailed;
+
+  /// No description provided for @openFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Open file'**
+  String get openFile;
 
   /// No description provided for @more.
   ///
@@ -801,6 +819,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Settings'**
   String get settings;
+
+  /// No description provided for @stop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get stop;
 
   /// No description provided for @tabChat.
   ///

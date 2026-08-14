@@ -50,6 +50,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'AI Design';
 
   @override
+  String get artifacts => 'Artifacts';
+
+  @override
   String get autoExecute => 'Auto';
 
   @override
@@ -309,7 +312,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exportMarkdown => 'Export Markdown';
 
   @override
+  String get openDirectory => 'Open directory';
+
+  @override
   String get openFailed => 'Open failed';
+
+  @override
+  String get openFile => 'Open file';
 
   @override
   String get more => 'More';
@@ -377,6 +386,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settings => 'Settings';
+
+  @override
+  String get stop => 'Stop';
 
   @override
   String get tabChat => 'Chat';

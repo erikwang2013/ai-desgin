@@ -387,7 +387,7 @@ class _ChatViewState extends State<ChatView> {
                 // 加载中：发送键切换为停止键，点击中止在途请求。
                 return IconButton(
                   icon: const Icon(Icons.stop),
-                  tooltip: 'Stop',
+                  tooltip: AppLocalizations.of(context)?.stop ?? 'Stop',
                   onPressed: widget.onCancel,
                 );
               }

@@ -56,6 +56,8 @@ String invokeMember(AppLocalizations l, String name) {
       return l.apiKey;
     case 'appTitle':
       return l.appTitle;
+    case 'artifacts':
+      return l.artifacts;
     case 'autoExecute':
       return l.autoExecute;
     case 'backendClaude':
@@ -202,8 +204,12 @@ String invokeMember(AppLocalizations l, String name) {
       return l.noTasksHint;
     case 'ok':
       return l.ok;
+    case 'openDirectory':
+      return l.openDirectory;
     case 'openFailed':
       return l.openFailed;
+    case 'openFile':
+      return l.openFile;
     case 'pluginMarket':
       return l.pluginMarket;
     case 'pluginMarketDesc':
@@ -242,6 +248,8 @@ String invokeMember(AppLocalizations l, String name) {
       return l.selectPluginToExport;
     case 'settings':
       return l.settings;
+    case 'stop':
+      return l.stop;
     case 'tabChat':
       return l.tabChat;
     case 'tabHistory':

@@ -48,6 +48,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get appTitle => 'AI Design';
 
   @override
+  String get artifacts => '产物';
+
+  @override
   String get autoExecute => '自动执行';
 
   @override
@@ -303,7 +306,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get exportMarkdown => '导出 Markdown';
 
   @override
+  String get openDirectory => '打开目录';
+
+  @override
   String get openFailed => '打开失败';
+
+  @override
+  String get openFile => '打开文件';
 
   @override
   String get more => '更多';
@@ -370,6 +379,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settings => '设置';
+
+  @override
+  String get stop => '停止';
 
   @override
   String get tabChat => '对话';

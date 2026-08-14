@@ -49,6 +49,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get appTitle => 'AI Design';
 
   @override
+  String get artifacts => 'アーティファクト';
+
+  @override
   String get autoExecute => '自動';
 
   @override
@@ -308,7 +311,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get exportMarkdown => 'Markdown でエクスポート';
 
   @override
+  String get openDirectory => 'フォルダを開く';
+
+  @override
   String get openFailed => '開けませんでした';
+
+  @override
+  String get openFile => 'ファイルを開く';
 
   @override
   String get more => 'その他';
@@ -375,6 +384,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get settings => '設定';
+
+  @override
+  String get stop => '停止';
 
   @override
   String get tabChat => 'チャット';

@@ -50,6 +50,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get appTitle => 'AI Design';
 
   @override
+  String get artifacts => 'आर्टिफैक्ट्स';
+
+  @override
   String get autoExecute => 'स्वचालित';
 
   @override
@@ -309,7 +312,13 @@ class AppLocalizationsHi extends AppLocalizations {
   String get exportMarkdown => 'Markdown निर्यात करें';
 
   @override
+  String get openDirectory => 'फ़ोल्डर खोलें';
+
+  @override
   String get openFailed => 'खोलना विफल';
+
+  @override
+  String get openFile => 'फ़ाइल खोलें';
 
   @override
   String get more => 'और';
@@ -377,6 +386,9 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get settings => 'सेटिंग्स';
+
+  @override
+  String get stop => 'रोकें';
 
   @override
   String get tabChat => 'चैट';

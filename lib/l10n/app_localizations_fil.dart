@@ -50,6 +50,9 @@ class AppLocalizationsFil extends AppLocalizations {
   String get appTitle => 'AI Design';
 
   @override
+  String get artifacts => 'Mga artifact';
+
+  @override
   String get autoExecute => 'Auto';
 
   @override
@@ -309,7 +312,13 @@ class AppLocalizationsFil extends AppLocalizations {
   String get exportMarkdown => 'I-export ang Markdown';
 
   @override
+  String get openDirectory => 'Buksan ang folder';
+
+  @override
   String get openFailed => 'Nabigong buksan';
+
+  @override
+  String get openFile => 'Buksan ang file';
 
   @override
   String get more => 'Higit pa';
@@ -377,6 +386,9 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get settings => 'Mga Setting';
+
+  @override
+  String get stop => 'Itigil';
 
   @override
   String get tabChat => 'Chat';

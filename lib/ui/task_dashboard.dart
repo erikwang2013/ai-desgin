@@ -378,7 +378,7 @@ class TaskDashboardState extends State<TaskDashboard> {
                 if (artifacts.isNotEmpty) ...[
                   const SizedBox(height: 12),
                   Text(
-                    'Artifacts',
+                    l10n?.artifacts ?? 'Artifacts',
                     style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                   ),
                   for (final path in artifacts) _buildArtifactRow(path),
@@ -412,6 +412,7 @@ class TaskDashboardState extends State<TaskDashboard> {
   }
 
   Widget _buildArtifactRow(String path) {
+    final l10n = AppLocalizations.of(context);
     final parts = path.split(RegExp(r'[/\\]')).where((s) => s.isNotEmpty).toList();
     final name = parts.isEmpty ? path : parts.last;
     return ListTile(
@@ -429,13 +430,13 @@ class TaskDashboardState extends State<TaskDashboard> {
         children: [
           IconButton(
             icon: const Icon(Icons.open_in_new, size: 16),
-            tooltip: 'Open file',
+            tooltip: l10n?.openFile ?? 'Open file',
             visualDensity: VisualDensity.compact,
             onPressed: () => _openArtifact(path, isFile: true),
           ),
           IconButton(
             icon: const Icon(Icons.folder_open, size: 16),
-            tooltip: 'Open directory',
+            tooltip: l10n?.openDirectory ?? 'Open directory',
             visualDensity: VisualDensity.compact,
             onPressed: () => _openArtifact(path, isFile: false),
           ),

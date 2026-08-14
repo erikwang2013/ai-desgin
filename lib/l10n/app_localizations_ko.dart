@@ -49,6 +49,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get appTitle => 'AI Design';
 
   @override
+  String get artifacts => '아티팩트';
+
+  @override
   String get autoExecute => '자동';
 
   @override
@@ -308,7 +311,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get exportMarkdown => 'Markdown 내보내기';
 
   @override
+  String get openDirectory => '폴더 열기';
+
+  @override
   String get openFailed => '열기 실패';
+
+  @override
+  String get openFile => '파일 열기';
 
   @override
   String get more => '더 보기';
@@ -375,6 +384,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get settings => '설정';
+
+  @override
+  String get stop => '정지';
 
   @override
   String get tabChat => '채팅';
