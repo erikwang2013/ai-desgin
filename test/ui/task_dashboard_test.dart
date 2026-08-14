@@ -314,6 +314,52 @@ void main() {
     expect(find.text('正在验证…'), findsNothing);
   });
 
+  testWidgets('failed task detail dialog shows error reason', (tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: TaskDashboard(
+          initialTasks: [
+            TaskItem(
+              id: 't6',
+              title: 'broken task',
+              software: 'figma',
+              status: TaskStatus.failed,
+              createdAt: DateTime(2026, 8, 6, 10, 36),
+              error: 'verification rejected: image mismatch',
+            ),
+          ],
+        ),
+      ),
+    ));
+
+    await tester.tap(find.text('broken task'));
+    await tester.pumpAndSettle();
+    expect(find.text('Error'), findsOneWidget);
+    expect(find.text('verification rejected: image mismatch'), findsOneWidget);
+  });
+
+  testWidgets('failed task without error shows no error section', (tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: TaskDashboard(
+          initialTasks: [
+            TaskItem(
+              id: 't7',
+              title: 'silent fail',
+              software: 'figma',
+              status: TaskStatus.failed,
+              createdAt: DateTime(2026, 8, 6, 10, 37),
+            ),
+          ],
+        ),
+      ),
+    ));
+
+    await tester.tap(find.text('silent fail'));
+    await tester.pumpAndSettle();
+    expect(find.text('Error'), findsNothing);
+  });
+
   testWidgets('restored history shows display name via resolveSoftwareName', (tester) async {
     final db = sqlite3.openInMemory();
     SessionStore.onCreate(db, 1);

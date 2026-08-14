@@ -16,6 +16,8 @@ class TaskItem {
   final String? modelUsed;
   final String? script;
   final List<String> artifacts;
+  /// 失败原因；详情弹窗中展示（列表卡片不显示）。
+  final String? error;
 
   /// 当前进度阶段描述（如「正在生成脚本…」），运行中任务展示在卡片上。
   final String? progressStage;
@@ -29,6 +31,7 @@ class TaskItem {
     this.modelUsed,
     this.script,
     this.artifacts = const [],
+    this.error,
     this.progressStage,
   });
 }
@@ -106,6 +109,7 @@ class TaskDashboardState extends State<TaskDashboard> {
                 modelUsed: r.modelUsed,
                 script: r.script,
                 artifacts: r.artifacts,
+                error: r.error,
               )))
           .toList();
       if (items.isEmpty || !mounted) return;
@@ -160,6 +164,7 @@ class TaskDashboardState extends State<TaskDashboard> {
         modelUsed: t.modelUsed,
         script: t.script,
         artifacts: t.artifacts,
+        error: t.error,
         progressStage: stage,
       );
     });
@@ -308,6 +313,7 @@ class TaskDashboardState extends State<TaskDashboard> {
         ),
         onTap: task.script == null &&
                 task.artifacts.isEmpty &&
+                task.error == null &&
                 widget.sessionStore == null
             ? null
             : () => _showTaskDetail(task),
@@ -336,6 +342,7 @@ class TaskDashboardState extends State<TaskDashboard> {
         modelUsed: task.modelUsed,
         script: task.script,
         artifacts: task.artifacts,
+        error: task.error,
       );
     });
   }
@@ -375,6 +382,21 @@ class TaskDashboardState extends State<TaskDashboard> {
                   script ?? '',
                   style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
                 ),
+                if (task.error != null && task.error!.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    l10n?.errorPrefix ?? 'Error',
+                    style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red.shade700),
+                  ),
+                  const SizedBox(height: 4),
+                  SelectableText(
+                    task.error!,
+                    style: TextStyle(fontSize: 12, color: Colors.red.shade700),
+                  ),
+                ],
                 if (artifacts.isNotEmpty) ...[
                   const SizedBox(height: 12),
                   Text(
