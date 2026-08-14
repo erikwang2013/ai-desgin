@@ -104,6 +104,10 @@ class _MainShellState extends State<_MainShell> {
   String? _remoteKey;
   bool _ready = false;
 
+  /// 聊天面板在途任务 id：加载中停止按钮取消的目标。
+  /// 聊天一次只允许一个在途请求（_isLoading 期间输入禁用），单值足够。
+  String? _activeTaskId;
+
   /// 供所有 RemoteBackend 复用的单例 client，避免切换后端时泄漏连接。
   final http.Client _httpClient = http.Client();
   Timer? _historyReloadDebounce;
@@ -362,10 +366,19 @@ class _MainShellState extends State<_MainShell> {
     });
   }
 
+  /// 聊天/重试面板共用的提交入口。聊天面板的停止按钮据此取消在途任务。
+  void _cancelActiveChatTask() {
+    final id = _activeTaskId;
+    if (id == null) return;
+    _activeTaskId = null;
+    _cancelAndPersist(id);
+  }
+
   Future<String> _onSubmit(String task) async {
     final sw = _resolveSoftware();
     // 预置 pending 占位卡片，让生成/执行阶段的进度回调有归属。
     final taskId = const Uuid().v4();
+    _activeTaskId = taskId;
     _dashboardKey.currentState?.addTask(TaskItem(
       id: taskId,
       title: task,
@@ -392,6 +405,7 @@ class _MainShellState extends State<_MainShell> {
       createdAt: result.createdAt,
       modelUsed: result.modelUsed,
       script: result.script,
+      artifacts: result.artifacts,
     ));
 
     final session = _orchestrator.getCurrentSession(sw);
@@ -454,6 +468,7 @@ class _MainShellState extends State<_MainShell> {
         children: [
           ChatView(
             onSubmit: _ready ? _onSubmit : null,
+            onCancel: _ready ? _cancelActiveChatTask : null,
             softwareOptions: _ready ? _buildSoftwareOptions() : [],
             selectedSoftware: _currentSoftware,
             onSoftwareChanged: _onSoftwareChanged,
@@ -463,6 +478,8 @@ class _MainShellState extends State<_MainShell> {
             key: _dashboardKey,
             sessionStore: _sessionStore,
             onCancel: _ready ? _cancelAndPersist : null,
+            // 失败任务重试：原样重提任务描述（新 taskId），复用 _onSubmit 链路。
+            onRetry: _ready ? _onSubmit : null,
             resolveSoftwareName: (id) => _pluginManager.get(id)?.name ?? id,
           ),
           HistoryView(

@@ -171,6 +171,128 @@ void main() {
     expect(find.text('updated'), findsOneWidget);
   });
 
+  testWidgets('failed task shows retry button that resubmits with original title', (tester) async {
+    final retried = <String>[];
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: TaskDashboard(
+          initialTasks: [
+            TaskItem(
+              id: 'f1',
+              title: 'retry me',
+              software: 'figma',
+              status: TaskStatus.failed,
+              createdAt: DateTime(2026, 8, 6, 10, 40),
+            ),
+          ],
+          onRetry: (task) async => retried.add(task),
+        ),
+      ),
+    ));
+
+    expect(find.byIcon(Icons.refresh), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.refresh));
+    await tester.pump();
+    expect(retried, ['retry me']);
+  });
+
+  testWidgets('completed and running tasks show no retry button', (tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: TaskDashboard(
+          initialTasks: [
+            TaskItem(
+              id: 'c1',
+              title: 'done',
+              software: 'figma',
+              status: TaskStatus.completed,
+              createdAt: DateTime(2026, 8, 6, 10, 41),
+            ),
+            TaskItem(
+              id: 'r1',
+              title: 'run',
+              software: 'blender',
+              status: TaskStatus.running,
+              createdAt: DateTime(2026, 8, 6, 10, 42),
+            ),
+          ],
+          onRetry: (task) async {},
+        ),
+      ),
+    ));
+    expect(find.byIcon(Icons.refresh), findsNothing);
+  });
+
+  testWidgets('task detail dialog lists artifacts with open file/directory actions', (tester) async {
+    final opened = <(String, bool)>[];
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: TaskDashboard(
+          initialTasks: [
+            TaskItem(
+              id: 'a1',
+              title: 'with artifacts',
+              software: 'figma',
+              status: TaskStatus.completed,
+              createdAt: DateTime(2026, 8, 6, 10, 43),
+              script: 'print(1)',
+              artifacts: const ['/tmp/out/a.png', '/tmp/out/b.jpg'],
+            ),
+          ],
+          openArtifact: (path, isFile) async {
+            opened.add((path, isFile));
+            return true;
+          },
+        ),
+      ),
+    ));
+
+    await tester.tap(find.text('with artifacts'));
+    await tester.pumpAndSettle();
+    expect(find.text('Artifacts'), findsOneWidget);
+    expect(find.text('a.png'), findsOneWidget);
+    expect(find.text('b.jpg'), findsOneWidget);
+    expect(find.byIcon(Icons.open_in_new), findsNWidgets(2));
+    expect(find.byIcon(Icons.folder_open), findsNWidgets(2));
+
+    await tester.tap(find.byIcon(Icons.open_in_new).first);
+    await tester.pumpAndSettle();
+    expect(opened, [('/tmp/out/a.png', true)]);
+
+    await tester.tap(find.byIcon(Icons.folder_open).last);
+    await tester.pumpAndSettle();
+    expect(opened, [('/tmp/out/a.png', true), ('/tmp/out/b.jpg', false)]);
+  });
+
+  testWidgets('artifact-only task opens detail dialog and failed open shows snackbar', (tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: TaskDashboard(
+          initialTasks: [
+            TaskItem(
+              id: 'a2',
+              title: 'bad artifact',
+              software: 'figma',
+              status: TaskStatus.completed,
+              createdAt: DateTime(2026, 8, 6, 10, 44),
+              artifacts: const ['/tmp/missing.png'],
+            ),
+          ],
+          openArtifact: (path, isFile) async => false,
+        ),
+      ),
+    ));
+
+    // 无脚本但有产物：仍可打开详情。
+    await tester.tap(find.text('bad artifact'));
+    await tester.pumpAndSettle();
+    expect(find.text('Artifacts'), findsOneWidget);
+
+    await tester.tap(find.byIcon(Icons.open_in_new));
+    await tester.pump();
+    expect(find.text('Open failed'), findsOneWidget);
+  });
+
   testWidgets('completed task does not show progress stage', (tester) async {
     await tester.pumpWidget(MaterialApp(
       home: Scaffold(

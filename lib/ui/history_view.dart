@@ -9,6 +9,84 @@ import '../models/task_record.dart';
 import '../core/session_store.dart';
 
 const _jsonGroup = XTypeGroup(label: 'JSON', extensions: ['json']);
+const _mdGroup = XTypeGroup(label: 'Markdown', extensions: ['md']);
+
+String _statusLabel(TaskStatus s) => switch (s) {
+      TaskStatus.completed => '已完成',
+      TaskStatus.failed => '失败',
+      TaskStatus.running => '进行中',
+      TaskStatus.pending => '排队中',
+      TaskStatus.cancelled => '已取消',
+    };
+
+String _markdownTime(DateTime t) {
+  final hh = t.hour.toString().padLeft(2, '0');
+  final mm = t.minute.toString().padLeft(2, '0');
+  return '${t.year}-${t.month.toString().padLeft(2, '0')}-${t.day.toString().padLeft(2, '0')} $hh:$mm';
+}
+
+/// 纯函数：把单个会话渲染为 Markdown 导出文本。
+/// 不访问数据库/文件系统，便于单元测试断言。
+/// 内容：会话元信息 + 每条任务（状态、时间、任务描述、脚本片段、错误、产物路径、时间线）。
+String buildSessionMarkdown(Session session, {String? softwareDisplayName}) {
+  final software = softwareDisplayName ?? session.softwareName;
+  final sb = StringBuffer();
+  sb.writeln('# 会话导出: $software');
+  sb.writeln();
+  sb.writeln('## 会话信息');
+  sb.writeln();
+  sb.writeln('- 会话 ID: ${session.id}');
+  sb.writeln('- 软件: $software');
+  sb.writeln('- 领域: ${session.domain.label}');
+  sb.writeln('- 创建时间: ${_markdownTime(session.createdAt)}');
+  sb.writeln('- 任务数: ${session.history.length}');
+  sb.writeln();
+  if (session.history.isEmpty) {
+    sb.writeln('（该会话没有任务记录）');
+    return sb.toString();
+  }
+  for (var i = 0; i < session.history.length; i++) {
+    final r = session.history[i];
+    sb.writeln('## 任务 ${i + 1}: ${r.task}');
+    sb.writeln();
+    sb.writeln('- 状态: ${_statusLabel(r.status)}');
+    sb.writeln('- 创建时间: ${_markdownTime(r.createdAt)}');
+    if (r.completedAt != null) sb.writeln('- 完成时间: ${_markdownTime(r.completedAt!)}');
+    if (r.modelUsed != null) sb.writeln('- 模型: ${r.modelUsed}');
+    sb.writeln();
+    if (r.script != null && r.script!.isNotEmpty) {
+      sb.writeln('**脚本**');
+      sb.writeln();
+      sb.writeln('```${r.scriptLanguage ?? ''}');
+      sb.writeln(r.script);
+      sb.writeln('```');
+      sb.writeln();
+    }
+    if (r.error != null && r.error!.isNotEmpty) {
+      sb.writeln('**错误信息**');
+      sb.writeln();
+      sb.writeln('> ${r.error}');
+      sb.writeln();
+    }
+    if (r.artifacts.isNotEmpty) {
+      sb.writeln('**产物文件**');
+      sb.writeln();
+      for (final a in r.artifacts) {
+        sb.writeln('- $a');
+      }
+      sb.writeln();
+    }
+    if (r.iterationLog.isNotEmpty) {
+      sb.writeln('**时间线**');
+      sb.writeln();
+      for (final step in r.iterationLog) {
+        sb.writeln('- $step');
+      }
+      sb.writeln();
+    }
+  }
+  return sb.toString();
+}
 
 class HistoryView extends StatefulWidget {
   final SessionStore? sessionStore;
@@ -99,6 +177,39 @@ class HistoryViewState extends State<HistoryView> {
     try {
       final sessions = List<Session>.of(_sessions);
       await File(savePath).writeAsString(SessionStore.exportSessionsToJson(sessions));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(l10n?.saveSuccess ?? 'Saved'),
+      ));
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(l10n?.exportHistoryFailed ?? 'Export failed'),
+      ));
+    }
+  }
+
+  /// 单个会话导出为 Markdown：走 file_selector 选保存位置，复用 JSON 导出的
+  /// 保存/失败提示模式，失败静默降级为 SnackBar。
+  Future<void> _exportSessionMarkdown(Session s) async {
+    final l10n = AppLocalizations.of(context);
+    String? savePath;
+    try {
+      final loc = await getSaveLocation(
+        suggestedName: 'ai-design-session.md',
+        acceptedTypeGroups: const [_mdGroup],
+      );
+      savePath = loc?.path;
+    } catch (_) {
+      // 选择器不可用时按取消处理
+    }
+    if (savePath == null || !mounted) return;
+
+    try {
+      final software =
+          widget.resolveSoftwareName?.call(s.softwareName) ?? s.softwareName;
+      await File(savePath)
+          .writeAsString(buildSessionMarkdown(s, softwareDisplayName: software));
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(l10n?.saveSuccess ?? 'Saved'),
@@ -278,10 +389,25 @@ class HistoryViewState extends State<HistoryView> {
               leading: Icon(statusIcon, color: statusColor, size: 24),
               title: Text(_sessionTitle(s), maxLines: 1, overflow: TextOverflow.ellipsis),
               subtitle: Text(subtitle, style: const TextStyle(fontSize: 12)),
-              trailing: IconButton(
-                icon: const Icon(Icons.delete_outline, size: 18),
-                tooltip: l10n?.delete ?? 'Delete',
-                onPressed: () => _confirmDelete([s]),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  PopupMenuButton<String>(
+                    icon: const Icon(Icons.more_vert, size: 18),
+                    tooltip: 'More',
+                    onSelected: (value) {
+                      if (value == 'export_md') _exportSessionMarkdown(s);
+                    },
+                    itemBuilder: (_) => const [
+                      PopupMenuItem(value: 'export_md', child: Text('导出 Markdown')),
+                    ],
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, size: 18),
+                    tooltip: l10n?.delete ?? 'Delete',
+                    onPressed: () => _confirmDelete([s]),
+                  ),
+                ],
               ),
               onTap: () => _showSessionDetail(s, l10n),
             ),

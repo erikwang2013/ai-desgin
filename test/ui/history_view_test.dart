@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sqlite3/sqlite3.dart' hide Session;
 import 'package:ai_design_studio/core/session_store.dart';
 import 'package:ai_design_studio/models/session.dart';
+import 'package:ai_design_studio/models/task_record.dart';
 import 'package:ai_design_studio/ui/history_view.dart';
 
 void main() {
@@ -208,6 +209,89 @@ void main() {
     await tester.tap(find.text('Close'));
     await tester.pumpAndSettle();
     expect(find.byType(AlertDialog), findsNothing);
+  });
+
+  testWidgets('session card menu offers Export Markdown', (tester) async {
+    await saveSessions(tester, [makeSession('s1', 'create button')]);
+    await pumpHistory(tester);
+
+    await tester.tap(find.byIcon(Icons.more_vert));
+    await tester.pumpAndSettle();
+    expect(find.text('导出 Markdown'), findsOneWidget);
+  });
+
+  group('buildSessionMarkdown', () {
+    test('includes session metadata and per-task details', () {
+      final session = Session(
+        id: 's1',
+        domain: DesignCategory.threeD,
+        softwareName: 'blender',
+        createdAt: DateTime(2026, 8, 14, 10, 30),
+      );
+      session.history.add(TaskRecord(
+        sessionId: 's1',
+        task: 'create sofa',
+        script: 'bpy.ops.mesh.primitive_cube_add()',
+        scriptLanguage: 'python',
+        modelUsed: 'claude-sonnet-4-6',
+        status: TaskStatus.completed,
+        completedAt: DateTime(2026, 8, 14, 10, 32),
+        artifacts: const ['/tmp/out/sofa.png'],
+      ));
+      session.history.add(TaskRecord(
+        sessionId: 's1',
+        task: 'export render',
+        status: TaskStatus.failed,
+        error: 'timeout',
+        createdAt: DateTime(2026, 8, 14, 10, 35),
+      ));
+
+      final md = buildSessionMarkdown(session, softwareDisplayName: 'Blender');
+      expect(md, contains('# 会话导出: Blender'));
+      expect(md, contains('会话 ID: s1'));
+      expect(md, contains('软件: Blender'));
+      expect(md, contains('3D 设计'));
+      expect(md, contains('创建时间: 2026-08-14 10:30'));
+      expect(md, contains('任务数: 2'));
+      expect(md, contains('## 任务 1: create sofa'));
+      expect(md, contains('状态: 已完成'));
+      expect(md, contains('完成时间: 2026-08-14 10:32'));
+      expect(md, contains('模型: claude-sonnet-4-6'));
+      expect(md, contains('```python'));
+      expect(md, contains('bpy.ops.mesh.primitive_cube_add()'));
+      expect(md, contains('- /tmp/out/sofa.png'));
+      expect(md, contains('## 任务 2: export render'));
+      expect(md, contains('状态: 失败'));
+      expect(md, contains('timeout'));
+    });
+
+    test('includes iteration log timeline and cancelled status', () {
+      final session = Session(domain: DesignCategory.web, softwareName: 'figma');
+      session.history.add(TaskRecord(
+        sessionId: session.id,
+        task: 'rename layer',
+        status: TaskStatus.cancelled,
+        iterationLog: const ['step1', 'step2'],
+      ));
+
+      final md = buildSessionMarkdown(session);
+      expect(md, contains('**时间线**'));
+      expect(md, contains('- step1'));
+      expect(md, contains('- step2'));
+      expect(md, contains('状态: 已取消'));
+    });
+
+    test('empty session still exports metadata', () {
+      final session = Session(
+        id: 's-empty',
+        domain: DesignCategory.web,
+        softwareName: 'figma',
+      );
+      final md = buildSessionMarkdown(session);
+      expect(md, contains('会话 ID: s-empty'));
+      expect(md, contains('任务数: 0'));
+      expect(md, contains('该会话没有任务记录'));
+    });
   });
 }
 

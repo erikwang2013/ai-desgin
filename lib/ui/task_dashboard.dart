@@ -1,4 +1,6 @@
 // lib/ui/task_dashboard.dart
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../l10n/app_localizations.dart';
@@ -13,6 +15,7 @@ class TaskItem {
   final DateTime createdAt;
   final String? modelUsed;
   final String? script;
+  final List<String> artifacts;
 
   /// 当前进度阶段描述（如「正在生成脚本…」），运行中任务展示在卡片上。
   final String? progressStage;
@@ -25,6 +28,7 @@ class TaskItem {
     required this.createdAt,
     this.modelUsed,
     this.script,
+    this.artifacts = const [],
     this.progressStage,
   });
 }
@@ -35,12 +39,18 @@ class TaskDashboard extends StatefulWidget {
   /// 取消回调返回 orchestrator 取消后的最新状态，UI 据此回填；
   /// 返回 null 时回退为 cancelled。
   final TaskStatus? Function(String)? onCancel;
+  /// 失败任务重试回调：以任务原始描述重新提交（原样重提，新 taskId）。
+  final Future<void> Function(String task)? onRetry;
+  /// 产物打开回调（测试注入用）；为 null 时按平台走系统打开器。
+  final Future<bool> Function(String path, bool isFile)? openArtifact;
   final String Function(String id)? resolveSoftwareName;
   const TaskDashboard({
     super.key,
     this.initialTasks,
     this.sessionStore,
     this.onCancel,
+    this.onRetry,
+    this.openArtifact,
     this.resolveSoftwareName,
   });
 
@@ -89,6 +99,7 @@ class TaskDashboardState extends State<TaskDashboard> {
                 createdAt: r.createdAt,
                 modelUsed: r.modelUsed,
                 script: r.script,
+                artifacts: r.artifacts,
               )))
           .toList();
       if (items.isEmpty || !mounted) return;
@@ -137,6 +148,7 @@ class TaskDashboardState extends State<TaskDashboard> {
         createdAt: t.createdAt,
         modelUsed: t.modelUsed,
         script: t.script,
+        artifacts: t.artifacts,
         progressStage: stage,
       );
     });
@@ -274,12 +286,25 @@ class TaskDashboardState extends State<TaskDashboard> {
                 tooltip: l10n?.cancel ?? 'Cancel',
                 onPressed: () => _cancelTask(task),
               ),
+            if (task.status == TaskStatus.failed && widget.onRetry != null)
+              IconButton(
+                icon: const Icon(Icons.refresh, size: 18),
+                tooltip: l10n?.retry ?? 'Retry',
+                onPressed: () => _retryTask(task),
+              ),
             Text(timeStr, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
           ],
         ),
-        onTap: task.script == null ? null : () => _showTaskDetail(task),
+        onTap: task.script == null && task.artifacts.isEmpty
+            ? null
+            : () => _showTaskDetail(task),
       ),
     );
+  }
+
+  /// 失败任务一键重试：把任务描述原样交回提交入口（新 taskId 重新排队）。
+  void _retryTask(TaskItem task) {
+    widget.onRetry?.call(task.title);
   }
 
   void _cancelTask(TaskItem task) {
@@ -297,6 +322,7 @@ class TaskDashboardState extends State<TaskDashboard> {
         createdAt: task.createdAt,
         modelUsed: task.modelUsed,
         script: task.script,
+        artifacts: task.artifacts,
       );
     });
   }
@@ -310,9 +336,23 @@ class TaskDashboardState extends State<TaskDashboard> {
         content: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 480, maxHeight: 320),
           child: SingleChildScrollView(
-            child: SelectableText(
-              task.script ?? '',
-              style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SelectableText(
+                  task.script ?? '',
+                  style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+                ),
+                if (task.artifacts.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    'Artifacts',
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                  ),
+                  for (final path in task.artifacts) _buildArtifactRow(path),
+                ],
+              ],
             ),
           ),
         ),
@@ -339,5 +379,75 @@ class TaskDashboardState extends State<TaskDashboard> {
         ],
       ),
     );
+  }
+
+  Widget _buildArtifactRow(String path) {
+    final parts = path.split(RegExp(r'[/\\]')).where((s) => s.isNotEmpty).toList();
+    final name = parts.isEmpty ? path : parts.last;
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      dense: true,
+      title: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis),
+      subtitle: Text(
+        path,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(fontSize: 11),
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.open_in_new, size: 16),
+            tooltip: 'Open file',
+            visualDensity: VisualDensity.compact,
+            onPressed: () => _openArtifact(path, isFile: true),
+          ),
+          IconButton(
+            icon: const Icon(Icons.folder_open, size: 16),
+            tooltip: 'Open directory',
+            visualDensity: VisualDensity.compact,
+            onPressed: () => _openArtifact(path, isFile: false),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 打开产物文件（isFile=true）或所在目录（isFile=false）。
+  /// 失败/异常一律 SnackBar 提示，不向调用方抛异常。
+  Future<void> _openArtifact(String path, {required bool isFile}) async {
+    final opener = widget.openArtifact;
+    var ok = false;
+    try {
+      ok = opener != null
+          ? await opener(path, isFile)
+          : await _openWithSystem(path, isFile: isFile);
+    } catch (_) {
+      ok = false;
+    }
+    if (!mounted) return;
+    if (!ok) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: const Text('Open failed'),
+        duration: const Duration(seconds: 2),
+      ));
+    }
+  }
+
+  /// 按平台调用系统打开器：Linux xdg-open / macOS open / Windows start。
+  Future<bool> _openWithSystem(String path, {required bool isFile}) async {
+    final target = isFile ? path : File(path).parent.path;
+    final List<String> cmd;
+    if (Platform.isWindows) {
+      cmd = ['cmd', '/c', 'start', '', target];
+    } else if (Platform.isMacOS) {
+      cmd = ['open', target];
+    } else {
+      cmd = ['xdg-open', target];
+    }
+    final result = await Process.start(cmd.first, cmd.sublist(1));
+    final code = await result.exitCode;
+    return code == 0;
   }
 }

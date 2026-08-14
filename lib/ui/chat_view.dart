@@ -20,6 +20,8 @@ class SoftwareOption {
 
 class ChatView extends StatefulWidget {
   final Future<String> Function(String message)? onSubmit;
+  /// 加载中停止按钮的回调：中止在途请求（由外层接到取消链路）。
+  final VoidCallback? onCancel;
   final List<SoftwareOption> softwareOptions;
   final String selectedSoftware;
   final ValueChanged<String>? onSoftwareChanged;
@@ -28,6 +30,7 @@ class ChatView extends StatefulWidget {
   const ChatView({
     super.key,
     this.onSubmit,
+    this.onCancel,
     this.softwareOptions = const [],
     this.selectedSoftware = '',
     this.onSoftwareChanged,
@@ -262,11 +265,17 @@ class _ChatViewState extends State<ChatView> {
           ListenableBuilder(
             listenable: _controller,
             builder: (context, _) {
-              final canSend = _controller.text.trim().isNotEmpty && !_isLoading;
+              if (_isLoading) {
+                // 加载中：发送键切换为停止键，点击中止在途请求。
+                return IconButton(
+                  icon: const Icon(Icons.stop),
+                  tooltip: 'Stop',
+                  onPressed: widget.onCancel,
+                );
+              }
+              final canSend = _controller.text.trim().isNotEmpty;
               return IconButton(
-                icon: _isLoading
-                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Icon(Icons.send),
+                icon: const Icon(Icons.send),
                 onPressed: canSend ? _send : null,
               );
             },
