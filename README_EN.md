@@ -177,7 +177,7 @@ ai-desgin/
 |       +-- waxjetprint/                   # WaxJetPrint (Python)
 +-- config/model-routing.yaml
 +-- scripts/                               # Build + release scripts
-+-- test/                                  # Dart tests (280 tests)
++-- test/                                  # Dart tests (292 tests)
 +-- docs/
     +-- diagrams/                          # EN/ZH SVG diagrams (architecture/flow/features/lifecycle/security)
     |   +-- architecture-zh.svg            # 系统架构图
@@ -297,7 +297,7 @@ cd rust && cargo clippy           # Rust lint check
 | Check | Status |
 |-------|--------|
 | `flutter analyze` | No issues found |
-| `flutter test` | 280 tests passed |
+| `flutter test` | 292 tests passed |
 | `cargo build` | 40 crates compiled |
 | `cargo clippy` | 0 warnings |
 
@@ -380,11 +380,15 @@ Text-to-3D and image-to-3D generation via Meshy API, with automatic polygon opti
 ### System Features
 
 - **Multiple agent backends**: switch between Claude Code (pinned 2.1.143) / Codex / Gemini / OpenCode / OpenClaw / Hermes / Reasonix / remote API endpoints from Settings. Switching takes effect immediately, persists across restarts.
+- **Backend credentials**: per-backend API keys for Codex/Gemini; leaving them empty falls back to CLI login.
 - **Creation verification loop**: generate → execute → verify artifacts → regenerate with feedback, up to 3 rounds; only marked complete when verification passes.
 - **Task controls & artifacts**: stop a running task, retry a failed task, open produced artifacts with one click.
+- **Chat artifact preview**: completed-task artifacts render inline in chat — images as thumbnails, other files as chips.
+- **One-click copy**: copy the assistant message (script) to clipboard, tailored to the manual-execution workflow.
 - **Executable path overrides**: custom Blender/FreeCAD/OpenSCAD executable paths with auto-detection order: override → PATH → common install directories.
 - **Encrypted session history**: sessions and task history are stored encrypted with SQLCipher; the key is randomly generated. When SQLCipher is unavailable, history is disabled — never silently downgraded to plaintext.
 - **Session export**: export all sessions to JSON or Markdown files from the History view.
+- **History search**: filter sessions in real time by task text or software name.
 - **Plugin marketplace**: search, uninstall/reinstall, and import/export ZIP plugin packages.
 - **12 interface languages**: Chinese and English are primary; other locales fall back to English.
 
