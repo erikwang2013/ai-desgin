@@ -197,6 +197,49 @@ void main() {
     expect(remaining, isEmpty);
   });
 
+  testWidgets('search filters sessions by task text', (tester) async {
+    await saveSessions(tester, [
+      makeSession('s1', 'create button'),
+      makeSession('s2', 'render scene'),
+    ]);
+    await pumpHistory(tester);
+
+    await tester.enterText(find.byType(TextField), 'render');
+    await tester.pumpAndSettle();
+
+    expect(find.text('render scene'), findsOneWidget);
+    expect(find.text('create button'), findsNothing);
+  });
+
+  testWidgets('search matches software name case-insensitively', (tester) async {
+    await saveSessions(tester, [
+      makeSession('s1', 'create button'),
+      makeSession('s2', 'render scene', software: 'blender'),
+    ]);
+    await pumpHistory(tester);
+
+    await tester.enterText(find.byType(TextField), 'BLENDER');
+    await tester.pumpAndSettle();
+
+    expect(find.text('render scene'), findsOneWidget);
+    expect(find.text('create button'), findsNothing);
+  });
+
+  testWidgets('search with no matches shows empty state and clear restores list', (tester) async {
+    await saveSessions(tester, [makeSession('s1', 'create button')]);
+    await pumpHistory(tester);
+
+    await tester.enterText(find.byType(TextField), 'zzz');
+    await tester.pumpAndSettle();
+    expect(find.text('No matching sessions'), findsOneWidget);
+    expect(find.text('create button'), findsNothing);
+
+    await tester.tap(find.byIcon(Icons.clear));
+    await tester.pumpAndSettle();
+    expect(find.text('create button'), findsOneWidget);
+    expect(find.text('No matching sessions'), findsNothing);
+  });
+
   testWidgets('tapping a session shows its task records in a dialog', (tester) async {
     await saveSessions(tester, [makeSession('s1', 'create button')]);
     await pumpHistory(tester);

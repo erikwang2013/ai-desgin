@@ -112,6 +112,7 @@ class HistoryViewState extends State<HistoryView> {
   bool _loading = true;
   bool _selectMode = false;
   final Set<String> _selectedIds = {};
+  String _query = '';
 
   @override
   void initState() {
@@ -162,6 +163,16 @@ class HistoryViewState extends State<HistoryView> {
   String _sessionTitle(Session s) {
     if (s.history.isNotEmpty) return s.history.first.task;
     return s.softwareName;
+  }
+
+  /// 客户端过滤：按软件名或任意任务文本匹配，大小写不敏感。
+  List<Session> get _visibleSessions {
+    final q = _query.trim().toLowerCase();
+    if (q.isEmpty) return _sessions;
+    return _sessions.where((s) {
+      if (s.softwareName.toLowerCase().contains(q)) return true;
+      return s.history.any((r) => r.task.toLowerCase().contains(q));
+    }).toList();
   }
 
   String _formatTime(DateTime t) {
@@ -328,6 +339,7 @@ class HistoryViewState extends State<HistoryView> {
     return Column(
       children: [
         _buildHeader(l10n),
+        _buildSearchField(),
         Expanded(child: _buildBody(l10n)),
         if (_selectMode && _selectedIds.isNotEmpty) _buildSelectionBar(l10n),
       ],
@@ -370,6 +382,27 @@ class HistoryViewState extends State<HistoryView> {
     );
   }
 
+  Widget _buildSearchField() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      child: TextField(
+        onChanged: (v) => setState(() => _query = v),
+        decoration: InputDecoration(
+          isDense: true,
+          hintText: 'Search history',
+          prefixIcon: const Icon(Icons.search, size: 20),
+          suffixIcon: _query.isEmpty
+              ? null
+              : IconButton(
+                  icon: const Icon(Icons.clear, size: 18),
+                  onPressed: () => setState(() => _query = ''),
+                ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+      ),
+    );
+  }
+
   Widget _buildBody(AppLocalizations? l10n) {
     if (_loading) {
       return const Center(child: CircularProgressIndicator());
@@ -390,10 +423,24 @@ class HistoryViewState extends State<HistoryView> {
         ),
       );
     }
+    final visible = _visibleSessions;
+    if (visible.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.search_off, size: 64, color: Colors.grey.shade400),
+            const SizedBox(height: 16),
+            Text('No matching sessions',
+                style: TextStyle(fontSize: 16, color: Colors.grey.shade600)),
+          ],
+        ),
+      );
+    }
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: _sessions.length,
-      itemBuilder: (context, index) => _buildSessionCard(_sessions[index], l10n),
+      itemCount: visible.length,
+      itemBuilder: (context, index) => _buildSessionCard(visible[index], l10n),
     );
   }
 
