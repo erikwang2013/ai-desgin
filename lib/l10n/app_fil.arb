@@ -108,6 +108,8 @@
   "navigation": "Nabigasyon",
   "noHistory": "No history",
   "noHistoryHint": "Completed sessions will appear here",
+  "historySearchHint": "Maghanap ng kasaysayan",
+  "searchNoResults": "Walang tumugmang session",
   "noOutput": "(walang output)",
   "noTasks": "Walang Gawain",
   "noTasksHint": "Ilagay ang mga kinakailangan sa disenyo sa chat panel; lalabas dito ang mga gawain.",

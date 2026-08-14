@@ -235,6 +235,8 @@
   "navigation": "Navigation",
   "noHistory": "No history",
   "noHistoryHint": "Completed sessions will appear here",
+  "historySearchHint": "Search history",
+  "searchNoResults": "No matching sessions",
   "noOutput": "(no output)",
   "noPluginsToExport": "No installed plugins to export",
   "noTasks": "No Tasks",

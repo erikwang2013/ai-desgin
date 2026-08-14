@@ -108,6 +108,8 @@
   "navigation": "내비게이션",
   "noHistory": "No history",
   "noHistoryHint": "Completed sessions will appear here",
+  "historySearchHint": "기록 검색",
+  "searchNoResults": "일치하는 세션이 없습니다",
   "noOutput": "(출력 없음)",
   "noTasks": "작업 없음",
   "noTasksHint": "채팅 패널에 디자인 요구사항을 입력하면 작업이 여기에 표시됩니다.",

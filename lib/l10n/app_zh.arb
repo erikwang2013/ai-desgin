@@ -202,6 +202,8 @@
   "navigation": "导航",
   "noHistory": "暂无历史会话",
   "noHistoryHint": "完成任务后会话将显示在这里",
+  "historySearchHint": "搜索历史",
+  "searchNoResults": "无匹配会话",
   "noOutput": "(无输出)",
   "noPluginsToExport": "没有已安装的插件可导出",
   "noTasks": "暂无任务",

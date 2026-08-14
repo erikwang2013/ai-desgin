@@ -108,6 +108,8 @@
   "navigation": "ナビゲーション",
   "noHistory": "No history",
   "noHistoryHint": "Completed sessions will appear here",
+  "historySearchHint": "履歴を検索",
+  "searchNoResults": "一致するセッションがありません",
   "noOutput": "(出力なし)",
   "noTasks": "タスクなし",
   "noTasksHint": "チャットパネルにデザイン要件を入力すると、タスクがここに表示されます。",

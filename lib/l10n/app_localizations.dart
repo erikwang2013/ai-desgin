@@ -640,6 +640,18 @@ abstract class AppLocalizations {
   /// **'Completed sessions will appear here'**
   String get noHistoryHint;
 
+  /// No description provided for @historySearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search history'**
+  String get historySearchHint;
+
+  /// No description provided for @searchNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching sessions'**
+  String get searchNoResults;
+
   /// No description provided for @noOutput.
   ///
   /// In en, this message translates to:

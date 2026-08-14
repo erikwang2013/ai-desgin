@@ -297,6 +297,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noHistoryHint => 'Completed sessions will appear here';
 
   @override
+  String get historySearchHint => 'بحث في السجل';
+
+  @override
+  String get searchNoResults => 'لا توجد جلسات مطابقة';
+
+  @override
   String get noOutput => '(لا يوجد مخرجات)';
 
   @override

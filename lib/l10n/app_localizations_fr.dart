@@ -297,6 +297,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get noHistoryHint => 'Completed sessions will appear here';
 
   @override
+  String get historySearchHint => 'Rechercher l\'historique';
+
+  @override
+  String get searchNoResults => 'Aucune session correspondante';
+
+  @override
   String get noOutput => '(aucune sortie)';
 
   @override

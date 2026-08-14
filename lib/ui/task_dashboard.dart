@@ -1,13 +1,11 @@
 // lib/ui/task_dashboard.dart
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../l10n/app_localizations.dart';
 import '../models/session.dart';
 import '../models/task_record.dart';
 import '../core/session_store.dart';
+import 'artifact_opener.dart';
 
 class TaskItem {
   final String id;
@@ -454,7 +452,7 @@ class TaskDashboardState extends State<TaskDashboard> {
     try {
       ok = opener != null
           ? await opener(path, isFile)
-          : await _openWithSystem(path, isFile: isFile);
+          : await openArtifactWithSystem(path, isFile: isFile);
     } catch (_) {
       ok = false;
     }
@@ -465,37 +463,5 @@ class TaskDashboardState extends State<TaskDashboard> {
         duration: const Duration(seconds: 2),
       ));
     }
-  }
-
-  /// 按平台调用系统打开器：Linux xdg-open / macOS open / Windows PowerShell。
-  /// Windows 不经过 cmd.exe 重解析：路径中的 & | ^ 等元字符会被 cmd 解释，
-  /// 存在注入面；改用 PowerShell -EncodedCommand（UTF-16LE base64）直传，
-  /// 路径以单引号字面量嵌入，命令本身不做二次解析。
-  Future<bool> _openWithSystem(String path, {required bool isFile}) async {
-    final target = isFile ? path : File(path).parent.path;
-    final List<String> cmd;
-    if (Platform.isWindows) {
-      final script = 'Start-Process -LiteralPath \'${target.replaceAll("'", "''")}\'';
-      // PowerShell -EncodedCommand 要求 UTF-16LE base64；codeUnits 即 UTF-16 码元。
-      final utf16le = <int>[];
-      for (final unit in script.codeUnits) {
-        utf16le.add(unit & 0xFF);
-        utf16le.add((unit >> 8) & 0xFF);
-      }
-      cmd = [
-        'powershell',
-        '-NoProfile',
-        '-NonInteractive',
-        '-EncodedCommand',
-        base64.encode(utf16le),
-      ];
-    } else if (Platform.isMacOS) {
-      cmd = ['open', target];
-    } else {
-      cmd = ['xdg-open', target];
-    }
-    final result = await Process.start(cmd.first, cmd.sublist(1));
-    final code = await result.exitCode;
-    return code == 0;
   }
 }

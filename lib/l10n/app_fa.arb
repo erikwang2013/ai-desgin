@@ -108,6 +108,8 @@
   "navigation": "ناوبری",
   "noHistory": "No history",
   "noHistoryHint": "Completed sessions will appear here",
+  "historySearchHint": "جستجو در تاریخچه",
+  "searchNoResults": "جلسهای مطابقت ندارد",
   "noOutput": "(بدون خروجی)",
   "noTasks": "بدون وظیفه",
   "noTasksHint": "نیازمندی‌های طراحی را در پنل گفتگو وارد کنید؛ وظایف در اینجا نمایش داده می‌شوند.",

@@ -297,6 +297,12 @@ class AppLocalizationsFil extends AppLocalizations {
   String get noHistoryHint => 'Completed sessions will appear here';
 
   @override
+  String get historySearchHint => 'Maghanap ng kasaysayan';
+
+  @override
+  String get searchNoResults => 'Walang tumugmang session';
+
+  @override
   String get noOutput => '(walang output)';
 
   @override

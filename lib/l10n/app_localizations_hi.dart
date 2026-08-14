@@ -297,6 +297,12 @@ class AppLocalizationsHi extends AppLocalizations {
   String get noHistoryHint => 'Completed sessions will appear here';
 
   @override
+  String get historySearchHint => 'इतिहास खोजें';
+
+  @override
+  String get searchNoResults => 'कोई मेल खाता सत्र नहीं';
+
+  @override
   String get noOutput => '(कोई आउटपुट नहीं)';
 
   @override

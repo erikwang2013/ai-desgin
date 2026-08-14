@@ -149,4 +149,44 @@ void main() {
     await tester.pump();
     expect(copied, 'layer.create(); export()');
   });
+
+  testWidgets('tapping image artifact invokes openArtifact callback', (tester) async {
+    String? opened;
+    await tester.pumpWidget(MaterialApp(
+      home: ChatView(
+        onSubmit: (_) async => 'Task completed',
+        onArtifacts: (_) async => ['/tmp/out/render.png'],
+        openArtifact: (path) async {
+          opened = path;
+          return true;
+        },
+      ),
+    ));
+    await tester.enterText(find.byType(TextField), 'render scene');
+    await tester.pump();
+    await tester.tap(find.byIcon(Icons.send));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(Image));
+    await tester.pump();
+    expect(opened, '/tmp/out/render.png');
+  });
+
+  testWidgets('failed artifact open shows an error snackbar', (tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: ChatView(
+        onSubmit: (_) async => 'Task completed',
+        onArtifacts: (_) async => ['/tmp/out/render.png'],
+        openArtifact: (_) async => false,
+      ),
+    ));
+    await tester.enterText(find.byType(TextField), 'render scene');
+    await tester.pump();
+    await tester.tap(find.byIcon(Icons.send));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(Image));
+    await tester.pumpAndSettle();
+    expect(find.text('Open failed'), findsOneWidget);
+  });
 }

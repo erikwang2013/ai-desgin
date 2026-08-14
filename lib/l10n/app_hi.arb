@@ -108,6 +108,8 @@
   "navigation": "नेविगेशन",
   "noHistory": "No history",
   "noHistoryHint": "Completed sessions will appear here",
+  "historySearchHint": "इतिहास खोजें",
+  "searchNoResults": "कोई मेल खाता सत्र नहीं",
   "noOutput": "(कोई आउटपुट नहीं)",
   "noTasks": "कोई कार्य नहीं",
   "noTasksHint": "चैट पैनल में डिज़ाइन आवश्यकताएँ दर्ज करें; कार्य यहाँ दिखाई देंगे।",

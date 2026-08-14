@@ -108,6 +108,8 @@
   "navigation": "Navigation",
   "noHistory": "No history",
   "noHistoryHint": "Completed sessions will appear here",
+  "historySearchHint": "Rechercher l'historique",
+  "searchNoResults": "Aucune session correspondante",
   "noOutput": "(aucune sortie)",
   "noTasks": "Aucune tâche",
   "noTasksHint": "Saisissez vos exigences dans le chat ; les tâches apparaîtront ici.",

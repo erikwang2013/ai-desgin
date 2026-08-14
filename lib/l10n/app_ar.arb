@@ -108,6 +108,8 @@
   "navigation": "التنقل",
   "noHistory": "No history",
   "noHistoryHint": "Completed sessions will appear here",
+  "historySearchHint": "بحث في السجل",
+  "searchNoResults": "لا توجد جلسات مطابقة",
   "noOutput": "(لا يوجد مخرجات)",
   "noTasks": "لا توجد مهام",
   "noTasksHint": "أدخل متطلبات التصميم في لوحة المحادثة؛ ستظهر المهام هنا.",

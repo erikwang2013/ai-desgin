@@ -296,6 +296,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get noHistoryHint => 'Completed sessions will appear here';
 
   @override
+  String get historySearchHint => '기록 검색';
+
+  @override
+  String get searchNoResults => '일치하는 세션이 없습니다';
+
+  @override
   String get noOutput => '(출력 없음)';
 
   @override

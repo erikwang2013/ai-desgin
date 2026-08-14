@@ -339,7 +339,7 @@ class HistoryViewState extends State<HistoryView> {
     return Column(
       children: [
         _buildHeader(l10n),
-        _buildSearchField(),
+        _buildSearchField(l10n),
         Expanded(child: _buildBody(l10n)),
         if (_selectMode && _selectedIds.isNotEmpty) _buildSelectionBar(l10n),
       ],
@@ -382,14 +382,14 @@ class HistoryViewState extends State<HistoryView> {
     );
   }
 
-  Widget _buildSearchField() {
+  Widget _buildSearchField(AppLocalizations? l10n) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       child: TextField(
         onChanged: (v) => setState(() => _query = v),
         decoration: InputDecoration(
           isDense: true,
-          hintText: 'Search history',
+          hintText: l10n?.historySearchHint ?? 'Search history',
           prefixIcon: const Icon(Icons.search, size: 20),
           suffixIcon: _query.isEmpty
               ? null
@@ -431,7 +431,7 @@ class HistoryViewState extends State<HistoryView> {
           children: [
             Icon(Icons.search_off, size: 64, color: Colors.grey.shade400),
             const SizedBox(height: 16),
-            Text('No matching sessions',
+            Text(l10n?.searchNoResults ?? 'No matching sessions',
                 style: TextStyle(fontSize: 16, color: Colors.grey.shade600)),
           ],
         ),

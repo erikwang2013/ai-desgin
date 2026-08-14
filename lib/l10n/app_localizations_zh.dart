@@ -291,6 +291,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get noHistoryHint => '完成任务后会话将显示在这里';
 
   @override
+  String get historySearchHint => '搜索历史';
+
+  @override
+  String get searchNoResults => '无匹配会话';
+
+  @override
   String get noOutput => '(无输出)';
 
   @override

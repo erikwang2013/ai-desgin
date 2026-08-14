@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../l10n/app_localizations.dart';
+import 'artifact_opener.dart';
 
 class ChatMessage {
   final String content;
@@ -28,6 +29,8 @@ class ChatView extends StatefulWidget {
   final VoidCallback? onCancel;
   /// 任务完成后取产物路径：异步补充到对应消息，失败静默忽略。
   final Future<List<String>> Function(String message)? onArtifacts;
+  /// 产物打开回调（测试注入用）；为 null 时按平台走系统打开器。
+  final Future<bool> Function(String path)? openArtifact;
   final List<SoftwareOption> softwareOptions;
   final String selectedSoftware;
   final ValueChanged<String>? onSoftwareChanged;
@@ -38,6 +41,7 @@ class ChatView extends StatefulWidget {
     this.onSubmit,
     this.onCancel,
     this.onArtifacts,
+    this.openArtifact,
     this.softwareOptions = const [],
     this.selectedSoftware = '',
     this.onSoftwareChanged,
@@ -231,20 +235,45 @@ class _ChatViewState extends State<ChatView> {
   Widget _buildArtifact(String path) {
     final name = path.split(RegExp(r'[/\\]')).last;
     if (_isImage(path)) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(6),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 360, maxHeight: 240),
-          child: Image.file(
-            File(path),
-            fit: BoxFit.contain,
-            errorBuilder: (_, _, _) =>
-                _artifactFallback(Icons.broken_image, name),
+      // 点击缩略图用系统默认应用打开原图，失败 SnackBar 提示。
+      // 固定缩略图尺寸：小图不塌缩、加载失败前也可点击。
+      return GestureDetector(
+        onTap: () => _openArtifact(path),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: SizedBox(
+            width: 320,
+            height: 200,
+            child: Image.file(
+              File(path),
+              fit: BoxFit.contain,
+              errorBuilder: (_, _, _) =>
+                  _artifactFallback(Icons.broken_image, name),
+            ),
           ),
         ),
       );
     }
     return _artifactFallback(Icons.insert_drive_file, name);
+  }
+
+  Future<void> _openArtifact(String path) async {
+    final opener = widget.openArtifact;
+    var ok = false;
+    try {
+      ok = opener != null
+          ? await opener(path)
+          : await openArtifactWithSystem(path, isFile: true);
+    } catch (_) {
+      ok = false;
+    }
+    if (!mounted) return;
+    if (!ok) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: const Text('Open failed'),
+        duration: const Duration(seconds: 2),
+      ));
+    }
   }
 
   Widget _artifactFallback(IconData icon, String name) {

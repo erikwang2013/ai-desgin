@@ -297,6 +297,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get noHistoryHint => 'Completed sessions will appear here';
 
   @override
+  String get historySearchHint => 'Поиск по истории';
+
+  @override
+  String get searchNoResults => 'Нет совпадающих сессий';
+
+  @override
   String get noOutput => '(нет вывода)';
 
   @override

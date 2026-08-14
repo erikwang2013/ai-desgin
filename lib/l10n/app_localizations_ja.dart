@@ -296,6 +296,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get noHistoryHint => 'Completed sessions will appear here';
 
   @override
+  String get historySearchHint => '履歴を検索';
+
+  @override
+  String get searchNoResults => '一致するセッションがありません';
+
+  @override
   String get noOutput => '(出力なし)';
 
   @override

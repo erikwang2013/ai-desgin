@@ -297,6 +297,12 @@ class AppLocalizationsFa extends AppLocalizations {
   String get noHistoryHint => 'Completed sessions will appear here';
 
   @override
+  String get historySearchHint => 'جستجو در تاریخچه';
+
+  @override
+  String get searchNoResults => 'جلسهای مطابقت ندارد';
+
+  @override
   String get noOutput => '(بدون خروجی)';
 
   @override

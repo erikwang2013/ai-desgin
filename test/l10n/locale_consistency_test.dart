@@ -142,6 +142,8 @@ String invokeMember(AppLocalizations l, String name) {
       return l.history;
     case 'historyList':
       return l.historyList;
+    case 'historySearchHint':
+      return l.historySearchHint;
     case 'importAction':
       return l.importAction;
     case 'inProgress':
@@ -224,6 +226,8 @@ String invokeMember(AppLocalizations l, String name) {
       return l.save;
     case 'saveSuccess':
       return l.saveSuccess;
+    case 'searchNoResults':
+      return l.searchNoResults;
     case 'searchPlugins':
       return l.searchPlugins;
     case 'selectPluginToExport':
