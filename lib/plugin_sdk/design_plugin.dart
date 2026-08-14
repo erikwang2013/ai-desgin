@@ -25,12 +25,13 @@ abstract class DesignPlugin {
   Future<void> dispose();
   Future<ConnectionStatus> checkConnection();
   Future<bool> connect(ConnectionConfig config);
-  Future<ScriptResult> execute(String script, {ProgressCallback? onProgress});
+  Future<ScriptResult> execute(String script, {ProgressCallback? onProgress, String? key});
   Future<ScriptResult> preview(String script);
   Future<SoftwareState> getCurrentState();
 
-  /// 取消正在执行的本地脚本。默认 no-op；BuiltInPlugin 转发给执行器。
-  Future<void> cancel() async {}
+  /// 取消正在执行的本地脚本（key 为任务 id，缺省回退插件 id）。默认 no-op；
+  /// BuiltInPlugin 转发给执行器。
+  Future<void> cancel({String? key}) async {}
 }
 
 class BuiltInPlugin implements DesignPlugin {
@@ -103,11 +104,11 @@ class BuiltInPlugin implements DesignPlugin {
   Future<bool> connect(ConnectionConfig config) async => false;
 
   @override
-  Future<ScriptResult> execute(String script, {ProgressCallback? onProgress}) async {
+  Future<ScriptResult> execute(String script, {ProgressCallback? onProgress, String? key}) async {
     final executor = LocalScriptExecutor.instance;
     if (executor != null && executor.hasCommand(id)) {
-      // key: id 注册进程，让 cancel() 能按插件 id 中断本地脚本。
-      return executor.execute(id, name, script, key: id);
+      // key 用调用方传入的任务 id，避免同软件并发任务按插件 id 互杀；缺省回退插件 id。
+      return executor.execute(id, name, script, key: key ?? id);
     }
     return ScriptResult.success(
       output: '脚本已生成，请在实际软件中执行:\n\n$script',
@@ -123,10 +124,10 @@ class BuiltInPlugin implements DesignPlugin {
   Future<SoftwareState> getCurrentState() async => const SoftwareState();
 
   @override
-  Future<void> cancel() async {
+  Future<void> cancel({String? key}) async {
     final executor = LocalScriptExecutor.instance;
     if (executor != null && executor.hasCommand(id)) {
-      executor.cancel(id);
+      executor.cancel(key ?? id);
     }
   }
 }

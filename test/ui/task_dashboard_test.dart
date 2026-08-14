@@ -21,7 +21,10 @@ void main() {
               createdAt: DateTime(2026, 8, 6, 10, 30),
             ),
           ],
-          onCancel: (id) => cancelledIds.add(id),
+          onCancel: (id) {
+            cancelledIds.add(id);
+            return null;
+          },
         ),
       ),
     ));
@@ -48,7 +51,7 @@ void main() {
               createdAt: DateTime(2026, 8, 6, 10, 31),
             ),
           ],
-          onCancel: (id) {},
+          onCancel: (id) => null,
         ),
       ),
     ));
@@ -68,7 +71,7 @@ void main() {
               createdAt: DateTime(2026, 8, 6, 10, 32),
             ),
           ],
-          onCancel: (id) {},
+          onCancel: (id) => null,
         ),
       ),
     ));
@@ -91,7 +94,7 @@ void main() {
               progressStage: '正在生成脚本…',
             ),
           ],
-          onCancel: (id) {},
+          onCancel: (id) => null,
         ),
       ),
     ));
@@ -118,7 +121,7 @@ void main() {
               createdAt: DateTime(2026, 8, 6, 10, 36),
             ),
           ],
-          onCancel: (id) {},
+          onCancel: (id) => null,
         ),
       ),
     ));
@@ -151,7 +154,7 @@ void main() {
               createdAt: DateTime(2026, 8, 6, 10, 38),
             ),
           ],
-          onCancel: (id) {},
+          onCancel: (id) => null,
         ),
       ),
     ));
@@ -182,7 +185,7 @@ void main() {
               progressStage: '正在验证…',
             ),
           ],
-          onCancel: (id) {},
+          onCancel: (id) => null,
         ),
       ),
     ));
@@ -212,7 +215,7 @@ void main() {
       home: Scaffold(
         body: TaskDashboard(
           sessionStore: store,
-          onCancel: (id) {},
+          onCancel: (id) => null,
           resolveSoftwareName: (id) => id == 'blender' ? 'Blender' : id,
         ),
       ),

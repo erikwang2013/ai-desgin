@@ -65,6 +65,8 @@ class _ChatViewState extends State<ChatView> {
     if (widget.conversationEpoch != oldWidget.conversationEpoch) {
       _messages.clear();
       _controller.clear();
+      // 旧会话的在途请求已无意义：复位 loading，避免输入框永久禁用。
+      _isLoading = false;
     }
   }
 
@@ -99,6 +101,7 @@ class _ChatViewState extends State<ChatView> {
 
   void _sendText(String text) {
     if (text.isEmpty) return;
+    final submittedEpoch = widget.conversationEpoch;
 
     setState(() {
       _messages.add(ChatMessage(content: text));
@@ -109,24 +112,23 @@ class _ChatViewState extends State<ChatView> {
 
     if (widget.onSubmit != null) {
       widget.onSubmit!(text).then((response) {
-        if (mounted) {
-          setState(() {
-            _messages.add(ChatMessage(content: response, isUser: false));
-            _trimMessages();
-            _isLoading = false;
-          });
-          _scrollToBottom();
-        }
+        // 请求在途时会话已切换（epoch 变化）：旧响应丢弃，不得追加进新会话。
+        if (!mounted || widget.conversationEpoch != submittedEpoch) return;
+        setState(() {
+          _messages.add(ChatMessage(content: response, isUser: false));
+          _trimMessages();
+          _isLoading = false;
+        });
+        _scrollToBottom();
       }).catchError((error) {
-        if (mounted) {
-          final l10n = AppLocalizations.of(context);
-          setState(() {
-            _messages.add(ChatMessage(content: '❌ ${l10n?.errorPrefix ?? 'Error'}: $error', isUser: false));
-            _trimMessages();
-            _isLoading = false;
-          });
-          _scrollToBottom();
-        }
+        if (!mounted || widget.conversationEpoch != submittedEpoch) return;
+        final l10n = AppLocalizations.of(context);
+        setState(() {
+          _messages.add(ChatMessage(content: '❌ ${l10n?.errorPrefix ?? 'Error'}: $error', isUser: false));
+          _trimMessages();
+          _isLoading = false;
+        });
+        _scrollToBottom();
       });
     } else {
       final l10n = AppLocalizations.of(context);

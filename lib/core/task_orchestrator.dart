@@ -243,7 +243,7 @@ class TaskOrchestrator {
           }
 
           onProgress?.call('executing', '正在执行…');
-          result = await plugin.execute(generatedScript);
+          result = await plugin.execute(generatedScript, key: record.id);
           iterationsRun = iteration;
           iterationLog.add(
             '第 $iteration 轮执行: ${result.success ? '成功' : '失败'}'
@@ -367,8 +367,9 @@ class TaskOrchestrator {
 
     if (task.status == TaskStatus.running) {
       backend.cancel(key: taskId);
-      // 执行阶段的本地 CLI 脚本也要中断，否则要等满超时。
-      unawaited(_pluginManager.get(task.sessionId)?.cancel());
+      // 执行阶段的本地 CLI 脚本也要中断，否则要等满超时。key 传任务 id，
+      // 只杀本任务的进程，不波及同软件并发任务。
+      unawaited(_pluginManager.get(task.sessionId)?.cancel(key: task.id));
     }
     _tasks[taskId] = cancelled;
     _recordCancelledInSession(task);

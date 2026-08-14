@@ -18,6 +18,7 @@ import 'core/cli_agent_backend.dart';
 import 'core/remote_backend.dart';
 import 'core/model_router.dart';
 import 'core/task_orchestrator.dart';
+import 'core/artifact_verifier.dart';
 import 'core/session_store.dart';
 import 'core/db_opener.dart';
 import 'core/builtin_plugins.dart';
@@ -340,7 +341,9 @@ class _MainShellState extends State<_MainShell> {
   }
 
   /// Cancel a task and persist the cancellation so it survives a restart.
-  void _cancelAndPersist(String id) {
+  /// 返回取消后的最新状态供 UI 回填：任务已先完成时 cancelTask 是 no-op，
+  /// UI 不得把已完成记录误标成 cancelled。
+  TaskStatus? _cancelAndPersist(String id) {
     _orchestrator.cancelTask(id);
     final record = _orchestrator.getTask(id);
     final session =
@@ -348,6 +351,7 @@ class _MainShellState extends State<_MainShell> {
     if (session != null && _sessionStore != null) {
       _sessionStore!.save(session).catchError((_) {});
     }
+    return record?.status;
   }
 
   /// 历史列表刷新防抖：任务连续完成时合并多次 reload 为一次。
@@ -374,6 +378,7 @@ class _MainShellState extends State<_MainShell> {
       softwareName: sw,
       task: task,
       taskId: taskId,
+      verifier: const ArtifactVerifier(),
       onProgress: (stage, description) {
         _dashboardKey.currentState?.updateTaskProgress(taskId, stage);
       },

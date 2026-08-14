@@ -94,25 +94,52 @@ Future<Database?> openEncryptedSessionDb() async {
     final supportDir = await getApplicationSupportDirectory();
     await Directory(supportDir.path).create(recursive: true);
     final password = await _loadOrCreatePassword(supportDir.path);
-    final db = sqlite3.open('${docDir.path}/$_dbFileName');
+    final dbPath = '${docDir.path}/$_dbFileName';
+    final db = _openAndInit(dbPath, password);
+    if (db != null) return db;
+    // 校验失败（库损坏/密钥不匹配）：备份损坏文件后重建，避免历史会话
+    // 被永久禁用；auth 文件保留，损坏库仍留在备份里可手动恢复。
+    final corrupt = File(dbPath);
+    if (corrupt.existsSync()) {
+      try {
+        final backup =
+            File('$dbPath.corrupt-${DateTime.now().millisecondsSinceEpoch}');
+        corrupt.renameSync(backup.path);
+        debugPrint('Corrupt session db backed up to ${backup.path}');
+      } catch (e) {
+        debugPrint('Failed to back up corrupt session db: $e');
+      }
+    }
+    return _openAndInit(dbPath, password);
+  } catch (e) {
+    debugPrint('Encrypted session DB open failed: $e');
+    return null;
+  }
+}
+
+/// 用密码打开库并完成密钥探测/加密校验/迁移；任一步失败返回 null 且不抛异常。
+/// SQLCipher 构建缺失时宁可禁用历史会话，也不静默降级明文存储。
+Database? _openAndInit(String path, String password) {
+  Database? db;
+  try {
+    db = sqlite3.open(path);
     db.execute("PRAGMA key = '$password'");
     if (!_verifyKey(db)) {
+      // 密钥不匹配（库可能是明文或旧密钥）：不静默覆盖密钥掩盖问题。
       db.close();
-      // 密钥不匹配（库可能是明文或旧密钥）：保留 auth 文件供手动恢复，
-      // 不静默覆盖密钥，也不创建空明文库掩盖问题。
-      debugPrint('Session DB key mismatch: auth file kept for recovery');
       return null;
     }
     if (!_sqlcipherAvailable(db)) {
       db.close();
-      // SQLCipher 构建缺失时宁可禁用历史会话，也不静默降级明文存储。
       debugPrint('SQLCipher unavailable: session history disabled');
       return null;
     }
     _migrate(db);
     return db;
   } catch (e) {
-    debugPrint('Encrypted session DB open failed: $e');
+    try {
+      db?.close();
+    } catch (_) {}
     return null;
   }
 }

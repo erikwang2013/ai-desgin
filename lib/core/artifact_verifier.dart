@@ -34,19 +34,23 @@ class ArtifactVerifier {
     if (result.manualFallback) {
       return const VerificationResult(passed: true, summary: '验证通过（手动执行回退）');
     }
+    for (final artifact in result.artifacts) {
+      if (!await File(artifact).exists()) {
+        return VerificationResult(passed: false, summary: '产物文件不存在: $artifact');
+      }
+    }
+    // 特征词（error/traceback 等）误报率高于收益：正常输出里的 "no error"、
+    // "0 errors" 也会命中，直接判失败会浪费多轮重新生成的 token。
+    // 不再判失败，仅附在 summary 中提示。
     for (final marker in _englishMarkers) {
       if (marker.hasMatch(output)) {
-        return VerificationResult(passed: false, summary: '输出包含失败特征: ${marker.pattern}');
+        return VerificationResult(
+            passed: true, summary: '验证通过（输出含可疑字样 ${marker.pattern}）');
       }
     }
     for (final marker in _chineseMarkers) {
       if (output.contains(marker)) {
-        return VerificationResult(passed: false, summary: '输出包含失败特征: $marker');
-      }
-    }
-    for (final artifact in result.artifacts) {
-      if (!await File(artifact).exists()) {
-        return VerificationResult(passed: false, summary: '产物文件不存在: $artifact');
+        return VerificationResult(passed: true, summary: '验证通过（输出含可疑字样 $marker）');
       }
     }
     return const VerificationResult(passed: true, summary: '验证通过');

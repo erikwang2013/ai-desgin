@@ -42,6 +42,10 @@ class LocalScriptExecutor {
   static const _probeTimeout = Duration(seconds: 5);
   static const _executeTimeout = Duration(seconds: 120);
 
+  /// 输出缓冲上限：超过两倍上限时丢弃头部，只保留尾部 64KB，
+  /// 防止失控脚本长输出把内存打爆。
+  static const _maxOutputBytes = 64 * 1024;
+
   /// 可验证产物扩展名白名单（小写，不含点）。
   static const _artifactExtensions = {
     'png', 'jpg', 'jpeg', 'webp', 'bmp', 'tiff',
@@ -110,6 +114,11 @@ class LocalScriptExecutor {
 
     Directory? tempDir;
     Process? process;
+    // 输出缓冲与排空 future 声明在外层：超时分支也需要显式等待流结束。
+    final stdoutBytes = <int>[];
+    final stderrBytes = <int>[];
+    late final Future<void> stdoutDone;
+    late final Future<void> stderrDone;
     try {
       tempDir = await Directory.systemTemp.createTemp('ai_design_');
       final scriptPath = await _writeScriptFile(tempDir, config, script);
@@ -129,17 +138,19 @@ class LocalScriptExecutor {
         }
       }
       // 启动即并发消费 stdout/stderr，超时 kill 后管道随即关闭。
-      // Windows 下 Blender 等软件可能输出 GBK 等非 UTF-8 文本，缓冲字节后按编码解码。
-      final stdoutFuture =
-          process.stdout.fold<List<int>>(<int>[], (acc, chunk) => acc..addAll(chunk));
-      final stderrFuture =
-          process.stderr.fold<List<int>>(<int>[], (acc, chunk) => acc..addAll(chunk));
+      // Windows 下 Blender 等软件可能输出 GBK 等非 UTF-8 文本，缓冲字节后按编码解码；
+      // 缓冲有上限（保留尾部 64KB），防止长输出 OOM。
+      stdoutDone = _drainOutput(process.stdout, stdoutBytes);
+      stderrDone = _drainOutput(process.stderr, stderrBytes);
       final exitCode = await process.exitCode.timeout(_executeTimeout);
       if (key != null && _cancelled.remove(key)) {
         return ScriptResult.failure(error: '$pluginName 脚本已取消');
       }
-      final output = decodeConsoleOutput(await stdoutFuture).trim();
-      final stderr = decodeConsoleOutput(await stderrFuture).trim();
+      // 进程已退出、管道即将关闭；等待排空完成，极端情况下兜底超时防卡死。
+      await Future.wait([stdoutDone, stderrDone])
+          .timeout(const Duration(seconds: 5), onTimeout: () => const []);
+      final output = decodeConsoleOutput(stdoutBytes).trim();
+      final stderr = decodeConsoleOutput(stderrBytes).trim();
       if (exitCode == 0) {
         final artifacts = await _collectArtifacts(tempDir);
         return ScriptResult.success(
@@ -159,7 +170,10 @@ class LocalScriptExecutor {
       );
     } on TimeoutException {
       // 超时是放弃 Future 而非杀进程，挂死的 Blender/FreeCAD 会继续运行。
+      // kill 后管道关闭，显式等待输出流结束，避免悬挂的流订阅残留。
       process?.kill();
+      await Future.wait([stdoutDone, stderrDone])
+          .timeout(const Duration(seconds: 5), onTimeout: () => const []);
       return ScriptResult.failure(
         error: '$pluginName 脚本执行超时（${_executeTimeout.inSeconds}s）',
       );
@@ -183,6 +197,17 @@ class LocalScriptExecutor {
     final process = _running[key];
     if (process != null) {
       process.kill();
+    }
+  }
+
+  /// 输出流排空：字节缓冲超过两倍上限时丢弃头部只保留尾部 [_maxOutputBytes]；
+  /// 进程被 kill 后管道关闭，此 future 随即完成，无悬挂订阅。
+  Future<void> _drainOutput(Stream<List<int>> stream, List<int> buffer) async {
+    await for (final chunk in stream) {
+      buffer.addAll(chunk);
+      if (buffer.length > _maxOutputBytes * 2) {
+        buffer.removeRange(0, buffer.length - _maxOutputBytes);
+      }
     }
   }
 

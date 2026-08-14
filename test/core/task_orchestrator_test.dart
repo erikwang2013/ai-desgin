@@ -24,7 +24,7 @@ class EchoPlugin extends DesignPlugin {
   @override Future<void> dispose() async {}
   @override Future<ConnectionStatus> checkConnection() async => ConnectionStatus.connected;
   @override Future<bool> connect(ConnectionConfig config) async => true;
-  @override Future<ScriptResult> execute(String script, {ProgressCallback? onProgress}) async {
+  @override Future<ScriptResult> execute(String script, {ProgressCallback? onProgress, String? key}) async {
     return ScriptResult.success(output: 'executed: $script');
   }
   @override Future<ScriptResult> preview(String script) async => ScriptResult.success(output: 'preview: $script');
@@ -39,7 +39,7 @@ class FailingEchoPlugin extends EchoPlugin {
   String get id => 'failing';
 
   @override
-  Future<ScriptResult> execute(String script, {ProgressCallback? onProgress}) async {
+  Future<ScriptResult> execute(String script, {ProgressCallback? onProgress, String? key}) async {
     executeCount++;
     return ScriptResult.failure(error: 'simulated failure $executeCount');
   }
@@ -53,7 +53,7 @@ class FailOncePlugin extends EchoPlugin {
   String get id => 'failonce';
 
   @override
-  Future<ScriptResult> execute(String script, {ProgressCallback? onProgress}) async {
+  Future<ScriptResult> execute(String script, {ProgressCallback? onProgress, String? key}) async {
     executeCount++;
     if (executeCount == 1) {
       return ScriptResult.failure(error: 'first attempt failed');
@@ -103,7 +103,7 @@ class GatedEchoPlugin extends EchoPlugin {
   String get id => 'gated';
 
   @override
-  Future<ScriptResult> execute(String script, {ProgressCallback? onProgress}) async {
+  Future<ScriptResult> execute(String script, {ProgressCallback? onProgress, String? key}) async {
     await release.future;
     return super.execute(script, onProgress: onProgress);
   }
@@ -114,7 +114,7 @@ class CountingEchoPlugin extends EchoPlugin {
   int executeCalls = 0;
 
   @override
-  Future<ScriptResult> execute(String script, {ProgressCallback? onProgress}) async {
+  Future<ScriptResult> execute(String script, {ProgressCallback? onProgress, String? key}) async {
     executeCalls++;
     return super.execute(script, onProgress: onProgress);
   }
@@ -133,7 +133,7 @@ class CancellingGatedPlugin extends GatedEchoPlugin {
   CancellingGatedPlugin({required super.release});
 
   @override
-  Future<void> cancel() async {
+  Future<void> cancel({String? key}) async {
     cancelCalls++;
   }
 }

@@ -263,7 +263,7 @@ class ExternalScriptPlugin implements DesignPlugin {
   Future<bool> connect(ConnectionConfig config) async => false;
 
   @override
-  Future<ScriptResult> execute(String script, {ProgressCallback? onProgress}) async {
+  Future<ScriptResult> execute(String script, {ProgressCallback? onProgress, String? key}) async {
     return ScriptResult.success(
       output: '外部脚本型插件 "${manifest.name}"：脚本文件位于 $packageDir。'
           '${script.isEmpty ? '' : '\n\n待执行脚本:\n$script'}',
@@ -281,7 +281,7 @@ class ExternalScriptPlugin implements DesignPlugin {
 
   // 外部脚本型插件不启动本地进程，无需取消。
   @override
-  Future<void> cancel() async {}
+  Future<void> cancel({String? key}) async {}
 }
 
 /// zip 插件包导入/导出编解码。

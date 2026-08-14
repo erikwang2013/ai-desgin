@@ -23,7 +23,7 @@ class StubPlugin extends DesignPlugin {
   @override Future<void> dispose() async {}
   @override Future<ConnectionStatus> checkConnection() async => ConnectionStatus.disconnected;
   @override Future<bool> connect(ConnectionConfig config) async => true;
-  @override Future<ScriptResult> execute(String script, {ProgressCallback? onProgress}) async => ScriptResult.success();
+  @override Future<ScriptResult> execute(String script, {ProgressCallback? onProgress, String? key}) async => ScriptResult.success();
   @override Future<ScriptResult> preview(String script) async => ScriptResult.success();
   @override Future<SoftwareState> getCurrentState() async => const SoftwareState();
 }

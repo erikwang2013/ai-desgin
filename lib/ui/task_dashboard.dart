@@ -32,7 +32,9 @@ class TaskItem {
 class TaskDashboard extends StatefulWidget {
   final List<TaskItem>? initialTasks;
   final SessionStore? sessionStore;
-  final ValueChanged<String>? onCancel;
+  /// 取消回调返回 orchestrator 取消后的最新状态，UI 据此回填；
+  /// 返回 null 时回退为 cancelled。
+  final TaskStatus? Function(String)? onCancel;
   final String Function(String id)? resolveSoftwareName;
   const TaskDashboard({
     super.key,
@@ -281,7 +283,9 @@ class TaskDashboardState extends State<TaskDashboard> {
   }
 
   void _cancelTask(TaskItem task) {
-    widget.onCancel?.call(task.id);
+    // 以 orchestrator 实际结果回填：任务已先完成时 cancelTask 是 no-op，
+    // 这里不得把已完成记录误标成 cancelled 造成 UI/历史漂移。
+    final status = widget.onCancel?.call(task.id) ?? TaskStatus.cancelled;
     final idx = _taskIndex[task.id];
     if (idx == null || idx >= _tasks.length) return;
     setState(() {
@@ -289,7 +293,7 @@ class TaskDashboardState extends State<TaskDashboard> {
         id: task.id,
         title: task.title,
         software: task.software,
-        status: TaskStatus.cancelled,
+        status: status,
         createdAt: task.createdAt,
         modelUsed: task.modelUsed,
         script: task.script,

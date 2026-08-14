@@ -41,7 +41,7 @@ class FakeFigmaPlugin extends DesignPlugin {
 
   @override
   Future<ScriptResult> execute(String script,
-      {ProgressCallback? onProgress}) async {
+      {ProgressCallback? onProgress, String? key}) async {
     onProgress?.call(0.5);
     onProgress?.call(1.0);
     return ScriptResult.success(output: 'ok');
