@@ -111,6 +111,7 @@
   "noHistoryHint": "Completed sessions will appear here",
   "historySearchHint": "Поиск по истории",
   "searchNoResults": "Нет совпадающих сессий",
+  "refreshConnectionStatus": "Обновить статус подключения",
   "deleteFailed": "Не удалось удалить",
   "exportMarkdown": "Экспорт в Markdown",
   "openDirectory": "Открыть папку",

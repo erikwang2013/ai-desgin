@@ -111,6 +111,7 @@
   "noHistoryHint": "Completed sessions will appear here",
   "historySearchHint": "بحث في السجل",
   "searchNoResults": "لا توجد جلسات مطابقة",
+  "refreshConnectionStatus": "تحديث حالة الاتصال",
   "deleteFailed": "فشل الحذف",
   "exportMarkdown": "تصدير Markdown",
   "openDirectory": "فتح المجلد",

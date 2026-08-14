@@ -111,6 +111,7 @@
   "noHistoryHint": "Completed sessions will appear here",
   "historySearchHint": "इतिहास खोजें",
   "searchNoResults": "कोई मेल खाता सत्र नहीं",
+  "refreshConnectionStatus": "कनेक्शन स्थिति रीफ़्रेश करें",
   "deleteFailed": "हटाना विफल",
   "exportMarkdown": "Markdown निर्यात करें",
   "openDirectory": "फ़ोल्डर खोलें",

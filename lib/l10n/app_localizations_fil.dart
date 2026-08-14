@@ -361,6 +361,9 @@ class AppLocalizationsFil extends AppLocalizations {
   String get proxySettingsDesc => 'I-configure ang network proxy';
 
   @override
+  String get refreshConnectionStatus => 'I-refresh ang katayuan ng koneksyon';
+
+  @override
   String get remoteConfigSaveFailed => 'Failed to save remote endpoint config';
 
   @override

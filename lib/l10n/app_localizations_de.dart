@@ -361,6 +361,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get proxySettingsDesc => 'Netzwerk-Proxy konfigurieren';
 
   @override
+  String get refreshConnectionStatus => 'Verbindungsstatus aktualisieren';
+
+  @override
   String get remoteConfigSaveFailed => 'Failed to save remote endpoint config';
 
   @override

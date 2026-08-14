@@ -361,6 +361,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get proxySettingsDesc => 'नेटवर्क प्रॉक्सी कॉन्फ़िगर करें';
 
   @override
+  String get refreshConnectionStatus => 'कनेक्शन स्थिति रीफ़्रेश करें';
+
+  @override
   String get remoteConfigSaveFailed => 'Failed to save remote endpoint config';
 
   @override

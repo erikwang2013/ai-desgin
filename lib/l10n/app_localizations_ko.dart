@@ -359,6 +359,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get proxySettingsDesc => '네트워크 프록시 구성';
 
   @override
+  String get refreshConnectionStatus => '연결 상태 새로고침';
+
+  @override
   String get remoteConfigSaveFailed => 'Failed to save remote endpoint config';
 
   @override

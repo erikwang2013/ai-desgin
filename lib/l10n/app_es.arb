@@ -111,6 +111,7 @@
   "noHistoryHint": "Completed sessions will appear here",
   "historySearchHint": "Buscar historial",
   "searchNoResults": "Sin sesiones coincidentes",
+  "refreshConnectionStatus": "Actualizar estado de conexión",
   "deleteFailed": "Error al eliminar",
   "exportMarkdown": "Exportar Markdown",
   "openDirectory": "Abrir carpeta",

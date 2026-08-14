@@ -354,6 +354,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get proxySettingsDesc => '配置网络代理';
 
   @override
+  String get refreshConnectionStatus => '刷新连接状态';
+
+  @override
   String get remoteConfigSaveFailed => '保存远程端点配置失败';
 
   @override

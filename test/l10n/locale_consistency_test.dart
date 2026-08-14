@@ -224,6 +224,8 @@ String invokeMember(AppLocalizations l, String name) {
       return l.proxySettings;
     case 'proxySettingsDesc':
       return l.proxySettingsDesc;
+    case 'refreshConnectionStatus':
+      return l.refreshConnectionStatus;
     case 'remoteConfigSaveFailed':
       return l.remoteConfigSaveFailed;
     case 'remoteConfigSaved':

@@ -203,7 +203,7 @@ ai-desgin/
 |   +-- build.sh                           # Unix 构建
 |   +-- build_windows.bat                  # Windows 构建
 |   +-- release.sh                         # 发布打包
-+-- test/                                  # Dart 测试 (292 tests)
++-- test/                                  # Dart 测试 (294 tests)
 +-- docs/
     +-- diagrams/                          # 中英文 SVG 图表（架构/流程/功能/生命周期/安全）
     |   +-- architecture-zh.svg            # 系统架构图
@@ -321,7 +321,7 @@ cd rust && cargo clippy       # Rust lint 检查
 | 检查项 | 状态 |
 |--------|------|
 | `flutter analyze` | No issues found |
-| `flutter test` | 292 tests passed |
+| `flutter test` | 294 tests passed |
 | `cargo check` | 40 crates compiled |
 | `cargo clippy` | 0 warnings |
 

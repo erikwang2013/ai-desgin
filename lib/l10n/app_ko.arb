@@ -111,6 +111,7 @@
   "noHistoryHint": "Completed sessions will appear here",
   "historySearchHint": "기록 검색",
   "searchNoResults": "일치하는 세션이 없습니다",
+  "refreshConnectionStatus": "연결 상태 새로고침",
   "deleteFailed": "삭제 실패",
   "exportMarkdown": "Markdown 내보내기",
   "openDirectory": "폴더 열기",

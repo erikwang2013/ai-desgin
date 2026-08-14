@@ -111,6 +111,7 @@
   "noHistoryHint": "Completed sessions will appear here",
   "historySearchHint": "履歴を検索",
   "searchNoResults": "一致するセッションがありません",
+  "refreshConnectionStatus": "接続状態を更新",
   "deleteFailed": "削除に失敗しました",
   "exportMarkdown": "Markdown でエクスポート",
   "openDirectory": "フォルダを開く",

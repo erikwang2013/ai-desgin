@@ -256,6 +256,7 @@
   "proxyPort": "Proxy Port",
   "proxySettings": "Proxy Settings",
   "proxySettingsDesc": "Configure network proxy",
+  "refreshConnectionStatus": "Refresh connection status",
   "remoteConfigSaveFailed": "Failed to save remote endpoint config",
   "remoteConfigSaved": "Remote endpoint config saved",
   "remoteEndpoint": "Remote Endpoint",

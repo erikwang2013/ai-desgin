@@ -62,7 +62,7 @@ class _SoftwarePanelState extends State<SoftwarePanel> {
               if (widget.onRefresh != null)
                 IconButton(
                   icon: const Icon(Icons.refresh, size: 20),
-                  tooltip: 'Refresh connection status',
+                  tooltip: l10n?.refreshConnectionStatus ?? 'Refresh connection status',
                   onPressed: () => widget.onRefresh!(),
                 ),
               TextButton.icon(

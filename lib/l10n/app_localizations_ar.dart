@@ -361,6 +361,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get proxySettingsDesc => 'تكوين وكيل الشبكة';
 
   @override
+  String get refreshConnectionStatus => 'تحديث حالة الاتصال';
+
+  @override
   String get remoteConfigSaveFailed => 'Failed to save remote endpoint config';
 
   @override

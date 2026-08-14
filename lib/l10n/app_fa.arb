@@ -111,6 +111,7 @@
   "noHistoryHint": "Completed sessions will appear here",
   "historySearchHint": "جستجو در تاریخچه",
   "searchNoResults": "جلسهای مطابقت ندارد",
+  "refreshConnectionStatus": "بهروزرسانی وضعیت اتصال",
   "deleteFailed": "حذف ناموفق بود",
   "exportMarkdown": "خروجی Markdown",
   "openDirectory": "باز کردن پوشه",

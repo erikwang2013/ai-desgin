@@ -766,6 +766,12 @@ abstract class AppLocalizations {
   /// **'Configure network proxy'**
   String get proxySettingsDesc;
 
+  /// No description provided for @refreshConnectionStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh connection status'**
+  String get refreshConnectionStatus;
+
   /// Localized label for remoteConfigSaveFailed
   ///
   /// In en, this message translates to:

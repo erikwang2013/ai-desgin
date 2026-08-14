@@ -360,6 +360,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get proxySettingsDesc => 'Настройка сетевого прокси';
 
   @override
+  String get refreshConnectionStatus => 'Обновить статус подключения';
+
+  @override
   String get remoteConfigSaveFailed => 'Failed to save remote endpoint config';
 
   @override

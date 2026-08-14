@@ -111,6 +111,7 @@
   "noHistoryHint": "Completed sessions will appear here",
   "historySearchHint": "Maghanap ng kasaysayan",
   "searchNoResults": "Walang tumugmang session",
+  "refreshConnectionStatus": "I-refresh ang katayuan ng koneksyon",
   "deleteFailed": "Nabigong magtanggal",
   "exportMarkdown": "I-export ang Markdown",
   "openDirectory": "Buksan ang folder",

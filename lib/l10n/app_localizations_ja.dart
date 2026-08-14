@@ -359,6 +359,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get proxySettingsDesc => 'ネットワークプロキシを設定';
 
   @override
+  String get refreshConnectionStatus => '接続状態を更新';
+
+  @override
   String get remoteConfigSaveFailed => 'Failed to save remote endpoint config';
 
   @override

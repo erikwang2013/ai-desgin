@@ -361,6 +361,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get proxySettingsDesc => 'پیکربندی پروکسی شبکه';
 
   @override
+  String get refreshConnectionStatus => 'بهروزرسانی وضعیت اتصال';
+
+  @override
   String get remoteConfigSaveFailed => 'Failed to save remote endpoint config';
 
   @override
