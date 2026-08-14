@@ -9,6 +9,10 @@ import '../models/session.dart';
 import '../models/task_record.dart';
 import '../models/plugin.dart';
 
+/// 任务进度回调：stage 为阶段名（generating/executing/verifying），
+/// description 为面向用户的中文描述。
+typedef TaskProgressCallback = void Function(String stage, String description);
+
 class _QueuedTask {
   final DesignCategory domain;
   final String softwareName;
@@ -17,6 +21,7 @@ class _QueuedTask {
   final String pendingId;
   final int maxIterations;
   final ArtifactVerifier? verifier;
+  final TaskProgressCallback? onProgress;
   final Completer<TaskRecord> completer;
 
   _QueuedTask({
@@ -27,6 +32,7 @@ class _QueuedTask {
     required this.pendingId,
     this.maxIterations = 3,
     this.verifier,
+    this.onProgress,
   }) : completer = Completer<TaskRecord>();
 }
 
@@ -65,6 +71,7 @@ class TaskOrchestrator {
     String? taskId,
     int maxIterations = 3,
     ArtifactVerifier? verifier,
+    TaskProgressCallback? onProgress,
   }) async {
     final plugin = _pluginManager.get(softwareName);
     if (plugin == null) {
@@ -90,6 +97,7 @@ class TaskOrchestrator {
         pendingId: pending.id,
         maxIterations: maxIterations,
         verifier: verifier,
+        onProgress: onProgress,
       );
       _taskQueue.add(queued);
       _processQueue();
@@ -131,6 +139,7 @@ class TaskOrchestrator {
 
       String generatedScript = task;
       if (await backend.isAvailable()) {
+        onProgress?.call('generating', '正在生成脚本…');
         try {
           if (isClaude) {
             final generated = await _ccManager.executeWithClaude(
@@ -183,6 +192,7 @@ class TaskOrchestrator {
           }
 
           if (iteration > 1) {
+            onProgress?.call('generating', '正在重新生成脚本…');
             final enrichedTask =
                 '$task\n\n【第 ${iteration - 1} 轮执行反馈】\n$feedback\n请根据反馈修正脚本后重新生成。';
             if (isClaude) {
@@ -218,6 +228,7 @@ class TaskOrchestrator {
             }
           }
 
+          onProgress?.call('executing', '正在执行…');
           result = await plugin.execute(generatedScript);
           iterationsRun = iteration;
           iterationLog.add(
@@ -226,6 +237,7 @@ class TaskOrchestrator {
           );
           if (result.success) {
             if (verifier == null) break;
+            onProgress?.call('verifying', '正在验证…');
             final verification = await verifier.verify(result);
             lastVerification = verification;
             iterationLog.add(
@@ -377,6 +389,7 @@ class TaskOrchestrator {
       taskId: queued.pendingId,
       maxIterations: queued.maxIterations,
       verifier: queued.verifier,
+      onProgress: queued.onProgress,
     ).then((result) {
       if (!queued.completer.isCompleted) {
         queued.completer.complete(result);

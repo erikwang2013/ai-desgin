@@ -105,4 +105,101 @@ List<ScriptExecutorConfig> defaultExecutorConfigs() => [
         platforms: {'macos'},
         args: (scriptPath, _) => ['run', scriptPath],
       ),
+      // 切片器：CLI 只接受模型文件而非生成脚本。生成内容约定为模型文件
+      // 路径文本，直传切片 CLI 做参数化切片，gcode 输出到临时目录（产物收集）。
+      ScriptExecutorConfig(
+        pluginId: 'cura',
+        executable: 'CuraEngine',
+        scriptExtension: 'model',
+        probeArgs: const ['version'],
+        args: (scriptPath, tempDir) {
+          final modelPath = File(scriptPath).readAsStringSync().trim();
+          return ['slice', '-v', modelPath, '-o', '${tempDir.path}/out.gcode'];
+        },
+      ),
+      ScriptExecutorConfig(
+        pluginId: 'prusaslicer',
+        executable: 'prusaslicer',
+        scriptExtension: 'model',
+        args: (scriptPath, tempDir) {
+          final modelPath = File(scriptPath).readAsStringSync().trim();
+          return ['--export-gcode', modelPath, '-o', '${tempDir.path}/out.gcode'];
+        },
+      ),
+      // ChiTuBox：树脂切片 CLI，模型路径直传 + 输出 CTB。
+      ScriptExecutorConfig(
+        pluginId: 'chitubox',
+        executable: 'chitubox',
+        scriptExtension: 'model',
+        probeArgs: const ['--help'],
+        args: (scriptPath, tempDir) {
+          final modelPath = File(scriptPath).readAsStringSync().trim();
+          return ['--slice', '--output', '${tempDir.path}/out.ctb', modelPath];
+        },
+      ),
+      // Lychee Slicer：树脂切片 CLI，模型路径直传。
+      ScriptExecutorConfig(
+        pluginId: 'lychee',
+        executable: 'lychee-slicer',
+        scriptExtension: 'model',
+        probeArgs: const ['--help'],
+        args: (scriptPath, tempDir) {
+          final modelPath = File(scriptPath).readAsStringSync().trim();
+          return ['--slice', '--output', '${tempDir.path}/out.gcode', modelPath];
+        },
+      ),
+      // OrcaSlicer：与 PrusaSlicer 同源的切片 CLI。
+      ScriptExecutorConfig(
+        pluginId: 'orcaslicer',
+        executable: 'orcaslicer',
+        scriptExtension: 'model',
+        args: (scriptPath, tempDir) {
+          final modelPath = File(scriptPath).readAsStringSync().trim();
+          return ['--slice', '--output', '${tempDir.path}/out.gcode', modelPath];
+        },
+      ),
+      // Simplify3D：CLI 只接受 .factory 进程文件，模型路径写入最小 factory 再切片；仅 Windows。
+      ScriptExecutorConfig(
+        pluginId: 'simplify3d',
+        executable: 'Simplify3D',
+        scriptExtension: 'model',
+        platforms: {'windows'},
+        args: (scriptPath, tempDir) {
+          final modelPath = File(scriptPath).readAsStringSync().trim();
+          final factory = File('${tempDir.path}/process.factory');
+          factory.writeAsStringSync(
+            '<?xml version="1.0" encoding="utf-8"?>'
+            '<Factory><ModelPaths>$modelPath</ModelPaths>'
+            '<Processes><Process name="Default" id="1">'
+            '<setting key="outputDirectory">${tempDir.path}</setting>'
+            '</Process></Processes></Factory>',
+          );
+          return ['--slice', factory.path];
+        },
+      ),
+      // SolidWorks：无原生 CLI，经 cscript + VBS 包装调用 COM 自动化；仅 Windows。
+      ScriptExecutorConfig(
+        pluginId: 'solidworks',
+        executable: 'cscript',
+        scriptExtension: 'vbs',
+        platforms: {'windows'},
+        probeArgs: const ['//?'],
+        args: (scriptPath, tempDir) {
+          final script = File(scriptPath).readAsStringSync();
+          final wrapper = File('${tempDir.path}/run_solidworks.vbs');
+          wrapper.writeAsStringSync('''
+' SolidWorks VBA Macro Runner (cscript COM wrapper)
+Dim swApp
+Set swApp = CreateObject("SldWorks.Application")
+If swApp Is Nothing Then
+    WScript.StdErr.WriteLine "ERROR: Could not create SolidWorks Application object"
+    WScript.Quit 1
+End If
+swApp.Visible = True
+$script
+WScript.StdOut.WriteLine "MACRO_COMPLETE"
+''');
+          return ['//nologo', wrapper.path];
+        },
+      ),
     ];

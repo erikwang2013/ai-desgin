@@ -414,4 +414,48 @@ void main() {
     orchestrator.pruneTasks(keep: 3);
     expect(orchestrator.activeTaskCount, greaterThanOrEqualTo(0));
   });
+
+  test('onProgress reports generating/executing/verifying stages in order', () async {
+    final orch = TaskOrchestrator(
+      pluginManager: pluginManager,
+      ccManager: ccManager,
+      modelRouter: modelRouter,
+      backend: FakeCCRunner(available: true),
+      maxConcurrent: 2,
+    );
+    final stages = <String>[];
+    final task = await orch.submitTask(
+      domain: DesignCategory.web,
+      softwareName: 'echo',
+      task: 'say hi',
+      verifier: const ArtifactVerifier(),
+      onProgress: (stage, description) => stages.add(stage),
+    );
+    expect(task.status, TaskStatus.completed);
+    expect(stages, containsAllInOrder(['generating', 'executing', 'verifying']));
+  });
+
+  test('onProgress fires through the queue for deferred tasks', () async {
+    final release = Completer<void>();
+    pluginManager.register(GatedEchoPlugin(release: release));
+    final tight = TaskOrchestrator(
+      pluginManager: pluginManager,
+      ccManager: ccManager,
+      modelRouter: modelRouter,
+      backend: FakeCCRunner(available: true),
+      maxConcurrent: 1,
+    );
+    final stages = <String>[];
+    tight.submitTask(domain: DesignCategory.web, softwareName: 'gated', task: 'first');
+    final t2 = tight.submitTask(
+      domain: DesignCategory.web,
+      softwareName: 'echo',
+      task: 'second',
+      onProgress: (stage, description) => stages.add(stage),
+    );
+    release.complete();
+    final r2 = await t2;
+    expect(r2.status, TaskStatus.completed);
+    expect(stages, contains('generating'));
+  });
 }

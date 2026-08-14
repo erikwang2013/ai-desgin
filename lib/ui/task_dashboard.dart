@@ -14,6 +14,9 @@ class TaskItem {
   final String? modelUsed;
   final String? script;
 
+  /// 当前进度阶段描述（如「正在生成脚本…」），运行中任务展示在卡片上。
+  final String? progressStage;
+
   TaskItem({
     required this.id,
     required this.title,
@@ -22,6 +25,7 @@ class TaskItem {
     required this.createdAt,
     this.modelUsed,
     this.script,
+    this.progressStage,
   });
 }
 
@@ -89,10 +93,35 @@ class TaskDashboardState extends State<TaskDashboard> {
 
   void addTask(TaskItem task) {
     setState(() {
+      final idx = _tasks.indexWhere((t) => t.id == task.id);
+      if (idx >= 0) {
+        // 同 id 已存在（如进度占位卡片）时替换为最新状态。
+        _tasks[idx] = task;
+        return;
+      }
       _tasks.insert(0, task);
       while (_tasks.length > _maxTasks) {
         _tasks.removeLast();
       }
+    });
+  }
+
+  /// 更新运行中任务的进度阶段描述（由编排器 onProgress 回调驱动）。
+  void updateTaskProgress(String taskId, String stage) {
+    final idx = _tasks.indexWhere((t) => t.id == taskId);
+    if (idx < 0) return;
+    setState(() {
+      final t = _tasks[idx];
+      _tasks[idx] = TaskItem(
+        id: t.id,
+        title: t.title,
+        software: t.software,
+        status: TaskStatus.running,
+        createdAt: t.createdAt,
+        modelUsed: t.modelUsed,
+        script: t.script,
+        progressStage: stage,
+      );
     });
   }
 
@@ -187,18 +216,32 @@ class TaskDashboardState extends State<TaskDashboard> {
       child: ListTile(
         leading: Icon(statusIcon, color: statusColor, size: 24),
         title: Text(task.title, maxLines: 1, overflow: TextOverflow.ellipsis),
-        subtitle: Row(
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Text(task.software, style: const TextStyle(fontSize: 12)),
-            const SizedBox(width: 8),
-            if (task.modelUsed != null)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                decoration: BoxDecoration(
-                  color: Colors.indigo.shade50,
-                  borderRadius: BorderRadius.circular(4),
+            Row(
+              children: [
+                Text(task.software, style: const TextStyle(fontSize: 12)),
+                const SizedBox(width: 8),
+                if (task.modelUsed != null)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                    decoration: BoxDecoration(
+                      color: Colors.indigo.shade50,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(task.modelUsed!, style: TextStyle(fontSize: 10, color: Colors.indigo.shade700)),
+                  ),
+              ],
+            ),
+            if (task.status == TaskStatus.running && task.progressStage != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Text(
+                  task.progressStage!,
+                  style: TextStyle(fontSize: 12, color: Colors.orange.shade700),
                 ),
-                child: Text(task.modelUsed!, style: TextStyle(fontSize: 10, color: Colors.indigo.shade700)),
               ),
           ],
         ),

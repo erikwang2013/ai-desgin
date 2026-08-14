@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 import 'l10n/app_localizations.dart';
 import 'models/session.dart';
 import 'models/task_record.dart';
@@ -10,6 +11,7 @@ import 'core/cc_runner.dart';
 import 'core/codex_backend.dart';
 import 'core/gemini_backend.dart';
 import 'core/cli_agent_backend.dart';
+import 'core/remote_backend.dart';
 import 'core/model_router.dart';
 import 'core/task_orchestrator.dart';
 import 'core/session_store.dart';
@@ -93,6 +95,8 @@ class _MainShellState extends State<_MainShell> {
   final Map<DesignCategory, String> _cachedOptionsSignature = {};
   String? _openaiKey;
   String? _geminiKey;
+  String? _remoteUrl;
+  String? _remoteKey;
   bool _ready = false;
 
   @override
@@ -181,6 +185,8 @@ class _MainShellState extends State<_MainShell> {
       backendId = prefs.getString('agent_backend') ?? 'claude';
       _openaiKey = prefs.getString('openai_api_key');
       _geminiKey = prefs.getString('gemini_api_key');
+      _remoteUrl = prefs.getString('remote_endpoint_url');
+      _remoteKey = prefs.getString('remote_endpoint_key');
     } catch (_) {
       // Defaults to Claude
     }
@@ -191,6 +197,7 @@ class _MainShellState extends State<_MainShell> {
       'openclaw' => openClawBackend,
       'hermes' => hermesBackend,
       'reasonix' => reasonixBackend,
+      'remote' => RemoteBackend(endpointUrl: _remoteUrl ?? '', apiKey: _remoteKey ?? ''),
       _ => ccRunner,
     };
     _orchestrator = TaskOrchestrator(
@@ -240,6 +247,17 @@ class _MainShellState extends State<_MainShell> {
 
   /// 切换 Agent 后端：立即生效并持久化，重启后保持。
   void _onBackendChanged(String id) {
+    if (id == 'remote') {
+      // remote 的 URL/key 在 prefs 中，需异步读取后再生效。
+      SharedPreferences.getInstance().then((prefs) {
+        _orchestrator.backend = RemoteBackend(
+          endpointUrl: prefs.getString('remote_endpoint_url') ?? '',
+          apiKey: prefs.getString('remote_endpoint_key') ?? '',
+        );
+        prefs.setString('agent_backend', id);
+      }).catchError((_) {});
+      return;
+    }
     _orchestrator.backend = switch (id) {
       'codex' => CodexBackend(apiKey: _openaiKey),
       'gemini' => GeminiBackend(apiKey: _geminiKey),
@@ -297,10 +315,23 @@ class _MainShellState extends State<_MainShell> {
 
   Future<String> _onSubmit(String task) async {
     final sw = _resolveSoftware();
+    // 预置 pending 占位卡片，让生成/执行阶段的进度回调有归属。
+    final taskId = const Uuid().v4();
+    _dashboardKey.currentState?.addTask(TaskItem(
+      id: taskId,
+      title: task,
+      software: _pluginManager.get(sw)?.name ?? sw,
+      status: TaskStatus.pending,
+      createdAt: DateTime.now(),
+    ));
     final result = await _orchestrator.submitTask(
       domain: _currentDomain,
       softwareName: sw,
       task: task,
+      taskId: taskId,
+      onProgress: (stage, description) {
+        _dashboardKey.currentState?.updateTaskProgress(taskId, stage);
+      },
     );
 
     _dashboardKey.currentState?.addTask(TaskItem(

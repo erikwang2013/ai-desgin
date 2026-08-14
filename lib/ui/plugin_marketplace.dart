@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:file_selector/file_selector.dart';
+import 'package:path_provider/path_provider.dart';
 import '../l10n/app_localizations.dart';
 import '../models/session.dart';
 import '../core/plugin_manager.dart';
@@ -90,7 +92,9 @@ class _PluginMarketplaceState extends State<PluginMarketplace> {
     PluginInfo infoFor(DesignPlugin p, {required bool installed}) => PluginInfo(
       id: p.id,
       name: p.name,
-      description: softwareDescriptions[p.id] ?? '${p.name} 插件',
+      description: p is ExternalScriptPlugin && p.manifest.description.isNotEmpty
+          ? p.manifest.description
+          : (softwareDescriptions[p.id] ?? '${p.name} 插件'),
       icon: softwareIcons[p.id] ?? '🔌',
       category: p.category.label,
       installed: installed,
@@ -161,6 +165,115 @@ class _PluginMarketplaceState extends State<PluginMarketplace> {
     }
   }
 
+  static const _zipGroup = XTypeGroup(label: 'ZIP', extensions: ['zip']);
+
+  void _showSnack(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), duration: const Duration(seconds: 3)),
+    );
+  }
+
+  /// 选择器不可用时（无桌面 portal/zenity 的受限环境）回退到手输路径。
+  Future<String?> _askForPath(String title, {String hint = ''}) {
+    final controller = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: InputDecoration(hintText: hint),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _importFromLocal() async {
+    String? path;
+    try {
+      final file = await openFile(acceptedTypeGroups: const [_zipGroup]);
+      path = file?.path;
+    } catch (_) {
+      path = await _askForPath('Enter plugin package (.zip) path', hint: '/path/to/plugin.zip');
+    }
+    if (path == null || path.isEmpty || !mounted) return;
+    try {
+      final supportDir = await getApplicationSupportDirectory();
+      final result = await PluginPackageCodec.importFromZip(path, supportDir.path);
+      widget.pluginManager.registerExternal(result.manifest, result.packageDir);
+      if (!mounted) return;
+      setState(() => _plugins = _buildPluginsFromManager());
+      _showSnack('Imported "${result.manifest.name}" with ${result.manifest.scripts.length} scripts');
+    } catch (e) {
+      _showSnack('Import failed: $e');
+    }
+  }
+
+  Future<void> _exportPlugin() async {
+    final installed = _plugins.where((p) => p.installed).toList();
+    if (installed.isEmpty) {
+      _showSnack('No installed plugins to export');
+      return;
+    }
+    final selected = await showDialog<PluginInfo>(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: const Text('Select plugin to export'),
+        children: [
+          for (final p in installed)
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(ctx, p),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Text('${p.icon} ${p.name} (${p.version})'),
+              ),
+            ),
+        ],
+      ),
+    );
+    if (selected == null || !mounted) return;
+
+    String? savePath;
+    try {
+      final loc = await getSaveLocation(
+        suggestedName: '${selected.id}.zip',
+        acceptedTypeGroups: const [_zipGroup],
+      );
+      savePath = loc?.path;
+    } catch (_) {
+      savePath = await _askForPath(
+        'Enter export path (.zip)',
+        hint: '/path/to/${selected.id}.zip',
+      );
+    }
+    if (savePath == null || savePath.isEmpty || !mounted) return;
+    try {
+      final plugin = widget.pluginManager.get(selected.id);
+      if (plugin == null) throw StateError('Plugin not found: ${selected.id}');
+      await PluginPackageCodec.exportToZip(
+        plugin,
+        packageDir: widget.pluginManager.externalPackageDir(selected.id),
+        description: selected.description,
+        zipPath: savePath,
+      );
+      _showSnack('Exported to $savePath');
+    } catch (e) {
+      _showSnack('Export failed: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -168,7 +281,33 @@ class _PluginMarketplaceState extends State<PluginMarketplace> {
     final available = _plugins.where((p) => !p.installed).toList();
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n?.pluginMarket ?? 'Plugin Marketplace')),
+      appBar: AppBar(
+        title: Text(l10n?.pluginMarket ?? 'Plugin Marketplace'),
+        actions: [
+          // 用无 ripple 的点击区（TextButton 的 InkSparkle 在无 GPU 测试环境加载失败）。
+          GestureDetector(
+            onTap: _importFromLocal,
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [Icon(Icons.file_open, size: 18), SizedBox(width: 4), Text('Import')],
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: _exportPlugin,
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [Icon(Icons.file_download, size: 18), SizedBox(width: 4), Text('Export')],
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: ListView(
         children: [
           if (installed.isNotEmpty) ...[

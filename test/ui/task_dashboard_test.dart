@@ -75,6 +75,55 @@ void main() {
     expect(find.byIcon(Icons.close), findsNothing);
   });
 
+  testWidgets('running task shows progress stage and updates via updateTaskProgress', (tester) async {
+    final key = GlobalKey<TaskDashboardState>();
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: TaskDashboard(
+          key: key,
+          initialTasks: [
+            TaskItem(
+              id: 't4',
+              title: 'slow',
+              software: 'blender',
+              status: TaskStatus.running,
+              createdAt: DateTime(2026, 8, 6, 10, 34),
+              progressStage: '正在生成脚本…',
+            ),
+          ],
+          onCancel: (id) {},
+        ),
+      ),
+    ));
+    expect(find.text('正在生成脚本…'), findsOneWidget);
+
+    key.currentState!.updateTaskProgress('t4', '正在执行…');
+    await tester.pump();
+    expect(find.text('正在执行…'), findsOneWidget);
+    expect(find.text('正在生成脚本…'), findsNothing);
+  });
+
+  testWidgets('completed task does not show progress stage', (tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: TaskDashboard(
+          initialTasks: [
+            TaskItem(
+              id: 't5',
+              title: 'done',
+              software: 'figma',
+              status: TaskStatus.completed,
+              createdAt: DateTime(2026, 8, 6, 10, 35),
+              progressStage: '正在验证…',
+            ),
+          ],
+          onCancel: (id) {},
+        ),
+      ),
+    ));
+    expect(find.text('正在验证…'), findsNothing);
+  });
+
   testWidgets('restored history shows display name via resolveSoftwareName', (tester) async {
     final db = sqlite3.openInMemory();
     SessionStore.onCreate(db, 1);

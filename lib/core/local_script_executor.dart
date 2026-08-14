@@ -5,8 +5,8 @@ import 'script_executor_configs.dart';
 import 'text_codec.dart';
 
 /// CLI 可执行命令注册表：这些软件支持命令行执行生成的脚本。
-/// 切片器（Cura/PrusaSlicer 等）的 CLI 只接受模型文件或 key=value 设置，
-/// 无法执行生成脚本，故不列入——保持「生成脚本，提示手动执行」的诚实回退。
+/// 切片器（Cura/PrusaSlicer）的 CLI 只接受模型文件路径直传 + 参数化
+/// 切片，见 script_executor_configs.dart 中对应配置。
 final Map<String, ScriptExecutorConfig> _cliExecutables = {
   for (final config in defaultExecutorConfigs()) config.pluginId: config,
 };
@@ -20,6 +20,14 @@ class LocalScriptExecutor {
   static const _cacheTtl = Duration(seconds: 60);
   static const _probeTimeout = Duration(seconds: 5);
   static const _executeTimeout = Duration(seconds: 120);
+
+  /// 可验证产物扩展名白名单（小写，不含点）。
+  static const _artifactExtensions = {
+    'png', 'jpg', 'jpeg', 'webp', 'bmp', 'tiff',
+    'svg', 'pdf', 'gcode', 'stl', '3mf', 'obj',
+    'dwg', 'dxf', 'step', 'stp', 'fbx', 'blend',
+    'ai', 'skp', 'psd', 'glb', 'gltf',
+  };
 
   bool hasCommand(String pluginId) => _cliExecutables.containsKey(pluginId);
 
@@ -83,8 +91,10 @@ class LocalScriptExecutor {
       final output = decodeConsoleOutput(await stdoutFuture).trim();
       final stderr = decodeConsoleOutput(await stderrFuture).trim();
       if (exitCode == 0) {
+        final artifacts = await _collectArtifacts(tempDir);
         return ScriptResult.success(
           output: '$pluginName 脚本执行成功\n${output.isEmpty ? stderr : output}',
+          artifacts: artifacts,
         );
       }
       return ScriptResult.failure(
@@ -119,6 +129,35 @@ class LocalScriptExecutor {
     final file = File('${tempDir.path}/script.${config.scriptExtension}');
     await file.writeAsString(script);
     return file.path;
+  }
+
+  /// 收集临时目录中白名单扩展名的产物文件。临时目录执行完即删除，
+  /// 故先复制到持久目录再返回路径，保证 ArtifactVerifier 的存在性检查可验证。
+  Future<List<String>> _collectArtifacts(Directory tempDir) async {
+    final artifactsDir =
+        Directory('${Directory.systemTemp.path}/ai_design_artifacts');
+    try {
+      await artifactsDir.create(recursive: true);
+    } catch (_) {
+      return const [];
+    }
+    final paths = <String>[];
+    try {
+      await for (final entity in tempDir.list(recursive: true)) {
+        if (entity is! File) continue;
+        final dot = entity.path.lastIndexOf('.');
+        if (dot < 0) continue;
+        final ext = entity.path.substring(dot + 1).toLowerCase();
+        if (!_artifactExtensions.contains(ext)) continue;
+        final dest = '${artifactsDir.path}/'
+            '${DateTime.now().microsecondsSinceEpoch}_${entity.uri.pathSegments.last}';
+        try {
+          await entity.copy(dest);
+          paths.add(dest);
+        } catch (_) {}
+      }
+    } catch (_) {}
+    return paths;
   }
 
   String _fallbackMessage(String pluginName, String script, {String? detail}) {

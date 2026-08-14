@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ai_design_studio/core/local_script_executor.dart';
+import 'package:ai_design_studio/core/script_executor_configs.dart';
 
 void main() {
   test('hasCommand only for CLI-capable plugins', () {
@@ -15,10 +18,33 @@ void main() {
     expect(executor.hasCommand('fusion360'), isTrue);
     expect(executor.hasCommand('sketchup'), isTrue);
     expect(executor.hasCommand('sketch'), isTrue);
-    // Slicers accept model files, not generated scripts — honest manual fallback
-    expect(executor.hasCommand('cura'), isFalse);
-    expect(executor.hasCommand('prusaslicer'), isFalse);
+    // Slicers: CLI accepts model files — wired for direct model slicing
+    expect(executor.hasCommand('cura'), isTrue);
+    expect(executor.hasCommand('prusaslicer'), isTrue);
+    expect(executor.hasCommand('orcaslicer'), isTrue);
+    expect(executor.hasCommand('chitubox'), isTrue);
+    expect(executor.hasCommand('lychee'), isTrue);
+    expect(executor.hasCommand('simplify3d'), isTrue);
+    // SolidWorks via cscript COM wrapper (Windows-only)
+    expect(executor.hasCommand('solidworks'), isTrue);
+    // Revit has no real CLI — honest manual-execution fallback
+    expect(executor.hasCommand('revit'), isFalse);
     expect(executor.hasCommand('figma'), isFalse);
+  });
+
+  test('slicer args pass model path straight to CLI', () {
+    final configs = defaultExecutorConfigs();
+    final cura = configs.firstWhere((c) => c.pluginId == 'cura');
+    final tempDir = Directory.systemTemp.createTempSync('test_');
+    try {
+      final script = File('${tempDir.path}/model.stl')
+        ..writeAsStringSync('/models/cube.stl');
+      final args = cura.args(script.path, tempDir);
+      expect(args, contains('slice'));
+      expect(args, contains('/models/cube.stl'));
+    } finally {
+      tempDir.deleteSync(recursive: true);
+    }
   });
 
   test('execute falls back to generated script for non-CLI plugins', () async {
