@@ -19,6 +19,12 @@ class ScriptExecutorConfig {
   /// 仅支持的平台，null 表示全平台。
   final Set<String>? platforms;
 
+  /// 各平台常见安装目录候选：Windows 安装版 GUI 软件普遍不在 PATH，
+  /// 供执行器在 PATH 未命中时探测真实可执行文件路径。
+  /// 支持 %VAR% 环境变量（如 %ProgramFiles%/%LOCALAPPDATA%）与目录
+  /// 通配符 `*`（如 Blender* 版本目录）；空 map 表示不探测。
+  final Map<String, List<String>> installPaths;
+
   const ScriptExecutorConfig({
     required this.pluginId,
     required this.executable,
@@ -26,6 +32,7 @@ class ScriptExecutorConfig {
     required this.args,
     this.probeArgs = const ['--version'],
     this.platforms,
+    this.installPaths = const {},
   });
 
   bool supportsPlatform(String os) => platforms == null || platforms!.contains(os);
@@ -37,12 +44,25 @@ List<ScriptExecutorConfig> defaultExecutorConfigs() => [
         pluginId: 'blender',
         executable: 'blender',
         scriptExtension: 'py',
+        // Windows 安装版 Blender 不在 PATH：探测常见安装目录，版本目录用
+        // 通配符首匹配；macOS 固定 App bundle 路径；Linux 走 PATH 即可。
+        installPaths: const {
+          'windows': [
+            r'%ProgramFiles%\Blender Foundation\Blender*\blender.exe',
+            r'%LOCALAPPDATA%\Programs\Blender Foundation\Blender*\blender.exe',
+          ],
+          'macos': ['/Applications/Blender.app/Contents/MacOS/Blender'],
+        },
         args: (scriptPath, _) => ['--background', '--python', scriptPath],
       ),
       ScriptExecutorConfig(
         pluginId: 'freecad',
         executable: 'freecad',
         scriptExtension: 'py',
+        installPaths: const {
+          'windows': [r'%ProgramFiles%\FreeCAD*\bin\FreeCADCmd.exe'],
+          'macos': ['/Applications/FreeCAD.app/Contents/MacOS/FreeCADCmd'],
+        },
         args: (scriptPath, _) => [
           '-c',
           'import os; exec(open(os.environ["AI_DESIGN_SCRIPT"], encoding="utf-8").read())',
@@ -52,6 +72,10 @@ List<ScriptExecutorConfig> defaultExecutorConfigs() => [
         pluginId: 'openscad',
         executable: 'openscad',
         scriptExtension: 'scad',
+        installPaths: const {
+          'windows': [r'%ProgramFiles%\OpenSCAD\openscad.exe'],
+          'macos': ['/Applications/OpenSCAD.app/Contents/MacOS/OpenSCAD'],
+        },
         args: (scriptPath, tempDir) => ['-o', '${tempDir.path}/out.stl', scriptPath],
       ),
       // AutoCAD：accoreconsole 无头控制台，/b 执行 .scr；scr 内 (load) 注入 AutoLISP。
@@ -203,6 +227,11 @@ WScript.StdOut.WriteLine "MACRO_COMPLETE"
         },
       ),
     ];
+
+/// 用户自定义可执行文件路径在 SharedPreferences 中的 key。
+/// 设置页与执行器共用，保证读写同 key；空值表示自动探测。
+String executorPathOverrideKey(String pluginId) =>
+    'executor_path_override_$pluginId';
 
 /// XML 特殊字符转义，防止模型路径注入 factory 进程文件。
 String _xmlEscape(String text) => text

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/plugin.dart';
 import 'script_executor_configs.dart';
@@ -33,7 +34,18 @@ class LocalScriptExecutor {
   LocalScriptExecutor({
     Map<String, ScriptExecutorConfig>? configs,
     this.probeTimeout = _probeTimeout,
+    this.environment,
   }) : _configs = configs ?? _cliExecutables;
+
+  /// 路径探测用环境变量快照：PATH 查找与安装目录 %VAR% 展开使用此环境，
+  /// 测试可注入模拟各平台（如 Windows 的 ProgramFiles），null 用真实环境。
+  final Map<String, String>? environment;
+
+  /// PATH 与常见安装目录探测结果缓存（会话级）：避免每次执行重复扫描磁盘；
+  /// 用户覆盖路径每次执行前重新读取，设置页修改即时生效。
+  final Map<String, String?> _probeCache = {};
+
+  Map<String, String> get _env => environment ?? Platform.environment;
 
   /// 探测超时：可注入以便测试覆盖超时 kill 路径。
   final Duration probeTimeout;
@@ -63,6 +75,170 @@ class LocalScriptExecutor {
 
   bool hasCommand(String pluginId) => _configs.containsKey(pluginId);
 
+  /// 解析可执行文件路径，解析顺序：① 用户覆盖路径（设置页）→
+  /// ② PATH → ③ 常见安装目录探测 → ④ 兜底原 executable 名（启动失败
+  /// 时由调用方走 manualFallback）。探测失败一律静默降级，不抛异常。
+  /// PATH/安装目录结果会话内缓存；覆盖路径每次读取保证即时生效。
+  Future<String> _resolveExecutable(
+    String pluginId,
+    ScriptExecutorConfig config,
+  ) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final override = prefs.getString(executorPathOverrideKey(pluginId));
+      if (override != null && override.trim().isNotEmpty) {
+        final path = override.trim();
+        if (File(path).existsSync()) return path;
+      }
+    } catch (_) {
+      // 读取失败视为未配置覆盖，继续下一级探测。
+    }
+    final cached = _probeCache[pluginId];
+    if (cached != null) return cached;
+    String? resolved;
+    try {
+      if (!File(config.executable).isAbsolute) {
+        resolved = lookupExecutableInPath(config.executable, _env['PATH'] ?? '');
+        resolved ??= _probeInstallDirs(config);
+      }
+    } catch (_) {
+      resolved = null;
+    }
+    final effective = resolved ?? config.executable;
+    _probeCache[pluginId] = effective;
+    return effective;
+  }
+
+  /// 常见安装目录探测：逐候选展开环境变量并用通配符首匹配（目录条目
+  /// 排序后取首个），全部落空返回 null。
+  String? _probeInstallDirs(ScriptExecutorConfig config) {
+    final patterns = config.installPaths[Platform.operatingSystem];
+    if (patterns == null || patterns.isEmpty) return null;
+    for (final raw in patterns) {
+      final expanded = expandEnvPattern(raw, _env);
+      if (expanded == null) continue; // 环境变量缺失，跳过该候选
+      final hit = globFirstMatch(expanded);
+      if (hit != null) return hit;
+    }
+    return null;
+  }
+
+  /// 在 PATH 目录序列中查找可执行文件（Windows 附加 PATHEXT 扩展名）。
+  @visibleForTesting
+  static String? lookupExecutableInPath(String executable, String pathEnv) {
+    if (pathEnv.isEmpty) return null;
+    final separators = Platform.isWindows ? ';' : ':';
+    final extensions = Platform.isWindows
+        ? (Platform.environment['PATHEXT'] ?? '.EXE;.BAT;.CMD')
+            .split(';')
+            .where((e) => e.isNotEmpty)
+            .toList()
+        : const <String>[];
+    for (final dir in pathEnv.split(separators)) {
+      if (dir.isEmpty) continue;
+      final candidate = File('$dir${Platform.pathSeparator}$executable');
+      if (_isExecutableFile(candidate.path)) return candidate.path;
+      for (final ext in extensions) {
+        final withExt = File('${candidate.path}$ext');
+        if (_isExecutableFile(withExt.path)) return withExt.path;
+      }
+    }
+    return null;
+  }
+
+  /// 展开模式中的 %VAR% 环境变量；任一变量缺失时返回 null（候选跳过）。
+  @visibleForTesting
+  static String? expandEnvPattern(String pattern, Map<String, String> env) {
+    var missing = false;
+    final expanded = pattern.replaceAllMapped(
+      RegExp(r'%([^%]+)%'),
+      (m) {
+        final value = env[m.group(1)!];
+        if (value == null || value.isEmpty) {
+          missing = true;
+          return m.group(0)!;
+        }
+        return value;
+      },
+    );
+    return missing ? null : expanded;
+  }
+
+  /// 对可能含 `*` 通配符的路径模式做首匹配：逐段扫描目录（条目按名称
+  /// 排序保证确定性），返回第一个存在且可执行的完整文件路径。
+  @visibleForTesting
+  static String? globFirstMatch(String pattern) {
+    final segments = pattern.split(Platform.pathSeparator);
+    if (segments.isEmpty) return null;
+    List<String> bases;
+    var index = 1;
+    if (segments.first.isEmpty) {
+      // POSIX 绝对路径 /a/b → ['', 'a', 'b']，根为 /。
+      bases = const [''];
+    } else if (segments.first.endsWith(':')) {
+      // Windows 盘符 C:\a\b → ['C:', 'a', 'b']。
+      bases = ['${segments.first}${Platform.pathSeparator}'];
+    } else {
+      bases = [segments.first];
+    }
+    for (; index < segments.length; index++) {
+      final matcher = _segmentMatcher(segments[index]);
+      final isLast = index == segments.length - 1;
+      final next = <String>[];
+      for (final base in bases) {
+        try {
+          final dir = Directory(base.isEmpty ? '/' : base);
+          if (!dir.existsSync()) continue;
+          final entries = dir.listSync(followLinks: false).toList()
+            ..sort((a, b) => a.path.compareTo(b.path));
+          for (final entry in entries) {
+            final name =
+                entry.path.split(Platform.pathSeparator).last;
+            if (!matcher.hasMatch(name)) continue;
+            if (isLast) {
+              if (entry is File && _isExecutableFile(entry.path)) {
+                return entry.path;
+              }
+            } else if (entry is Directory) {
+              next.add(entry.path);
+            }
+          }
+        } catch (_) {}
+      }
+      if (next.isEmpty) return null;
+      bases = next;
+    }
+    return bases.isEmpty ? null : bases.first;
+  }
+
+  /// 段级通配匹配：`*` 匹配任意字符，其余字符按字面转义（大小写不敏感）。
+  static RegExp _segmentMatcher(String segment) {
+    final buffer = StringBuffer('^');
+    for (final ch in segment.split('')) {
+      if (ch == '*') {
+        buffer.write('.*');
+      } else if (RegExp(r'[\\^$.|?+()[\]{}]').hasMatch(ch)) {
+        buffer.write('\\$ch');
+      } else {
+        buffer.write(ch);
+      }
+    }
+    buffer.write(r'$');
+    return RegExp(buffer.toString(), caseSensitive: false);
+  }
+
+  /// 文件存在且（POSIX 下）具有任一执行位。
+  static bool _isExecutableFile(String path) {
+    try {
+      final stat = FileStat.statSync(path);
+      if (stat.type != FileSystemEntityType.file) return false;
+      // 0111（octal）：属主/组/其他任一执行位。
+      return Platform.isWindows || stat.mode & 0x49 != 0;
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<bool> checkAvailable(String pluginId) async {
     final config = _configs[pluginId];
     if (config == null || !config.supportsPlatform(Platform.operatingSystem)) {
@@ -79,7 +255,7 @@ class LocalScriptExecutor {
     Process? process;
     try {
       process = await Process.start(
-        config.executable,
+        await _resolveExecutable(pluginId, config),
         config.probeArgs,
         runInShell: false,
       );
@@ -98,6 +274,8 @@ class LocalScriptExecutor {
 
   /// 执行脚本。key 非空时注册进程并可用 [cancel] 中断；所有 CLI 调用均为
   /// 参数化（runInShell: false），脚本内容中的 &/| 等字符不会被 shell 解释。
+  /// 可执行文件路径按 覆盖路径 → PATH → 常见安装目录 顺序解析，全部落空
+  /// 时保持原 executable 名启动，失败即走 manualFallback。
   Future<ScriptResult> execute(
     String pluginId,
     String pluginName,
@@ -123,9 +301,10 @@ class LocalScriptExecutor {
       tempDir = await Directory.systemTemp.createTemp('ai_design_');
       final scriptPath = await _writeScriptFile(tempDir, config, script);
       final args = config.args(scriptPath, tempDir);
+      final executable = await _resolveExecutable(pluginId, config);
 
       process = await Process.start(
-        config.executable,
+        executable,
         args,
         environment: {...Platform.environment, 'AI_DESIGN_SCRIPT': scriptPath},
         runInShell: false,

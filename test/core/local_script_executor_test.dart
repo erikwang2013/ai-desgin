@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ai_design_studio/core/artifact_verifier.dart';
 import 'package:ai_design_studio/core/local_script_executor.dart';
 import 'package:ai_design_studio/core/script_executor_configs.dart';
@@ -23,7 +24,29 @@ ScriptExecutorConfig _blenderConfig(String executable) => ScriptExecutorConfig(
       args: (scriptPath, _) => ['--background', '--python', scriptPath],
     );
 
+/// 生成带 shebang 的可执行假 CLI（绝对路径），body 用 $AI_DESIGN_SCRIPT
+/// 环境变量定位本次执行的临时目录。
+Future<File> _makeExecutableScript(
+  Directory parent,
+  String name,
+  String body,
+) async {
+  final file = File('${parent.path}/$name')..writeAsStringSync('#!/bin/sh\n$body\n');
+  await Process.run('chmod', ['+x', file.path]);
+  return file;
+}
+
+/// 生成安装目录探测用的假软件目录（含版本通配目录），返回其可执行文件。
+Future<File> _makeInstalledFake(Directory tmp, String dirName, String exeName,
+    String artifactName) async {
+  final dir = Directory('${tmp.path}/$dirName')..createSync(recursive: true);
+  return _makeExecutableScript(dir, exeName,
+      'outdir="\$(dirname "\$AI_DESIGN_SCRIPT")"\nprintf x > "\$outdir/$artifactName"');
+}
+
 void main() {
+  setUp(() => SharedPreferences.setMockInitialValues({}));
+
   test('hasCommand only for CLI-capable plugins', () {
     final executor = LocalScriptExecutor();
     expect(executor.hasCommand('blender'), isTrue);
@@ -255,5 +278,176 @@ printf 'ok' > "$outdir/small.png"
     final pid = int.parse((await pidFile.readAsString()).trim());
     final alive = await Process.run('kill', ['-0', '$pid']);
     expect(alive.exitCode, isNot(0), reason: 'probe subprocess should have been killed');
+  });
+
+  group('executable resolution order', () {
+    // 所有用例共用：PATH 命中、安装目录命中、覆盖命中各写不同产物名，
+    // 用实际运行的产物文件区分“哪个来源胜出”。
+    ScriptExecutorConfig resolutionConfig(String installPattern) =>
+        ScriptExecutorConfig(
+          pluginId: 'blender',
+          executable: 'zzz_ai_blender_fake',
+          scriptExtension: 'py',
+          installPaths: {'linux': [installPattern]},
+          args: (scriptPath, _) => ['--background', '--python', scriptPath],
+        );
+
+    test('user path override wins over PATH and install dirs', () async {
+      final tmp = await Directory.systemTemp.createTemp('ovr_');
+      addTearDown(() => tmp.deleteSync(recursive: true));
+      final override = await _makeExecutableScript(
+          tmp, 'override_cli.sh', 'outdir="\$(dirname "\$AI_DESIGN_SCRIPT")"\nprintf O > "\$outdir/override.png"');
+      final installed =
+          await _makeInstalledFake(tmp, 'Blender 4.2', 'blender', 'installed.png');
+      SharedPreferences.setMockInitialValues({
+        executorPathOverrideKey('blender'): override.path,
+      });
+      final executor = LocalScriptExecutor(
+        environment: {'PATH': tmp.path},
+        configs: {'blender': resolutionConfig('${tmp.path}/Blender*/blender')},
+      );
+      final result = await executor.execute('blender', 'Blender', 'print(1)');
+      expect(result.success, isTrue);
+      expect(result.artifacts.single, endsWith('override.png'));
+      expect(installed.existsSync(), isTrue, reason: 'install dir fake untouched');
+    });
+
+    test('PATH hit wins over install dir probe', () async {
+      final tmp = await Directory.systemTemp.createTemp('path_');
+      addTearDown(() => tmp.deleteSync(recursive: true));
+      final pathDir = Directory('${tmp.path}/bin')..createSync(recursive: true);
+      final pathCli =
+          await _makeExecutableScript(pathDir, 'zzz_ai_blender_fake',
+              'outdir="\$(dirname "\$AI_DESIGN_SCRIPT")"\nprintf P > "\$outdir/path.png"');
+      final installed =
+          await _makeInstalledFake(tmp, 'Blender 4.2', 'blender', 'installed.png');
+      expect(installed.existsSync(), isTrue);
+      final executor = LocalScriptExecutor(
+        environment: {'PATH': pathDir.path},
+        configs: {'blender': resolutionConfig('${tmp.path}/Blender*/blender')},
+      );
+      final result = await executor.execute('blender', 'Blender', 'print(1)');
+      expect(result.success, isTrue);
+      expect(result.artifacts.single, endsWith('path.png'));
+      expect(pathCli.existsSync(), isTrue);
+    });
+
+    test('install dir probe hits when PATH and override miss', () async {
+      final tmp = await Directory.systemTemp.createTemp('inst_');
+      addTearDown(() => tmp.deleteSync(recursive: true));
+      final installed =
+          await _makeInstalledFake(tmp, 'Blender 4.2', 'blender', 'installed.png');
+      final executor = LocalScriptExecutor(
+        environment: {'PATH': ''},
+        configs: {'blender': resolutionConfig('${tmp.path}/Blender*/blender')},
+      );
+      final result = await executor.execute('blender', 'Blender', 'print(1)');
+      expect(result.success, isTrue);
+      expect(result.artifacts.single, endsWith('installed.png'));
+      expect(installed.existsSync(), isTrue);
+    });
+
+    test('all resolution paths miss keeps manual fallback', () async {
+      final tmp = await Directory.systemTemp.createTemp('miss_');
+      addTearDown(() => tmp.deleteSync(recursive: true));
+      final executor = LocalScriptExecutor(
+        environment: {'PATH': ''},
+        configs: {'blender': resolutionConfig('${tmp.path}/NoSuch*/blender')},
+      );
+      final result = await executor.execute('blender', 'Blender', 'print(1)');
+      expect(result.success, isTrue);
+      expect(result.manualFallback, isTrue);
+      expect(result.output, contains('未检测到 Blender'));
+    });
+
+    test('install dir probe results are cached within the session', () async {
+      final tmp = await Directory.systemTemp.createTemp('cached_');
+      addTearDown(() => tmp.deleteSync(recursive: true));
+      final installed =
+          await _makeInstalledFake(tmp, 'Blender 4.2', 'blender', 'installed.png');
+      final executor = LocalScriptExecutor(
+        environment: {'PATH': ''},
+        configs: {'blender': resolutionConfig('${tmp.path}/Blender*/blender')},
+      );
+      await executor.execute('blender', 'Blender', 'print(1)');
+      // 删除命中目录后，会话缓存仍指向原路径（不重复扫描磁盘），
+      // 再次执行因缓存路径失效走 manualFallback，而不是重新探测。
+      installed.deleteSync();
+      final result = await executor.execute('blender', 'Blender', 'print(1)');
+      expect(result.success, isTrue);
+      expect(result.manualFallback, isTrue);
+      expect(result.output, contains('未检测到 Blender'));
+    });
+  });
+
+  group('path probing helpers', () {
+    test('lookupExecutableInPath finds executable in PATH dirs', () async {
+      final tmp = await Directory.systemTemp.createTemp('pathlk_');
+      addTearDown(() => tmp.deleteSync(recursive: true));
+      final bin = await _makeExecutableScript(tmp, 'mytool', 'exit 0');
+      expect(LocalScriptExecutor.lookupExecutableInPath('mytool', tmp.path),
+          bin.path);
+      expect(LocalScriptExecutor.lookupExecutableInPath('mytool', ''), isNull);
+      expect(
+          LocalScriptExecutor.lookupExecutableInPath('missing_tool', tmp.path),
+          isNull);
+      // 无执行位文件不算 PATH 命中。
+      final noExec = File('${tmp.path}/noexec')..writeAsStringSync('data');
+      expect(
+          LocalScriptExecutor.lookupExecutableInPath('noexec', tmp.path),
+          isNull);
+      expect(noExec.existsSync(), isTrue);
+    });
+
+    test('expandEnvPattern expands %VAR% and skips missing vars', () {
+      const env = {
+        'ProgramFiles': r'C:\Program Files',
+        'LOCALAPPDATA': r'C:\Users\t\AppData\Local',
+      };
+      expect(
+        LocalScriptExecutor.expandEnvPattern(
+            r'%ProgramFiles%\Blender Foundation\Blender*\blender.exe', env),
+        r'C:\Program Files\Blender Foundation\Blender*\blender.exe',
+      );
+      expect(
+        LocalScriptExecutor.expandEnvPattern(r'%MISSING%\x\y.exe', env),
+        isNull,
+      );
+      expect(
+        LocalScriptExecutor.expandEnvPattern(
+            '/Applications/Blender.app/Contents/MacOS/Blender', env),
+        '/Applications/Blender.app/Contents/MacOS/Blender',
+      );
+    });
+
+    test('globFirstMatch picks first sorted match across wildcard dirs', () async {
+      final tmp = await Directory.systemTemp.createTemp('glob_');
+      addTearDown(() => tmp.deleteSync(recursive: true));
+      final v36 = await _makeInstalledFake(tmp, 'Blender 3.6', 'blender.exe', 'x.png');
+      final v42 = await _makeInstalledFake(tmp, 'Blender 4.2', 'blender.exe', 'x.png');
+      expect(
+        LocalScriptExecutor.globFirstMatch('${tmp.path}/Blender*/blender.exe'),
+        v36.path,
+        reason: '目录条目按名称排序取首个（3.6 < 4.2）',
+      );
+      expect(
+        LocalScriptExecutor.globFirstMatch('${tmp.path}/NoSuch*/blender.exe'),
+        isNull,
+      );
+      expect(v42.existsSync(), isTrue);
+    });
+
+    test('default configs carry install dir candidates for GUI installs', () {
+      final configs = {
+        for (final c in defaultExecutorConfigs()) c.pluginId: c,
+      };
+      expect(configs['blender']!.installPaths['windows'], isNotEmpty);
+      expect(configs['blender']!.installPaths['macos'], isNotEmpty);
+      expect(configs['freecad']!.installPaths['windows'], isNotEmpty);
+      expect(configs['openscad']!.installPaths['macos'], isNotEmpty);
+      // 其余软件不参与安装目录探测。
+      expect(configs['autocad']!.installPaths, isEmpty);
+      expect(configs['cura']!.installPaths, isEmpty);
+    });
   });
 }

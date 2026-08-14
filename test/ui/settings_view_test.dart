@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ai_design_studio/core/cc_runner.dart';
+import 'package:ai_design_studio/core/script_executor_configs.dart';
 import 'package:ai_design_studio/ui/settings_view.dart';
 
 void main() {
@@ -149,6 +150,12 @@ void main() {
     testWidgets('shows GitHub and developer links', (tester) async {
       await tester.pumpWidget(const MaterialApp(home: SettingsView()));
 
+      // 脚本执行路径区加入后 About 位于列表底部，先滚动到可见。
+      await tester.dragUntilVisible(
+        find.text('About'),
+        find.byType(ListView),
+        const Offset(0, -200),
+      );
       await tester.tap(find.text('About'));
       await tester.pumpAndSettle();
 
@@ -156,6 +163,47 @@ void main() {
           find.textContaining('github.com/erikwang2013/ai-desgin'),
           findsOneWidget);
       expect(find.text('Developer: erik'), findsOneWidget);
+    });
+  });
+
+  group('Script executor path overrides', () {
+    testWidgets('saves and restores custom executable path per plugin',
+        (tester) async {
+      tester.view.physicalSize = const Size(900, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(const MaterialApp(home: SettingsView()));
+      await tester.pumpAndSettle();
+
+      const blenderPath = r'C:\Program Files\Blender Foundation\Blender 4.2\blender.exe';
+      final blenderField = find.widgetWithText(TextField, 'Blender');
+      expect(blenderField, findsOneWidget);
+      expect(find.widgetWithText(TextField, 'FreeCAD'), findsOneWidget);
+      expect(find.widgetWithText(TextField, 'OpenSCAD'), findsOneWidget);
+      expect(find.text('自动探测顺序：自定义路径 → PATH → 常见安装目录'),
+          findsOneWidget);
+
+      await tester.enterText(blenderField, blenderPath);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(
+        prefs.getString(executorPathOverrideKey('blender')),
+        blenderPath,
+      );
+      expect(prefs.getString(executorPathOverrideKey('freecad')), isNull);
+
+      // 重新进入设置页：回显已保存的自定义路径。
+      await tester.pumpWidget(const MaterialApp(home: SettingsView()));
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<TextField>(find.widgetWithText(TextField, 'Blender'))
+            .controller
+            ?.text,
+        blenderPath,
+      );
     });
   });
 }
