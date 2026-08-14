@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:ai_design_studio/ui/chat_view.dart';
@@ -120,5 +121,32 @@ void main() {
 
     expect(find.text('Task completed'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('assistant message copy button copies the response text', (tester) async {
+    String? copied;
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      (call) async {
+        if (call.method == 'Clipboard.setData') {
+          copied = (call.arguments as Map)['text'] as String?;
+        }
+        return null;
+      },
+    );
+    addTearDown(() => tester.binding.defaultBinaryMessenger
+        .setMockMethodCallHandler(SystemChannels.platform, null));
+
+    await tester.pumpWidget(MaterialApp(
+      home: ChatView(onSubmit: (_) async => 'layer.create(); export()'),
+    ));
+    await tester.enterText(find.byType(TextField), 'make a layer');
+    await tester.pump();
+    await tester.tap(find.byIcon(Icons.send));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.copy));
+    await tester.pump();
+    expect(copied, 'layer.create(); export()');
   });
 }

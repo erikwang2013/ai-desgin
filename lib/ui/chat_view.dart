@@ -286,7 +286,27 @@ class _ChatViewState extends State<ChatView> {
       ),
     );
     if (!msg.isUser) {
-      return Align(alignment: Alignment.centerLeft, child: bubble);
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            bubble,
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8, left: 4),
+              child: IconButton(
+                icon: const Icon(Icons.copy, size: 16),
+                visualDensity: VisualDensity.compact,
+                tooltip: AppLocalizations.of(context)?.copy ?? 'Copy',
+                // 手动执行软件的脚本复制入口：一键复制整段脚本。
+                onPressed: () =>
+                    Clipboard.setData(ClipboardData(text: msg.content)),
+              ),
+            ),
+          ],
+        ),
+      );
     }
     return Align(
       alignment: Alignment.centerRight,
