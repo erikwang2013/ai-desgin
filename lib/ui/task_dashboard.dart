@@ -50,13 +50,24 @@ class TaskDashboardState extends State<TaskDashboard> {
   final List<TaskItem> _tasks = [];
   String _filterKey = 'all';
 
+  /// id → 列表下标，避免 updateTaskProgress 每次全表扫描。
+  final Map<String, int> _taskIndex = {};
+
   static const _maxTasks = 500;
+
+  void _rebuildIndex() {
+    _taskIndex.clear();
+    for (var i = 0; i < _tasks.length; i++) {
+      _taskIndex[_tasks[i].id] = i;
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     if (widget.initialTasks != null) {
       _tasks.addAll(widget.initialTasks!);
+      _rebuildIndex();
     }
     _restoreHistory();
   }
@@ -85,6 +96,7 @@ class TaskDashboardState extends State<TaskDashboard> {
         while (_tasks.length > _maxTasks) {
           _tasks.removeLast();
         }
+        _rebuildIndex();
       });
     } catch (_) {
       // History restore is non-critical; dashboard still works
@@ -92,24 +104,27 @@ class TaskDashboardState extends State<TaskDashboard> {
   }
 
   void addTask(TaskItem task) {
+    if (!mounted) return;
     setState(() {
-      final idx = _tasks.indexWhere((t) => t.id == task.id);
-      if (idx >= 0) {
+      final idx = _taskIndex[task.id];
+      if (idx != null) {
         // 同 id 已存在（如进度占位卡片）时替换为最新状态。
         _tasks[idx] = task;
         return;
       }
       _tasks.insert(0, task);
       while (_tasks.length > _maxTasks) {
-        _tasks.removeLast();
+        _taskIndex.remove(_tasks.removeLast().id);
       }
+      _rebuildIndex();
     });
   }
 
   /// 更新运行中任务的进度阶段描述（由编排器 onProgress 回调驱动）。
   void updateTaskProgress(String taskId, String stage) {
-    final idx = _tasks.indexWhere((t) => t.id == taskId);
-    if (idx < 0) return;
+    if (!mounted) return;
+    final idx = _taskIndex[taskId];
+    if (idx == null || idx >= _tasks.length) return;
     setState(() {
       final t = _tasks[idx];
       _tasks[idx] = TaskItem(
@@ -150,6 +165,8 @@ class TaskDashboardState extends State<TaskDashboard> {
       );
     }
 
+    // 过滤结果只计算一次，避免 itemCount 与每个 itemBuilder 重复全量过滤。
+    final filtered = _filteredTasks;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -157,8 +174,8 @@ class TaskDashboardState extends State<TaskDashboard> {
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.all(16),
-            itemCount: _filteredTasks.length,
-            itemBuilder: (context, index) => _buildTaskCard(_filteredTasks[index]),
+            itemCount: filtered.length,
+            itemBuilder: (context, index) => _buildTaskCard(filtered[index]),
           ),
         ),
       ],
@@ -265,8 +282,8 @@ class TaskDashboardState extends State<TaskDashboard> {
 
   void _cancelTask(TaskItem task) {
     widget.onCancel?.call(task.id);
-    final idx = _tasks.indexWhere((t) => t.id == task.id);
-    if (idx < 0) return;
+    final idx = _taskIndex[task.id];
+    if (idx == null || idx >= _tasks.length) return;
     setState(() {
       _tasks[idx] = TaskItem(
         id: task.id,

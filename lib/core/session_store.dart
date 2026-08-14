@@ -10,6 +10,12 @@ class SessionStore {
   final Database _db;
   SessionStore(this._db);
 
+  /// 写事务串行门闩：并发 save/delete 会 BEGIN-in-BEGIN 报错。
+  /// 空闲时事务在调用方栈内同步执行（保持旧版语义，兼容 testWidgets 的
+  /// FakeAsync）；忙时把后续写链到队列延后执行，同一时刻只有一个事务。
+  bool _writeBusy = false;
+  Future<void> _writeQueue = Future<void>.value();
+
   static void onCreate(Database db, int version) {
     db.execute('''
       CREATE TABLE sessions (
@@ -45,13 +51,31 @@ class SessionStore {
     // if (oldVersion < 2) { db.execute('ALTER TABLE sessions ADD COLUMN ...'); }
   }
 
-  Future<T> _txn<T>(Future<T> Function() action) async {
-    _db.execute('BEGIN');
+  Future<T> _txn<T>(Future<T> Function() action) {
+    if (_writeBusy) {
+      // 忙：链到队列末尾，等前一个事务结束再跑（生产环境真实并发场景）。
+      final deferred = _writeQueue.then((_) => _txn(action));
+      _writeQueue = deferred.then((_) {}, onError: (_) {});
+      return deferred;
+    }
+    _writeBusy = true;
     try {
-      final result = await action();
-      _db.execute('COMMIT');
-      return result;
+      _db.execute('BEGIN');
+      final result = action();
+      // action 为纯同步 SQL 的闭包，future 已同步完成；成功/失败分支延后到
+      // 微任务提交或回滚，等价旧版 `await action()` 后的行为。
+      return result.then((r) {
+        _writeBusy = false;
+        _db.execute('COMMIT');
+        return r;
+      }, onError: (Object e, StackTrace st) {
+        _writeBusy = false;
+        _db.execute('ROLLBACK');
+        throw e;
+      });
     } catch (_) {
+      // BEGIN 或 action 同步抛出：立即回滚。
+      _writeBusy = false;
       _db.execute('ROLLBACK');
       rethrow;
     }

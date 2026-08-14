@@ -179,7 +179,10 @@ class CCProcessManager {
   void _evictIdleSessions() {
     final now = DateTime.now();
     final expired = _sessions.entries
-        .where((e) => now.difference(e.value.lastActivity).inSeconds > idleTimeoutSeconds)
+        .where((e) =>
+            now.difference(e.value.lastActivity).inSeconds > idleTimeoutSeconds &&
+            // 正在执行任务（taskKey 非空）的会话不驱逐，与 createSession 的满员策略一致。
+            !(_taskKeysBySession[e.key]?.isNotEmpty ?? false))
         .map((e) => e.key)
         .toList();
     for (final id in expired) {

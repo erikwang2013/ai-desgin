@@ -25,6 +25,16 @@ void main() {
     expect(loaded.domain, DesignCategory.web);
   });
 
+  test('concurrent saves are serialized without transaction errors', () async {
+    final s = Session(domain: DesignCategory.web, softwareName: 'figma');
+    s.addRecord(task: 't', script: '', scriptLanguage: '', modelUsed: '');
+    // 并发 save 走串行写队列，不应出现 BEGIN-in-BEGIN 报错。
+    await Future.wait([store.save(s), store.save(s), store.save(s)]);
+    final loaded = await store.load(s.id);
+    expect(loaded, isNotNull);
+    expect(loaded!.history, hasLength(1));
+  });
+
   test('load returns null for unknown id', () async {
     final result = await store.load('nonexistent');
     expect(result, isNull);

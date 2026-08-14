@@ -28,6 +28,9 @@ abstract class DesignPlugin {
   Future<ScriptResult> execute(String script, {ProgressCallback? onProgress});
   Future<ScriptResult> preview(String script);
   Future<SoftwareState> getCurrentState();
+
+  /// 取消正在执行的本地脚本。默认 no-op；BuiltInPlugin 转发给执行器。
+  Future<void> cancel() async {}
 }
 
 class BuiltInPlugin implements DesignPlugin {
@@ -99,7 +102,8 @@ class BuiltInPlugin implements DesignPlugin {
   Future<ScriptResult> execute(String script, {ProgressCallback? onProgress}) async {
     final executor = LocalScriptExecutor.instance;
     if (executor != null && executor.hasCommand(id)) {
-      return executor.execute(id, name, script);
+      // key: id 注册进程，让 cancel() 能按插件 id 中断本地脚本。
+      return executor.execute(id, name, script, key: id);
     }
     return ScriptResult.success(
       output: '脚本已生成，请在实际软件中执行:\n\n$script',
@@ -113,4 +117,12 @@ class BuiltInPlugin implements DesignPlugin {
 
   @override
   Future<SoftwareState> getCurrentState() async => const SoftwareState();
+
+  @override
+  Future<void> cancel() async {
+    final executor = LocalScriptExecutor.instance;
+    if (executor != null && executor.hasCommand(id)) {
+      executor.cancel(id);
+    }
+  }
 }

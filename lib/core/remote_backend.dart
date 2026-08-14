@@ -20,7 +20,10 @@ class RemoteBackend implements AgentBackend {
   final String? _model;
   final Duration timeout;
   final http.Client _client;
-  bool _cancelled = false;
+
+  /// 已取消任务集合：cancel(key) 只影响该 key 的任务，不影响后续新任务。
+  final Map<String, bool> _cancelled = {};
+  static const _defaultCancelKey = 'default';
 
   @override
   String get id => 'remote';
@@ -36,7 +39,10 @@ class RemoteBackend implements AgentBackend {
   Future<bool> isAvailable() async => endpointUrl.trim().isNotEmpty;
 
   @override
-  void cancel({String? key}) => _cancelled = true;
+  void cancel({String? key}) => _cancelled[key ?? _defaultCancelKey] = true;
+
+  /// 关闭底层 HTTP 客户端，释放连接资源。
+  void dispose() => _client.close();
 
   /// 请求 OpenAI 兼容 /chat/completions 端点并提取生成的脚本。
   @override
@@ -49,7 +55,14 @@ class RemoteBackend implements AgentBackend {
     String? scriptLanguage,
     String? key,
   }) async {
-    if (_cancelled) return CCResult.failure('Remote endpoint cancelled');
+    final cancelKey = key ?? _defaultCancelKey;
+    if (_cancelled[cancelKey] ?? false) {
+      return CCResult.failure('Remote endpoint cancelled');
+    }
+    final uri = Uri.parse(_chatCompletionsUrl(endpointUrl));
+    if (uri.scheme != 'https' && !_isLoopback(uri.host)) {
+      return CCResult.failure('远程端点要求 HTTPS');
+    }
     final prompt = buildCodeBlockPrompt(
       task: task,
       software: software,
@@ -67,7 +80,7 @@ class RemoteBackend implements AgentBackend {
     try {
       final response = await _client
           .post(
-            Uri.parse(_chatCompletionsUrl(endpointUrl)),
+            uri,
             headers: {
               'Content-Type': 'application/json',
               if (apiKey.isNotEmpty) 'Authorization': 'Bearer $apiKey',
@@ -75,7 +88,9 @@ class RemoteBackend implements AgentBackend {
             body: jsonEncode(body),
           )
           .timeout(timeout);
-      if (_cancelled) return CCResult.failure('Remote endpoint cancelled');
+      if (_cancelled[cancelKey] ?? false) {
+        return CCResult.failure('Remote endpoint cancelled');
+      }
       if (response.statusCode != 200) {
         return CCResult.failure(
             'Remote endpoint error ${response.statusCode}: ${_truncate(response.body)}');
@@ -104,6 +119,12 @@ class RemoteBackend implements AgentBackend {
     final trimmed = base.trim();
     if (trimmed.endsWith('/chat/completions')) return trimmed;
     return '${trimmed.replaceAll(RegExp(r'/+$'), '')}/chat/completions';
+  }
+
+  /// 本地回环地址允许明文 http，其余端点强制 https。
+  static bool _isLoopback(String host) {
+    final h = host.toLowerCase();
+    return h == 'localhost' || h == '127.0.0.1' || h == '::1';
   }
 
   /// 从 OpenAI 兼容响应中提取 choices[0].message.content；解析失败返回 null。

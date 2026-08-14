@@ -2,6 +2,7 @@ import 'dart:developer' as dev;
 import 'dart:convert';
 import 'dart:io';
 import 'package:archive/archive.dart';
+import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart';
 import '../bridge/api.dart' as bridge_api;
 import '../bridge/frb_generated.dart';
@@ -67,6 +68,9 @@ class PluginManager {
   void registerExternal(ExternalPluginManifest manifest, String packageDir) {
     if (manifest.id.trim().isEmpty) {
       throw ArgumentError.value(manifest.id, 'id', '外部插件清单必须包含非空 id');
+    }
+    if (_plugins.containsKey(manifest.id)) {
+      throw ArgumentError.value(manifest.id, 'id', '插件 id 已被占用');
     }
     register(ExternalScriptPlugin(manifest: manifest, packageDir: packageDir));
     _externalPackageDirs[manifest.id] = packageDir;
@@ -231,6 +235,10 @@ class ExternalScriptPlugin implements DesignPlugin {
 
   @override
   Future<SoftwareState> getCurrentState() async => const SoftwareState();
+
+  // 外部脚本型插件不启动本地进程，无需取消。
+  @override
+  Future<void> cancel() async {}
 }
 
 /// zip 插件包导入/导出编解码。
@@ -243,11 +251,12 @@ class PluginPackageCodec {
   ) async {
     final bytes = await File(zipPath).readAsBytes();
     final archive = ZipDecoder().decodeBytes(bytes);
+    _enforceZipLimits(archive);
 
     ArchiveFile? manifestFile;
     for (final f in archive.files) {
       if (!f.isFile) continue;
-      final base = _baseName(f.name);
+      final base = _baseName(_normalizeEntryName(f.name));
       if (base == 'plugin.json' || base == 'pubspec.yaml') {
         manifestFile = f;
         break;
@@ -257,21 +266,27 @@ class PluginPackageCodec {
       throw const FormatException('zip 内未找到 plugin.json 或 pubspec.yaml 清单');
     }
 
-    final rootPrefix = _rootOf(manifestFile.name);
+    final manifestName = _normalizeEntryName(manifestFile.name);
+    final rootPrefix = _rootOf(manifestName);
     final text = utf8.decode(_bytes(manifestFile.content));
-    final manifest = _baseName(manifestFile.name) == 'plugin.json'
+    final manifest = _baseName(manifestName) == 'plugin.json'
         ? ExternalPluginManifest.fromJson(jsonDecode(text) as Map<String, dynamic>)
         : ExternalPluginManifest.fromYaml(text);
     if (manifest.id.trim().isEmpty) {
       throw const FormatException('插件清单缺少 id/name');
     }
+    if (!_validId.hasMatch(manifest.id)) {
+      throw const FormatException('插件 id 仅允许字母、数字、下划线和连字符');
+    }
 
     final packageDir = '$destRoot/${manifest.id}';
+    final canonicalRoot = p.normalize(p.absolute(packageDir));
     for (final f in archive.files) {
       if (!f.isFile) continue;
-      final rel = _relativeUnder(f.name, rootPrefix);
-      if (rel == null || rel.split('/').contains('..')) continue;
-      final out = File('$packageDir/$rel');
+      final rel = _relativeUnder(_normalizeEntryName(f.name), rootPrefix);
+      if (rel == null || !_isSafeRelativePath(rel)) continue;
+      final out = File(p.normalize(p.join(packageDir, rel)));
+      if (!_isWithin(p.normalize(p.absolute(out.path)), canonicalRoot)) continue;
       await out.parent.create(recursive: true);
       await out.writeAsBytes(_bytes(f.content));
     }
@@ -279,8 +294,8 @@ class PluginPackageCodec {
     final scripts = manifest.scripts.isNotEmpty
         ? manifest.scripts
         : archive.files
-            .where((f) => f.isFile && f.name != manifestFile!.name)
-            .map((f) => _relativeUnder(f.name, rootPrefix))
+            .where((f) => f.isFile && _normalizeEntryName(f.name) != manifestName)
+            .map((f) => _relativeUnder(_normalizeEntryName(f.name), rootPrefix))
             .where((s) => s != null && s.isNotEmpty)
             .cast<String>()
             .toList();
@@ -349,6 +364,48 @@ class PluginPackageCodec {
     }
     files.sort();
     return files;
+  }
+
+  static final RegExp _validId = RegExp(r'^[A-Za-z0-9_-]+$');
+
+  static const int _maxZipEntries = 200;
+  static const int _maxZipEntrySize = 100 * 1024 * 1024;
+  static const int _maxZipTotalSize = 1024 * 1024 * 1024;
+
+  /// zip 炸弹防护：条目数 / 单条目 / 总解压体积上限，超出直接拒绝。
+  static void _enforceZipLimits(Archive archive) {
+    if (archive.files.length > _maxZipEntries) {
+      throw const FormatException('zip 条目数超过限制（最多 200 个）');
+    }
+    var total = 0;
+    for (final f in archive.files) {
+      if (!f.isFile) continue;
+      if (f.size > _maxZipEntrySize) {
+        throw const FormatException('zip 条目超过大小限制（最大 100MB）');
+      }
+      total += f.size;
+      if (total > _maxZipTotalSize) {
+        throw const FormatException('zip 总解压体积超过限制（最大 1GB）');
+      }
+    }
+  }
+
+  /// 统一 zip 内路径分隔符，消除反斜杠形式的 zip-slip 逃逸。
+  static String _normalizeEntryName(String name) => name.replaceAll('\\', '/');
+
+  /// 拒绝 `..` 段、绝对路径与 Windows 盘符路径，防止目录穿越。
+  static bool _isSafeRelativePath(String rel) {
+    if (rel.startsWith('/')) return false;
+    if (RegExp(r'^[A-Za-z]:').hasMatch(rel)) return false;
+    for (final seg in rel.split('/')) {
+      if (seg == '..') return false;
+    }
+    return true;
+  }
+
+  /// 规范化（去 `..`/`.`）后最终路径必须落在包目录内。
+  static bool _isWithin(String path, String root) {
+    return path == root || path.startsWith('$root${p.separator}');
   }
 
   static String _baseName(String name) {

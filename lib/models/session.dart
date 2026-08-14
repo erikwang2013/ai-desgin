@@ -29,6 +29,9 @@ class SessionContext {
 }
 
 class Session {
+  /// 历史上限：超出时截断最旧记录，防止无限增长。
+  static const int maxHistory = 500;
+
   final String id;
   final DesignCategory domain;
   final String softwareName;
@@ -64,6 +67,9 @@ class Session {
       status: status,
     );
     history.add(record);
+    if (history.length > maxHistory) {
+      history.removeRange(0, history.length - maxHistory);
+    }
     return record;
   }
 }

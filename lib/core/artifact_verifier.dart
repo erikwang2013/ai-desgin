@@ -29,9 +29,9 @@ class ArtifactVerifier {
       return const VerificationResult(passed: false, summary: '执行失败（非零退出码）');
     }
     final output = result.output ?? '';
-    // 回退路径（软件未安装/平台不支持）输出含"未检测到…可执行文件"，
-    // 无产物可验证，直接通过，避免无意义的多轮重新生成。
-    if (output.contains('未检测到')) {
+    // 回退路径（软件未安装/平台不支持）由执行器显式标记 manualFallback，
+    // 无真实执行结果可验证，直接通过，避免无意义的多轮重新生成。
+    if (result.manualFallback) {
       return const VerificationResult(passed: true, summary: '验证通过（手动执行回退）');
     }
     for (final marker in _englishMarkers) {

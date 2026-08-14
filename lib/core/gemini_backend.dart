@@ -17,6 +17,9 @@ class GeminiBackend implements AgentBackend {
   final String? apiKey;
   final Map<String, Process> _processes = {};
 
+  /// Windows 命令行上限 32K：超长 prompt 会抛参数过长异常，截断到 20K。
+  static const _maxPromptChars = 20000;
+
   @override
   String get id => 'gemini';
 
@@ -49,13 +52,13 @@ class GeminiBackend implements AgentBackend {
     String? scriptLanguage,
     String? key,
   }) async {
-    final prompt = buildCodeBlockPrompt(
+    final prompt = _limitPrompt(buildCodeBlockPrompt(
       task: task,
       software: software,
       capabilities: capabilities,
       state: state,
       scriptLanguage: scriptLanguage ?? 'javascript',
-    );
+    ));
     try {
       final process = await Process.start(
         'gemini',
@@ -131,4 +134,9 @@ class GeminiBackend implements AgentBackend {
   }
 
   static const timeout = Duration(seconds: 180);
+
+  static String _limitPrompt(String prompt) {
+    if (prompt.length <= _maxPromptChars) return prompt;
+    return '${prompt.substring(0, _maxPromptChars)}…[截断]';
+  }
 }

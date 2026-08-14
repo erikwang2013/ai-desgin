@@ -161,15 +161,15 @@ design_plugin:
 
     final zipPath = '${temp.path}/out.zip';
     await PluginPackageCodec.exportToZip(
-      StubPlugin('ext.1'),
+      StubPlugin('ext_pkg_1'),
       packageDir: pkgDir,
       description: 'Round trip plugin',
       zipPath: zipPath,
     );
 
     final result = await PluginPackageCodec.importFromZip(zipPath, '${temp.path}/imported');
-    expect(result.manifest.id, 'ext.1');
-    expect(result.manifest.name, 'Stub ext.1');
+    expect(result.manifest.id, 'ext_pkg_1');
+    expect(result.manifest.name, 'Stub ext_pkg_1');
     expect(result.manifest.description, 'Round trip plugin');
     expect(result.manifest.scripts, ['scripts/run.py']);
     expect(
@@ -179,8 +179,8 @@ design_plugin:
 
     final manager = PluginManager();
     manager.registerExternal(result.manifest, result.packageDir);
-    expect(manager.get('ext.1'), isA<ExternalScriptPlugin>());
-    expect(manager.externalPackageDir('ext.1'), result.packageDir);
+    expect(manager.get('ext_pkg_1'), isA<ExternalScriptPlugin>());
+    expect(manager.externalPackageDir('ext_pkg_1'), result.packageDir);
   });
 
   test('PluginPackageCodec rejects zip without manifest', () async {
@@ -195,6 +195,82 @@ design_plugin:
     expect(
       () => PluginPackageCodec.importFromZip(zipPath, '${temp.path}/dest'),
       throwsA(isA<FormatException>()),
+    );
+  });
+
+  test('PluginPackageCodec skips backslash zip-slip traversal entries', () async {
+    final temp = await Directory.systemTemp.createTemp('plugin_zip_slip');
+    addTearDown(() => temp.delete(recursive: true));
+    final archive = Archive()
+      ..addFile(
+        ArchiveFile('plugin.json', 0, utf8.encode(jsonEncode({
+          'id': 'safe_plugin',
+          'name': 'Safe',
+          'version': '1.0.0',
+        }))),
+      )
+      ..addFile(ArchiveFile('..\\evil.txt', 4, utf8.encode('evil')))
+      ..addFile(ArchiveFile('..\\..\\escape.py', 6, utf8.encode('print')))
+      ..addFile(ArchiveFile('C:\\win32\\pwn.py', 6, utf8.encode('print')))
+      ..addFile(ArchiveFile('/abs/root.py', 7, utf8.encode('print')));
+    final zipPath = '${temp.path}/slip.zip';
+    await File(zipPath).writeAsBytes(ZipEncoder().encode(archive));
+
+    final result =
+        await PluginPackageCodec.importFromZip(zipPath, '${temp.path}/dest');
+    expect(await File('${temp.path}/evil.txt').exists(), isFalse);
+    expect(await File('${temp.path}/escape.py').exists(), isFalse);
+    expect(await File('${temp.path}/win32/pwn.py').exists(), isFalse);
+    expect(await File('${temp.path}/abs/root.py').exists(), isFalse);
+    expect(await File('${result.packageDir}/evil.txt').exists(), isFalse);
+    expect(result.manifest.id, 'safe_plugin');
+  });
+
+  test('PluginPackageCodec rejects manifest id with unsafe characters', () async {
+    final temp = await Directory.systemTemp.createTemp('plugin_bad_id');
+    addTearDown(() => temp.delete(recursive: true));
+    final archive = Archive()
+      ..addFile(
+        ArchiveFile('plugin.json', 0, utf8.encode(jsonEncode({
+          'id': '../evil',
+          'name': 'Evil',
+          'version': '1.0.0',
+        }))),
+      );
+    final zipPath = '${temp.path}/bad_id.zip';
+    await File(zipPath).writeAsBytes(ZipEncoder().encode(archive));
+
+    await expectLater(
+      PluginPackageCodec.importFromZip(zipPath, '${temp.path}/dest'),
+      throwsA(isA<FormatException>()),
+    );
+    expect(await Directory('${temp.path}/dest').exists(), isFalse);
+  });
+
+  test('PluginPackageCodec rejects zip with too many entries', () async {
+    final temp = await Directory.systemTemp.createTemp('plugin_zip_bomb');
+    addTearDown(() => temp.delete(recursive: true));
+    final archive = Archive();
+    for (var i = 0; i < 201; i++) {
+      archive.addFile(ArchiveFile('f$i.txt', 0, utf8.encode('x')));
+    }
+    final zipPath = '${temp.path}/bomb.zip';
+    await File(zipPath).writeAsBytes(ZipEncoder().encode(archive));
+
+    await expectLater(
+      PluginPackageCodec.importFromZip(zipPath, '${temp.path}/dest'),
+      throwsA(isA<FormatException>()),
+    );
+  });
+
+  test('registerExternal rejects id already in use', () {
+    final manager = PluginManager();
+    const manifest =
+        ExternalPluginManifest(id: 'dup_1', name: 'A', version: '0', scriptLanguage: '');
+    manager.registerExternal(manifest, '/tmp/a');
+    expect(
+      () => manager.registerExternal(manifest, '/tmp/b'),
+      throwsArgumentError,
     );
   });
 }

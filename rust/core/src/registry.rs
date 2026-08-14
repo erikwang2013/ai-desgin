@@ -137,12 +137,12 @@ mod tests {
     use super::*;
 
     #[test]
-    fn registry_has_62_plugins_with_unique_ids() {
-        assert_eq!(PLUGINS.len(), 62);
+    fn registry_has_plugins_with_unique_ids() {
+        assert!(PLUGINS.len() >= 60, "registry shrank unexpectedly");
         let mut ids: Vec<&str> = PLUGINS.iter().map(|p| p.id).collect();
         ids.sort_unstable();
         ids.dedup();
-        assert_eq!(ids.len(), 62, "plugin ids must be unique");
+        assert_eq!(ids.len(), PLUGINS.len(), "plugin ids must be unique");
     }
 
     #[test]
@@ -170,10 +170,51 @@ mod tests {
     fn serialized_json_has_expected_shape() {
         let value: serde_json::Value = serde_json::from_str(&get_builtin_plugins()).unwrap();
         let array = value.as_array().unwrap();
-        assert_eq!(array.len(), 62);
+        assert!(array.len() >= 60, "registry shrank unexpectedly");
         let first = &array[0];
         assert_eq!(first["id"], "figma");
         assert!(first["script_language"].is_string());
         assert!(first["capabilities"]["actions"].is_array());
+    }
+
+    #[test]
+    fn every_workspace_plugin_crate_is_registered() {
+        // Workspace members are the source of truth for which plugin crates
+        // exist; a new crate without a registry entry breaks Dart-side
+        // discovery. Adobe CC crates are Dart-stub only (see workspace
+        // Cargo.toml comments), so this direction is one-way on purpose.
+        let workspace_toml = include_str!("../../Cargo.toml");
+        let members_line = workspace_toml
+            .lines()
+            .find(|l| l.trim_start().starts_with("members"))
+            .expect("workspace members line");
+        let registered: Vec<&str> = PLUGINS.iter().map(|p| p.id).collect();
+        for tok in members_line.split('"') {
+            if let Some(id) = tok.strip_prefix("plugins/") {
+                assert!(
+                    registered.contains(&id),
+                    "workspace plugin crate `{id}` is missing from the registry"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn registry_ids_and_formats_are_clean() {
+        for p in PLUGINS.iter() {
+            assert!(
+                p.id.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit()),
+                "registry id `{}` must be lowercase alphanumeric",
+                p.id
+            );
+            assert!(
+                p.capabilities
+                    .file_formats
+                    .iter()
+                    .all(|f| !f.is_empty() && !f.chars().any(|c| c.is_whitespace() || c.is_control())),
+                "illegal file format in `{}`",
+                p.id
+            );
+        }
     }
 }

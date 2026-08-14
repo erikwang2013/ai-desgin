@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'agent_backend.dart';
 import 'plugin_manager.dart';
 import 'cc_process_manager.dart';
@@ -116,11 +117,6 @@ class TaskOrchestrator {
           : null;
       final state = await plugin.getCurrentState();
       String? ccSessionId;
-      if (isClaude) {
-        ccSessionId = _ccManager
-            .createSession(software: softwareName, capabilities: plugin.capabilities, state: state)
-            .id;
-      }
 
       // 生成失败（API 报错、无脚本、会话失效）时不得把任务描述当脚本执行。
       TaskRecord failGenerated(String error) {
@@ -135,6 +131,17 @@ class TaskOrchestrator {
         );
         _tasks[record.id] = failed;
         return failed;
+      }
+
+      if (isClaude) {
+        try {
+          ccSessionId = _ccManager
+              .createSession(software: softwareName, capabilities: plugin.capabilities, state: state)
+              .id;
+        } on StateError {
+          // 所有会话都在执行任务：转友好失败而非抛原始异常。
+          return failGenerated('所有 CC 会话忙碌，请稍后重试');
+        }
       }
 
       String generatedScript = task;
@@ -170,7 +177,8 @@ class TaskOrchestrator {
             }
             generatedScript = generated.script!;
           }
-        } catch (_) {
+        } catch (e) {
+          debugPrint('TaskOrchestrator: ${backend.displayName} 生成脚本失败: $e');
           return failGenerated('${backend.displayName} execution failed');
         }
       }
@@ -293,6 +301,7 @@ class TaskOrchestrator {
 
       return updated;
     } catch (e) {
+      debugPrint('TaskOrchestrator: 任务执行失败 (${record.id}): $e');
       final existing = _tasks[record.id];
       if (existing?.status == TaskStatus.cancelled) return existing!;
       final failed = TaskRecord(
@@ -352,6 +361,8 @@ class TaskOrchestrator {
 
     if (task.status == TaskStatus.running) {
       backend.cancel(key: taskId);
+      // 执行阶段的本地 CLI 脚本也要中断，否则要等满超时。
+      unawaited(_pluginManager.get(task.sessionId)?.cancel());
     }
     _tasks[taskId] = cancelled;
     _recordCancelledInSession(task);
@@ -393,10 +404,6 @@ class TaskOrchestrator {
     ).then((result) {
       if (!queued.completer.isCompleted) {
         queued.completer.complete(result);
-      }
-    }).catchError((e) {
-      if (!queued.completer.isCompleted) {
-        queued.completer.completeError(e);
       }
     });
   }

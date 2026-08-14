@@ -103,6 +103,71 @@ void main() {
     expect(find.text('正在生成脚本…'), findsNothing);
   });
 
+  testWidgets('updateTaskProgress and addTask after dispose are no-ops', (tester) async {
+    final key = GlobalKey<TaskDashboardState>();
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: TaskDashboard(
+          key: key,
+          initialTasks: [
+            TaskItem(
+              id: 't6',
+              title: 'slow',
+              software: 'blender',
+              status: TaskStatus.running,
+              createdAt: DateTime(2026, 8, 6, 10, 36),
+            ),
+          ],
+          onCancel: (id) {},
+        ),
+      ),
+    ));
+    final state = key.currentState!;
+    await tester.pumpWidget(const MaterialApp(home: SizedBox()));
+
+    // widget 已销毁后调用不应抛异常（异步 onProgress 回调可能晚于销毁）。
+    state.updateTaskProgress('t6', '正在执行…');
+    state.addTask(TaskItem(
+      id: 't7',
+      title: 'late',
+      software: 'figma',
+      status: TaskStatus.running,
+      createdAt: DateTime(2026, 8, 6, 10, 37),
+    ));
+  });
+
+  testWidgets('addTask with duplicate id replaces existing task', (tester) async {
+    final key = GlobalKey<TaskDashboardState>();
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: TaskDashboard(
+          key: key,
+          initialTasks: [
+            TaskItem(
+              id: 't8',
+              title: 'original',
+              software: 'figma',
+              status: TaskStatus.pending,
+              createdAt: DateTime(2026, 8, 6, 10, 38),
+            ),
+          ],
+          onCancel: (id) {},
+        ),
+      ),
+    ));
+    key.currentState!.addTask(TaskItem(
+      id: 't8',
+      title: 'updated',
+      software: 'figma',
+      status: TaskStatus.running,
+      createdAt: DateTime(2026, 8, 6, 10, 38),
+    ));
+    await tester.pump();
+
+    expect(find.text('original'), findsNothing);
+    expect(find.text('updated'), findsOneWidget);
+  });
+
   testWidgets('completed task does not show progress stage', (tester) async {
     await tester.pumpWidget(MaterialApp(
       home: Scaffold(

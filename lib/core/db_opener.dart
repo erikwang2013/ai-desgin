@@ -1,12 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'package:logging/logging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqlite3/sqlite3.dart' hide Session;
 import 'session_store.dart';
-
-final _log = Logger('DbOpener');
 
 const _authFileName = 'auth.json';
 const _dbFileName = 'sessions.db';
@@ -31,7 +29,18 @@ Future<String> _loadOrCreatePassword(String dir) async {
     (_) => rng.nextInt(256).toRadixString(16).padLeft(2, '0'),
   ).join();
   file.writeAsStringSync(jsonEncode({'password': password, 'version': 1}));
+  await _restrictFilePermissions(file);
   return password;
+}
+
+/// POSIX 下将密码文件权限收紧为 0600（仅当前用户可读写）；Windows 无此概念，忽略。
+Future<void> _restrictFilePermissions(File file) async {
+  if (Platform.isWindows) return;
+  try {
+    await Process.run('chmod', ['600', file.absolute.path]);
+  } catch (e) {
+    debugPrint('Failed to restrict auth file permissions: $e');
+  }
 }
 
 void _migrate(Database db) {
@@ -58,7 +67,7 @@ Future<Database?> openEncryptedSessionDb() async {
     _migrate(db);
     return db;
   } catch (e) {
-    _log.warning('Encrypted session DB open failed, falling back to plain: $e');
+    debugPrint('Encrypted session DB open failed, falling back to plain: $e');
   }
   try {
     final docDir = await getApplicationDocumentsDirectory();
@@ -66,7 +75,7 @@ Future<Database?> openEncryptedSessionDb() async {
     _migrate(db);
     return db;
   } catch (e) {
-    _log.warning('Session DB open failed: $e');
+    debugPrint('Session DB open failed: $e');
     return null;
   }
 }

@@ -169,7 +169,7 @@ List<ScriptExecutorConfig> defaultExecutorConfigs() => [
           final factory = File('${tempDir.path}/process.factory');
           factory.writeAsStringSync(
             '<?xml version="1.0" encoding="utf-8"?>'
-            '<Factory><ModelPaths>$modelPath</ModelPaths>'
+            '<Factory><ModelPaths>${_xmlEscape(modelPath)}</ModelPaths>'
             '<Processes><Process name="Default" id="1">'
             '<setting key="outputDirectory">${tempDir.path}</setting>'
             '</Process></Processes></Factory>',
@@ -203,3 +203,11 @@ WScript.StdOut.WriteLine "MACRO_COMPLETE"
         },
       ),
     ];
+
+/// XML 特殊字符转义，防止模型路径注入 factory 进程文件。
+String _xmlEscape(String text) => text
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&apos;');

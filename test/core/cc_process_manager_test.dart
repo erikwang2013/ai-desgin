@@ -129,6 +129,29 @@ void main() {
     expect(manager.activeSessionCount, 1);
   });
 
+  test('idle eviction skips sessions with a running task', () async {
+    final runner = _HangingRunner();
+    final manager = CCProcessManager(maxProcesses: 3, idleTimeoutSeconds: 1);
+    addTearDown(manager.dispose);
+    const caps = SoftwareCapabilities(actions: [], fileFormats: []);
+    const state = SoftwareState();
+    final s1 = manager.createSession(software: 'a', capabilities: caps, state: state);
+
+    final exec = manager.executeWithClaude(
+      sessionId: s1.id, task: 't1', model: 'm', runner: runner, taskKey: 'task-1');
+    await runner.started.future;
+
+    // 等待超过 idleTimeoutSeconds：正在执行任务的会话不应被驱逐。
+    await Future<void>.delayed(const Duration(milliseconds: 2100));
+    manager.createSession(software: 'b', capabilities: caps, state: state);
+
+    expect(manager.getSession(s1.id), isNotNull);
+    expect(manager.activeSessionCount, 2);
+
+    runner.gate.complete(CCResult.failure('done'));
+    await exec;
+  });
+
   test('dispose cancels tracked processes and clears sessions', () async {
     final runner = _HangingRunner();
     final manager = CCProcessManager(maxProcesses: 3, idleTimeoutSeconds: 300);

@@ -1,8 +1,27 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ai_design_studio/core/artifact_verifier.dart';
 import 'package:ai_design_studio/core/local_script_executor.dart';
 import 'package:ai_design_studio/core/script_executor_configs.dart';
+import 'package:ai_design_studio/models/plugin.dart';
+
+/// 生成一个可独立执行的假 CLI shell 脚本，body 可用 $AI_DESIGN_SCRIPT
+/// 环境变量定位本次执行的临时目录（dirname 即脚本所在目录）。
+Future<Directory> _makeFakeCli(String body) async {
+  final dir = await Directory.systemTemp.createTemp('fake_cli_');
+  final bin = File('${dir.path}/fake_cli.sh')
+    ..writeAsStringSync('#!/bin/sh\n$body\n');
+  await Process.run('chmod', ['+x', bin.path]);
+  return dir;
+}
+
+ScriptExecutorConfig _blenderConfig(String executable) => ScriptExecutorConfig(
+      pluginId: 'blender',
+      executable: executable,
+      scriptExtension: 'py',
+      args: (scriptPath, _) => ['--background', '--python', scriptPath],
+    );
 
 void main() {
   test('hasCommand only for CLI-capable plugins', () {
@@ -51,7 +70,134 @@ void main() {
     final executor = LocalScriptExecutor();
     final result = await executor.execute('figma', 'Figma', 'console.log("hi");');
     expect(result.success, isTrue);
+    expect(result.manualFallback, isTrue);
     expect(result.output, contains('脚本已生成'));
     expect(result.output, contains('console.log("hi");'));
   });
+
+  test('fallback when executable missing carries manualFallback flag', () async {
+    final executor = LocalScriptExecutor(
+      configs: {
+        'blender': ScriptExecutorConfig(
+          pluginId: 'blender',
+          executable: '/nonexistent/ai_design_tool',
+          scriptExtension: 'py',
+          args: (scriptPath, _) => [scriptPath],
+        ),
+      },
+    );
+    final result = await executor.execute('blender', 'Blender', 'print(1)');
+    expect(result.success, isTrue);
+    expect(result.manualFallback, isTrue);
+    expect(result.output, contains('未检测到 Blender'));
+  });
+
+  test('verifier reads manualFallback flag instead of output magic string', () async {
+    const verifier = ArtifactVerifier();
+    final flagged = await verifier.verify(
+      ScriptResult.success(output: 'no failure markers', manualFallback: true),
+    );
+    expect(flagged.passed, isTrue);
+    expect(flagged.summary, contains('手动执行回退'));
+    // 未置位时不再按文案判定回退，走常规失败特征与产物检查。
+    final plain = await verifier.verify(
+      ScriptResult.success(output: '未检测到 某工具 可执行文件'),
+    );
+    expect(plain.passed, isTrue);
+    expect(plain.summary, isNot(contains('手动执行回退')));
+  });
+
+  group('fake CLI process', () {
+    test('success collects whitelisted artifacts', () async {
+      final dir = await _makeFakeCli(r'''
+outdir="$(dirname "$AI_DESIGN_SCRIPT")"
+printf 'PNGFAKE' > "$outdir/out.png"
+printf 'note' > "$outdir/readme.txt"
+''');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final executor = LocalScriptExecutor(
+        configs: {'blender': _blenderConfig('${dir.path}/fake_cli.sh')},
+      );
+      final result = await executor.execute('blender', 'Blender', 'print(1)');
+      expect(result.success, isTrue);
+      expect(result.artifacts, hasLength(1));
+      expect(result.artifacts.single, endsWith('out.png'));
+      expect(File(result.artifacts.single).existsSync(), isTrue);
+      expect(File(result.artifacts.single).parent.path,
+          contains('ai_design_artifacts'));
+    });
+
+    test('no artifacts returns empty list', () async {
+      final dir = await _makeFakeCli('exit 0');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final executor = LocalScriptExecutor(
+        configs: {'blender': _blenderConfig('${dir.path}/fake_cli.sh')},
+      );
+      final result = await executor.execute('blender', 'Blender', 'print(1)');
+      expect(result.success, isTrue);
+      expect(result.artifacts, isEmpty);
+    });
+
+    test('symlinked artifact pointing outside temp dir is skipped', () async {
+      final secretDir = await Directory.systemTemp.createTemp('secret_');
+      addTearDown(() => secretDir.deleteSync(recursive: true));
+      final secret = File('${secretDir.path}/secret.png')
+        ..writeAsStringSync('SENSITIVE');
+      final dir = await _makeFakeCli(r'''
+outdir="$(dirname "$AI_DESIGN_SCRIPT")"
+ln -s "''' +
+          secret.path +
+          r'" "$outdir/leak.png"');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final executor = LocalScriptExecutor(
+        configs: {'blender': _blenderConfig('${dir.path}/fake_cli.sh')},
+      );
+      final result = await executor.execute('blender', 'Blender', 'print(1)');
+      expect(result.success, isTrue);
+      expect(result.artifacts, isEmpty);
+      expect(secret.readAsStringSync(), 'SENSITIVE');
+    });
+
+    test('oversized artifact is skipped', () async {
+      final dir = await _makeFakeCli(r'''
+outdir="$(dirname "$AI_DESIGN_SCRIPT")"
+truncate -s 60M "$outdir/big.png"
+printf 'ok' > "$outdir/small.png"
+''');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final executor = LocalScriptExecutor(
+        configs: {'blender': _blenderConfig('${dir.path}/fake_cli.sh')},
+      );
+      final result = await executor.execute('blender', 'Blender', 'print(1)');
+      expect(result.success, isTrue);
+      expect(result.artifacts, hasLength(1));
+      expect(result.artifacts.single, endsWith('small.png'));
+    });
+
+    test('cancel kills running process', () async {
+      final dir = await _makeFakeCli('exec sleep 30');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final executor = LocalScriptExecutor(
+        configs: {'blender': _blenderConfig('${dir.path}/fake_cli.sh')},
+      );
+      final future = executor.execute('blender', 'Blender', 'print(1)', key: 't-1');
+      // 轮询 cancel：等待进程注册后 kill（最多约 2.5s）。
+      await Future.delayed(const Duration(milliseconds: 300));
+      for (var i = 0; i < 20; i++) {
+        executor.cancel('t-1');
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+      final result = await future.timeout(const Duration(seconds: 10));
+      expect(result.success, isFalse);
+      expect(result.error, contains('已取消'));
+    });
+
+    test('cancel unknown key is a harmless no-op', () async {
+      final executor = LocalScriptExecutor(
+        configs: {'blender': _blenderConfig('/nonexistent/fake')},
+      );
+      executor.cancel('never-registered');
+      expect(executor.hasCommand('blender'), isTrue);
+    });
+  }, skip: Platform.isWindows ? 'fake shell CLI 仅 POSIX 可用' : false);
 }

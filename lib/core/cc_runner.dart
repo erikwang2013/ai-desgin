@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data' show BytesBuilder;
 import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
 import 'agent_backend.dart';
@@ -186,10 +187,13 @@ class CCRunner implements AgentBackend {
 
       // 启动即并发消费 stdout/stderr，避免子进程边读边写时 64KB 管道死锁。
       // Windows 控制台可能输出 GBK 等非 UTF-8 文本，缓冲字节后按编码解码。
-      final stdoutFuture =
-          process.stdout.fold<List<int>>(<int>[], (acc, chunk) => acc..addAll(chunk));
-      final stderrFuture =
-          process.stderr.fold<List<int>>(<int>[], (acc, chunk) => acc..addAll(chunk));
+      // BytesBuilder 避免 List.addAll 的 O(n²) 拷贝。
+      final stdoutFuture = process.stdout
+          .fold<BytesBuilder>(BytesBuilder(), (acc, chunk) => acc..add(chunk))
+          .then((b) => b.takeBytes());
+      final stderrFuture = process.stderr
+          .fold<BytesBuilder>(BytesBuilder(), (acc, chunk) => acc..add(chunk))
+          .then((b) => b.takeBytes());
       process.stdin.write(prompt);
       await process.stdin.flush();
       await process.stdin.close();

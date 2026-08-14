@@ -120,6 +120,18 @@ class CountingEchoPlugin extends EchoPlugin {
   }
 }
 
+/// Gated plugin that records cancel() calls — exercises the cancel wire-up.
+class CancellingGatedPlugin extends GatedEchoPlugin {
+  int cancelCalls = 0;
+
+  CancellingGatedPlugin({required super.release});
+
+  @override
+  Future<void> cancel() async {
+    cancelCalls++;
+  }
+}
+
 /// Runner that always reports generation failure (API error).
 class FailingGeneratorRunner extends FakeCCRunner {
   FailingGeneratorRunner() : super(available: true);
@@ -290,6 +302,66 @@ void main() {
 
     release.complete();
     await t1;
+  });
+
+  test('cancelTask interrupts local script execution via plugin.cancel', () async {
+    final release = Completer<void>();
+    final plugin = CancellingGatedPlugin(release: release);
+    pluginManager.register(plugin);
+    final orch = TaskOrchestrator(
+      pluginManager: pluginManager,
+      ccManager: ccManager,
+      modelRouter: modelRouter,
+      backend: FakeCCRunner(),
+      maxConcurrent: 1,
+    );
+    final future = orch.submitTask(domain: DesignCategory.web, softwareName: 'gated', task: 'long local script');
+    await pumpEventQueue();
+    final running = orch.tasks.firstWhere((t) => t.task == 'long local script');
+    expect(running.status, TaskStatus.running);
+
+    orch.cancelTask(running.id);
+    expect(plugin.cancelCalls, 1);
+    release.complete();
+    final result = await future;
+    expect(result.status, TaskStatus.cancelled);
+  });
+
+  test('submitTask maps full CC sessions to a friendly failure', () async {
+    final runner = GatedFakeCCRunner();
+    final tightCc = CCProcessManager(maxProcesses: 1);
+    final s1 = tightCc.createSession(
+      software: 'echo',
+      capabilities: const SoftwareCapabilities(actions: [], fileFormats: []),
+      state: const SoftwareState(),
+    );
+    final busyExec = tightCc.executeWithClaude(
+      sessionId: s1.id, task: 'occupied', model: 'm', runner: runner, taskKey: 'k1');
+
+    final orch = TaskOrchestrator(
+      pluginManager: pluginManager,
+      ccManager: tightCc,
+      modelRouter: modelRouter,
+      backend: FakeCCRunner(),
+      maxConcurrent: 1,
+    );
+    final result = await orch.submitTask(
+      domain: DesignCategory.web, softwareName: 'echo', task: 'second task');
+    expect(result.status, TaskStatus.failed);
+    expect(result.error, '所有 CC 会话忙碌，请稍后重试');
+
+    runner.gate.complete();
+    await busyExec;
+  });
+
+  test('session history is truncated to 500 records', () {
+    final session = Session(domain: DesignCategory.web, softwareName: 'echo');
+    for (var i = 0; i < 505; i++) {
+      session.addRecord(task: 'task $i', script: '', scriptLanguage: '', modelUsed: '');
+    }
+    expect(session.history.length, 500);
+    expect(session.history.first.task, 'task 5');
+    expect(session.history.last.task, 'task 504');
   });
 
   test('cancelTask cancels a running task without overwriting its record', () async {

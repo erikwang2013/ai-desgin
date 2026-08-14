@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'l10n/app_localizations.dart';
@@ -99,6 +102,10 @@ class _MainShellState extends State<_MainShell> {
   String? _remoteKey;
   bool _ready = false;
 
+  /// 供所有 RemoteBackend 复用的单例 client，避免切换后端时泄漏连接。
+  final http.Client _httpClient = http.Client();
+  Timer? _historyReloadDebounce;
+
   @override
   void initState() {
     super.initState();
@@ -107,23 +114,33 @@ class _MainShellState extends State<_MainShell> {
 
   @override
   void dispose() {
+    _historyReloadDebounce?.cancel();
     _ccManager?.dispose();
+    _httpClient.close();
     super.dispose();
   }
 
   Future<void> _initOrchestrator() async {
     // 同步占位避免 await 期间 build 访问未初始化字段；create() 完成后替换。
     _pluginManager = PluginManager();
-    _pluginManager = await PluginManager.create();
     final ccManager = CCProcessManager();
     _ccManager = ccManager;
     final modelRouter = ModelRouter();
     final ccRunner = CCRunner();
 
+    // 相互独立的重活并行启动：插件加载、SQLCipher 开库、prefs 读取、路由配置。
+    final pluginFuture = PluginManager.create();
+    final dbFuture = openEncryptedSessionDb();
+    final prefsFuture = SharedPreferences.getInstance();
+    final routingFuture = _loadModelRouting(modelRouter);
+
+    _pluginManager = await pluginFuture;
+
     // 市场卸载的插件跨重启保持卸载状态，启动时不注册。
     final uninstalledIds = <String>{};
+    SharedPreferences? prefs;
     try {
-      final prefs = await SharedPreferences.getInstance();
+      prefs = await prefsFuture;
       uninstalledIds.addAll(prefs.getStringList('uninstalled_plugin_ids') ?? const []);
     } catch (_) {
       // No persistence available; all plugins default to installed
@@ -138,6 +155,74 @@ class _MainShellState extends State<_MainShell> {
 
     LocalScriptExecutor.instance ??= LocalScriptExecutor();
 
+    try {
+      final savedModel = prefs?.getString('default_model');
+      if (savedModel != null && savedModel.isNotEmpty) {
+        modelRouter.setDefaultModel(savedModel);
+      }
+      final proxyHost = prefs?.getString('proxy_host');
+      final proxyPort = prefs?.getString('proxy_port');
+      if (proxyHost != null && proxyHost.isNotEmpty) {
+        final scheme = prefs?.getString('proxy_scheme') ?? 'http';
+        final base = proxyPort != null && proxyPort.isNotEmpty
+            ? '$scheme://$proxyHost:$proxyPort'
+            : '$scheme://$proxyHost';
+        CCRunner.proxyEnvironment = {
+          'HTTP_PROXY': base,
+          'HTTPS_PROXY': base,
+        };
+      }
+      CCRunner.apiBaseUrl = prefs?.getString('api_endpoint');
+      CCRunner.apiAuthToken = prefs?.getString('api_key');
+    } catch (_) {
+      // Saved settings are optional; defaults apply otherwise
+    }
+    await routingFuture;
+    CCRunner.responseLanguage = widget.localeProvider.languageInstruction;
+    String backendId = 'claude';
+    try {
+      _openaiKey = prefs?.getString('openai_api_key');
+      _geminiKey = prefs?.getString('gemini_api_key');
+      _remoteUrl = prefs?.getString('remote_endpoint_url');
+      _remoteKey = prefs?.getString('remote_endpoint_key');
+      backendId = prefs?.getString('agent_backend') ?? 'claude';
+    } catch (_) {
+      // Defaults to Claude
+    }
+    final backend = switch (backendId) {
+      'codex' => CodexBackend(apiKey: _openaiKey),
+      'gemini' => GeminiBackend(apiKey: _geminiKey),
+      'opencode' => openCodeBackend,
+      'openclaw' => openClawBackend,
+      'hermes' => hermesBackend,
+      'reasonix' => reasonixBackend,
+      'remote' => RemoteBackend(endpointUrl: _remoteUrl ?? '', apiKey: _remoteKey ?? '', client: _httpClient),
+      _ => ccRunner,
+    };
+    _orchestrator = TaskOrchestrator(
+      pluginManager: _pluginManager,
+      ccManager: ccManager,
+      modelRouter: modelRouter,
+      backend: backend,
+    );
+
+    try {
+      final db = await dbFuture;
+      if (db != null) _sessionStore = SessionStore(db);
+    } catch (_) {
+      // Non-critical; app works without persistence
+    }
+
+    // 探活不阻塞 _ready：结果为纯展示性状态，完成后经 setState 刷新面板。
+    unawaited(_runConnectionProbes().catchError((_) {}));
+
+    _currentSoftware = _defaultSoftwareFor(_currentDomain);
+    _lastSoftwarePerDomain[_currentDomain] = _currentSoftware;
+
+    if (mounted) setState(() => _ready = true);
+  }
+
+  Future<void> _loadModelRouting(ModelRouter modelRouter) async {
     const inlineRouting = '''
     default: claude-sonnet-4-6
     routes:
@@ -155,71 +240,6 @@ class _MainShellState extends State<_MainShell> {
     } catch (_) {
       await modelRouter.loadConfigFromString(inlineRouting);
     }
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final savedModel = prefs.getString('default_model');
-      if (savedModel != null && savedModel.isNotEmpty) {
-        modelRouter.setDefaultModel(savedModel);
-      }
-      final proxyHost = prefs.getString('proxy_host');
-      final proxyPort = prefs.getString('proxy_port');
-      if (proxyHost != null && proxyHost.isNotEmpty) {
-        final scheme = prefs.getString('proxy_scheme') ?? 'http';
-        final base = proxyPort != null && proxyPort.isNotEmpty
-            ? '$scheme://$proxyHost:$proxyPort'
-            : '$scheme://$proxyHost';
-        CCRunner.proxyEnvironment = {
-          'HTTP_PROXY': base,
-          'HTTPS_PROXY': base,
-        };
-      }
-      CCRunner.apiBaseUrl = prefs.getString('api_endpoint');
-      CCRunner.apiAuthToken = prefs.getString('api_key');
-    } catch (_) {
-      // Saved settings are optional; defaults apply otherwise
-    }
-    CCRunner.responseLanguage = widget.localeProvider.languageInstruction;
-    String backendId = 'claude';
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      backendId = prefs.getString('agent_backend') ?? 'claude';
-      _openaiKey = prefs.getString('openai_api_key');
-      _geminiKey = prefs.getString('gemini_api_key');
-      _remoteUrl = prefs.getString('remote_endpoint_url');
-      _remoteKey = prefs.getString('remote_endpoint_key');
-    } catch (_) {
-      // Defaults to Claude
-    }
-    final backend = switch (backendId) {
-      'codex' => CodexBackend(apiKey: _openaiKey),
-      'gemini' => GeminiBackend(apiKey: _geminiKey),
-      'opencode' => openCodeBackend,
-      'openclaw' => openClawBackend,
-      'hermes' => hermesBackend,
-      'reasonix' => reasonixBackend,
-      'remote' => RemoteBackend(endpointUrl: _remoteUrl ?? '', apiKey: _remoteKey ?? ''),
-      _ => ccRunner,
-    };
-    _orchestrator = TaskOrchestrator(
-      pluginManager: _pluginManager,
-      ccManager: ccManager,
-      modelRouter: modelRouter,
-      backend: backend,
-    );
-
-    try {
-      final db = await openEncryptedSessionDb();
-      if (db != null) _sessionStore = SessionStore(db);
-    } catch (_) {
-      // Non-critical; app works without persistence
-    }
-
-    await _runConnectionProbes();
-
-    _currentSoftware = _defaultSoftwareFor(_currentDomain);
-    _lastSoftwarePerDomain[_currentDomain] = _currentSoftware;
-
-    if (mounted) setState(() => _ready = true);
   }
 
   /// Probe CLI availability for every plugin and publish connection status.
@@ -253,6 +273,7 @@ class _MainShellState extends State<_MainShell> {
         _orchestrator.backend = RemoteBackend(
           endpointUrl: prefs.getString('remote_endpoint_url') ?? '',
           apiKey: prefs.getString('remote_endpoint_key') ?? '',
+          client: _httpClient,
         );
         prefs.setString('agent_backend', id);
       }).catchError((_) {});
@@ -313,6 +334,14 @@ class _MainShellState extends State<_MainShell> {
     }
   }
 
+  /// 历史列表刷新防抖：任务连续完成时合并多次 reload 为一次。
+  void _scheduleHistoryReload() {
+    _historyReloadDebounce?.cancel();
+    _historyReloadDebounce = Timer(const Duration(milliseconds: 300), () {
+      _historyKey.currentState?.reload();
+    });
+  }
+
   Future<String> _onSubmit(String task) async {
     final sw = _resolveSoftware();
     // 预置 pending 占位卡片，让生成/执行阶段的进度回调有归属。
@@ -346,10 +375,9 @@ class _MainShellState extends State<_MainShell> {
 
     final session = _orchestrator.getCurrentSession(sw);
     if (session != null && _sessionStore != null) {
-      try {
-        await _sessionStore!.save(session);
-        _historyKey.currentState?.reload();
-      } catch (_) {}
+      // 写库不阻塞响应：fire-and-forget 静默失败；历史列表短延时防抖刷新。
+      _sessionStore!.save(session).catchError((_) {});
+      _scheduleHistoryReload();
     }
 
     if (!mounted) return '';

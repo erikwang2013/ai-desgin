@@ -6,6 +6,22 @@ use std::time::Duration;
 
 const EXEC_TIMEOUT: Duration = Duration::from_secs(120);
 
+/// Kill the child and, on Unix, its whole process group (spawned via
+/// `process_group(0)`, see `run_freecad_script`). Windows kills the direct
+/// child only.
+#[cfg(unix)]
+fn kill_tree(child: &mut Child) {
+    let _ = child.kill();
+    unsafe {
+        libc::killpg(child.id() as i32, libc::SIGKILL);
+    }
+}
+
+#[cfg(not(unix))]
+fn kill_tree(child: &mut Child) {
+    let _ = child.kill();
+}
+
 /// Collect a child's stdout/stderr on a reader thread and wait with a timeout.
 /// On timeout the child is killed so a hung FreeCAD cannot block forever.
 fn wait_with_timeout(mut child: Child) -> Result<(String, String, ExitStatus), ScriptResult> {
@@ -17,7 +33,7 @@ fn wait_with_timeout(mut child: Child) -> Result<(String, String, ExitStatus), S
         .stderr
         .take()
         .ok_or_else(|| ScriptResult::failure("Failed to open FreeCAD stderr".into()))?;
-    let (tx, rx) = mpsc::channel();
+    let (tx, rx) = mpsc::channel::<(Result<String, String>, Result<String, String>)>();
     let handle = std::thread::spawn(move || {
         let out = read_lossy(stdout);
         let err = read_lossy(stderr);
@@ -25,9 +41,14 @@ fn wait_with_timeout(mut child: Child) -> Result<(String, String, ExitStatus), S
     });
 
     let (stdout_text, stderr_text) = match rx.recv_timeout(EXEC_TIMEOUT) {
-        Ok(ok) => ok,
+        Ok((Ok(out), Ok(err))) => (out, err),
+        Ok((Err(e), _)) | Ok((_, Err(e))) => {
+            kill_tree(&mut child);
+            let _ = handle.join();
+            return Err(ScriptResult::failure(e));
+        }
         Err(_) => {
-            let _ = child.kill();
+            kill_tree(&mut child);
             let _ = handle.join();
             return Err(ScriptResult::failure(
                 "FreeCAD 脚本执行超时（120s），已终止进程".into(),
@@ -61,6 +82,12 @@ pub fn run_freecad_script(freecad_path: &str, script: &str) -> Result<ScriptResu
         cmd.args(["--console", "--runscript", &temp_path]);
     }
     cmd.stdout(Stdio::piped()).stderr(Stdio::piped());
+    #[cfg(unix)]
+    {
+        use std::os::unix::process::CommandExt;
+        // Lead a fresh process group so a timeout can killpg the whole tree.
+        cmd.process_group(0);
+    }
     let child = cmd
         .spawn()
         .map_err(|e| format!("Failed to execute FreeCAD: {}", e))?;

@@ -41,7 +41,15 @@ class CliAgentBackend implements AgentBackend {
 
   static const _timeout = Duration(seconds: 180);
 
+  /// Windows 命令行上限 32K：超长 prompt 会抛参数过长异常，截断到 20K。
+  static const _maxPromptChars = 20000;
+
   static List<String> _noModelArgs(String? model) => const [];
+
+  static String _limitPrompt(String prompt) {
+    if (prompt.length <= _maxPromptChars) return prompt;
+    return '${prompt.substring(0, _maxPromptChars)}…[截断]';
+  }
 
   @override
   String? get defaultModel => null;
@@ -69,13 +77,13 @@ class CliAgentBackend implements AgentBackend {
     String? scriptLanguage,
     String? key,
   }) async {
-    final prompt = buildCodeBlockPrompt(
+    final prompt = _limitPrompt(buildCodeBlockPrompt(
       task: task,
       software: software,
       capabilities: capabilities,
       state: state,
       scriptLanguage: scriptLanguage ?? 'javascript',
-    );
+    ));
     try {
       final process = await Process.start(
         command,

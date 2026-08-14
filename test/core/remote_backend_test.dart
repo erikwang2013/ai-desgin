@@ -150,4 +150,83 @@ void main() {
     expect(result.success, isFalse);
     expect(result.error, contains('cancelled'));
   });
+
+  test('cancel with key only affects that task, new task still runs', () async {
+    final backend = RemoteBackend(
+      endpointUrl: 'https://api.example.com/v1',
+      apiKey: '',
+      client: MockClient((request) async => http.Response(
+            jsonEncode({
+              'choices': [
+                {'message': {'content': 'ok();'}}
+              ]
+            }),
+            200,
+          )),
+    );
+    backend.cancel(key: 'task-1');
+    final cancelled = await backend.execute(
+      task: 't',
+      software: 'figma',
+      capabilities: caps,
+      state: state,
+      key: 'task-1',
+    );
+    expect(cancelled.success, isFalse);
+    expect(cancelled.error, contains('cancelled'));
+
+    final fresh = await backend.execute(
+      task: 't',
+      software: 'figma',
+      capabilities: caps,
+      state: state,
+      key: 'task-2',
+    );
+    expect(fresh.success, isTrue);
+    expect(fresh.script, 'ok();');
+  });
+
+  test('rejects non-https endpoint outside loopback', () async {
+    final backend = RemoteBackend(
+      endpointUrl: 'http://api.example.com/v1',
+      apiKey: 'key',
+      client: MockClient((request) async => http.Response('{}', 200)),
+    );
+    final result = await backend.execute(
+      task: 't',
+      software: 'figma',
+      capabilities: caps,
+      state: state,
+    );
+    expect(result.success, isFalse);
+    expect(result.error, contains('HTTPS'));
+  });
+
+  test('allows http on loopback address', () async {
+    final backend = RemoteBackend(
+      endpointUrl: 'http://127.0.0.1:8787/v1',
+      apiKey: '',
+      client: MockClient((request) async => http.Response(
+            jsonEncode({
+              'choices': [
+                {'message': {'content': 'local();'}}
+              ]
+            }),
+            200,
+          )),
+    );
+    final result = await backend.execute(
+      task: 't',
+      software: 'figma',
+      capabilities: caps,
+      state: state,
+    );
+    expect(result.success, isTrue);
+    expect(result.script, 'local();');
+  });
+
+  test('dispose closes the underlying http client', () {
+    final backend = RemoteBackend(endpointUrl: 'https://api.example.com/v1', apiKey: '');
+    expect(() => backend.dispose(), returnsNormally);
+  });
 }
