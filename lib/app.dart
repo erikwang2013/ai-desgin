@@ -272,11 +272,17 @@ class _MainShellState extends State<_MainShell> {
 
   void _onTabSelected(int tab) => setState(() => _currentTab = tab);
 
+  /// 最新一次后端切换请求：remote 分支异步生效，期间再切换时旧回调作废。
+  String? _pendingBackendRequest;
+
   /// 切换 Agent 后端：立即生效并持久化，重启后保持。
   void _onBackendChanged(String id) {
+    _pendingBackendRequest = id;
     if (id == 'remote') {
       // remote 的 URL/key 在 prefs 中，需异步读取后再生效。
       SharedPreferences.getInstance().then((prefs) {
+        // 过期回调不得覆盖用户已切换到的其他后端。
+        if (_pendingBackendRequest != 'remote') return;
         _orchestrator.backend = RemoteBackend(
           endpointUrl: prefs.getString('remote_endpoint_url') ?? '',
           apiKey: prefs.getString('remote_endpoint_key') ?? '',
