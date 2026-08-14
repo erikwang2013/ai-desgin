@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data' show BytesBuilder;
 import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
 import 'agent_backend.dart';
@@ -203,32 +202,38 @@ class CCRunner implements AgentBackend {
 
       // 启动即并发消费 stdout/stderr，避免子进程边读边写时 64KB 管道死锁。
       // Windows 控制台可能输出 GBK 等非 UTF-8 文本，缓冲字节后按编码解码。
-      // BytesBuilder 避免 List.addAll 的 O(n²) 拷贝。
-      final stdoutFuture = process.stdout
-          .fold<BytesBuilder>(BytesBuilder(), (acc, chunk) => acc..add(chunk))
-          .then((b) => b.takeBytes());
-      final stderrFuture = process.stderr
-          .fold<BytesBuilder>(BytesBuilder(), (acc, chunk) => acc..add(chunk))
-          .then((b) => b.takeBytes());
+      // 缓冲有上限（保留尾部 8MB），防止失控长输出耗尽内存。
+      final stdoutBuffer = CappedOutputBuffer();
+      final stderrBuffer = CappedOutputBuffer();
+      final stdoutFuture = process.stdout.forEach(stdoutBuffer.add);
+      final stderrFuture = process.stderr.forEach(stderrBuffer.add);
       process.stdin.write(prompt);
       await process.stdin.flush();
       await process.stdin.close();
 
       final exitCode = await process.exitCode.timeout(timeout);
-      final results = await Future.wait([stdoutFuture, stderrFuture]).timeout(timeout);
+      await Future.wait([stdoutFuture, stderrFuture]).timeout(timeout);
       // 同 key 可能已被新任务替换（replace 语义），只移除自己注册的实例，
       // 避免旧任务收尾时误删新任务的进程，导致 cancel 失效。
       if (identical(_processes[taskKey], process)) {
         _processes.remove(taskKey);
       }
-      final output = decodeConsoleOutput(results[0]);
-      final errors = decodeConsoleOutput(results[1]);
+      final output = decodeConsoleOutput(stdoutBuffer.takeBytes());
+      var errors = decodeConsoleOutput(stderrBuffer.takeBytes());
 
       // 非零退出（API key 错误、崩溃）时 stdout 里的文本不是生成脚本。
       if (exitCode != 0) {
+        if (stderrBuffer.truncated) errors = '$errors\n…[stderr 截断]';
         return CCResult.failure(
           'Claude Code exited with code $exitCode'
           '${errors.isNotEmpty ? ': ${errors.trim()}' : ''}',
+        );
+      }
+
+      // JSON 解析需要完整输出：截断后无法可靠解析，明确报错而非误用残缺结果。
+      if (stdoutBuffer.truncated) {
+        return CCResult.failure(
+          'Claude Code 输出超过 ${kMaxAgentOutputBytes ~/ (1024 * 1024)}MB 上限，已截断',
         );
       }
 

@@ -1,9 +1,11 @@
 // lib/ui/task_dashboard.dart
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../l10n/app_localizations.dart';
+import '../models/session.dart';
 import '../models/task_record.dart';
 import '../core/session_store.dart';
 
@@ -36,6 +38,9 @@ class TaskItem {
 class TaskDashboard extends StatefulWidget {
   final List<TaskItem>? initialTasks;
   final SessionStore? sessionStore;
+  /// 列表数据共享加载器（app.dart 注入，避免 IndexedStack 双视图各查一次）；
+  /// 为 null 时回退 sessionStore 自查询。
+  final Future<List<Session>> Function()? loadSessions;
   /// 取消回调返回 orchestrator 取消后的最新状态，UI 据此回填；
   /// 返回 null 时回退为 cancelled。
   final TaskStatus? Function(String)? onCancel;
@@ -48,6 +53,7 @@ class TaskDashboard extends StatefulWidget {
     super.key,
     this.initialTasks,
     this.sessionStore,
+    this.loadSessions,
     this.onCancel,
     this.onRetry,
     this.openArtifact,
@@ -85,10 +91,12 @@ class TaskDashboardState extends State<TaskDashboard> {
   }
 
   Future<void> _restoreHistory() async {
+    final loader = widget.loadSessions;
     final store = widget.sessionStore;
-    if (store == null) return;
+    if (loader == null && store == null) return;
     try {
-      final sessions = await store.listRecent(limit: _maxTasks);
+      final sessions =
+          await (loader ?? () => store!.listRecent(limit: _maxTasks))();
       final items = sessions
           .expand((s) => s.history.map((r) => TaskItem(
                 id: r.id,
@@ -104,7 +112,9 @@ class TaskDashboardState extends State<TaskDashboard> {
           .toList();
       if (items.isEmpty || !mounted) return;
       setState(() {
-        _tasks.addAll(items);
+        // 合并去重：P3 两阶段下 db 后到时可能已有运行中任务占位。
+        final existing = _tasks.map((t) => t.id).toSet();
+        _tasks.addAll(items.where((t) => !existing.contains(t.id)));
         _tasks.sort((a, b) => b.createdAt.compareTo(a.createdAt));
         while (_tasks.length > _maxTasks) {
           _tasks.removeLast();
@@ -115,6 +125,9 @@ class TaskDashboardState extends State<TaskDashboard> {
       // History restore is non-critical; dashboard still works
     }
   }
+
+  /// P3 两阶段：sessionStore 后到时补载（内部合并去重，重复调用安全）。
+  void reloadHistory() => _restoreHistory();
 
   void addTask(TaskItem task) {
     if (!mounted) return;
@@ -295,7 +308,9 @@ class TaskDashboardState extends State<TaskDashboard> {
             Text(timeStr, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
           ],
         ),
-        onTap: task.script == null && task.artifacts.isEmpty
+        onTap: task.script == null &&
+                task.artifacts.isEmpty &&
+                widget.sessionStore == null
             ? null
             : () => _showTaskDetail(task),
       ),
@@ -327,7 +342,25 @@ class TaskDashboardState extends State<TaskDashboard> {
     });
   }
 
-  void _showTaskDetail(TaskItem task) {
+  Future<void> _showTaskDetail(TaskItem task) async {
+    var script = task.script;
+    var artifacts = task.artifacts;
+    // 列表投影不含 script：打开详情时按记录懒加载全量。
+    if (script == null) {
+      final store = widget.sessionStore;
+      if (store != null) {
+        try {
+          final full = await store.loadTaskRecord(task.id);
+          if (full != null) {
+            script = full.script;
+            if (artifacts.isEmpty) artifacts = full.artifacts;
+          }
+        } catch (_) {
+          // 加载失败时按现有投影数据展示。
+        }
+      }
+    }
+    if (!mounted) return;
     final l10n = AppLocalizations.of(context);
     showDialog<void>(
       context: context,
@@ -341,16 +374,16 @@ class TaskDashboardState extends State<TaskDashboard> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 SelectableText(
-                  task.script ?? '',
+                  script ?? '',
                   style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
                 ),
-                if (task.artifacts.isNotEmpty) ...[
+                if (artifacts.isNotEmpty) ...[
                   const SizedBox(height: 12),
                   Text(
                     'Artifacts',
                     style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                   ),
-                  for (final path in task.artifacts) _buildArtifactRow(path),
+                  for (final path in artifacts) _buildArtifactRow(path),
                 ],
               ],
             ),
@@ -359,7 +392,6 @@ class TaskDashboardState extends State<TaskDashboard> {
         actions: [
           TextButton(
             onPressed: () {
-              final script = task.script;
               if (script != null) {
                 Clipboard.setData(ClipboardData(text: script));
               }
@@ -435,12 +467,28 @@ class TaskDashboardState extends State<TaskDashboard> {
     }
   }
 
-  /// 按平台调用系统打开器：Linux xdg-open / macOS open / Windows start。
+  /// 按平台调用系统打开器：Linux xdg-open / macOS open / Windows PowerShell。
+  /// Windows 不经过 cmd.exe 重解析：路径中的 & | ^ 等元字符会被 cmd 解释，
+  /// 存在注入面；改用 PowerShell -EncodedCommand（UTF-16LE base64）直传，
+  /// 路径以单引号字面量嵌入，命令本身不做二次解析。
   Future<bool> _openWithSystem(String path, {required bool isFile}) async {
     final target = isFile ? path : File(path).parent.path;
     final List<String> cmd;
     if (Platform.isWindows) {
-      cmd = ['cmd', '/c', 'start', '', target];
+      final script = 'Start-Process -LiteralPath \'${target.replaceAll("'", "''")}\'';
+      // PowerShell -EncodedCommand 要求 UTF-16LE base64；codeUnits 即 UTF-16 码元。
+      final utf16le = <int>[];
+      for (final unit in script.codeUnits) {
+        utf16le.add(unit & 0xFF);
+        utf16le.add((unit >> 8) & 0xFF);
+      }
+      cmd = [
+        'powershell',
+        '-NoProfile',
+        '-NonInteractive',
+        '-EncodedCommand',
+        base64.encode(utf16le),
+      ];
     } else if (Platform.isMacOS) {
       cmd = ['open', target];
     } else {

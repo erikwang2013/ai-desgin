@@ -106,16 +106,16 @@ void main() {
   test('registerExternal registers script-file plugin with package dir', () {
     final manager = PluginManager();
     final manifest = ExternalPluginManifest(
-      id: 'ext.1',
+      id: 'ext_1',
       name: 'Ext One',
       version: '1.0.0',
       scriptLanguage: 'python',
       scripts: const ['scripts/run.py'],
     );
-    manager.registerExternal(manifest, '/tmp/pkg/ext.1');
-    expect(manager.get('ext.1'), isA<ExternalScriptPlugin>());
-    expect(manager.externalPackageDir('ext.1'), '/tmp/pkg/ext.1');
-    expect(manager.get('ext.1')?.name, 'Ext One');
+    manager.registerExternal(manifest, '/tmp/pkg/ext_1');
+    expect(manager.get('ext_1'), isA<ExternalScriptPlugin>());
+    expect(manager.externalPackageDir('ext_1'), '/tmp/pkg/ext_1');
+    expect(manager.get('ext_1')?.name, 'Ext One');
   });
 
   test('registerExternal rejects empty id', () {
@@ -127,6 +127,21 @@ void main() {
       ),
       throwsArgumentError,
     );
+  });
+
+  test('registerExternal rejects id with unsafe characters', () {
+    final manager = PluginManager();
+    // 点号/斜杠等字符可用于目录穿越（packageDir 按 id 拼接），必须拒绝。
+    for (final bad in ['ext.1', '../evil', 'a/b', 'a b', 'a;b']) {
+      expect(
+        () => manager.registerExternal(
+          ExternalPluginManifest(id: bad, name: 'Bad', version: '1', scriptLanguage: ''),
+          '/tmp/pkg/$bad',
+        ),
+        throwsArgumentError,
+        reason: 'id "$bad" 应被白名单拒绝',
+      );
+    }
   });
 
   test('ExternalPluginManifest.fromJson parses plugin.json', () {

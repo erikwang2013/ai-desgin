@@ -79,21 +79,23 @@ class CodexBackend implements AgentBackend {
       _processes.remove(taskKey)?.kill();
       _processes[taskKey] = process;
 
-      final stdoutFuture =
-          process.stdout.fold<List<int>>(<int>[], (acc, chunk) => acc..addAll(chunk));
-      final stderrFuture =
-          process.stderr.fold<List<int>>(<int>[], (acc, chunk) => acc..addAll(chunk));
+      final stdoutBuffer = CappedOutputBuffer();
+      final stderrBuffer = CappedOutputBuffer();
+      final stdoutFuture = process.stdout.forEach(stdoutBuffer.add);
+      final stderrFuture = process.stderr.forEach(stderrBuffer.add);
       // 立即关闭 stdin：codex exec 从参数读 prompt，不关 stdin 会挂起等待输入。
       process.stdin.close();
 
       final exitCode = await process.exitCode.timeout(timeout);
-      final results = await Future.wait([stdoutFuture, stderrFuture]).timeout(timeout);
+      await Future.wait([stdoutFuture, stderrFuture]).timeout(timeout);
       // 同 key 可能已被新任务替换，只移除自己注册的实例。
       if (identical(_processes[taskKey], process)) {
         _processes.remove(taskKey);
       }
-      final output = decodeConsoleOutput(results[0]).trim();
-      final errors = decodeConsoleOutput(results[1]).trim();
+      var output = decodeConsoleOutput(stdoutBuffer.takeBytes()).trim();
+      var errors = decodeConsoleOutput(stderrBuffer.takeBytes()).trim();
+      if (stdoutBuffer.truncated) output = '$output\n…[输出截断]';
+      if (stderrBuffer.truncated) errors = '$errors\n…[stderr 截断]';
 
       if (exitCode != 0) {
         return CCResult.failure(

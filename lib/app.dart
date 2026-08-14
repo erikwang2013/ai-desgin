@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqlite3/sqlite3.dart' show Database;
 import 'package:uuid/uuid.dart';
 import 'l10n/app_localizations.dart';
 import 'models/session.dart';
@@ -110,7 +112,10 @@ class _MainShellState extends State<_MainShell> {
 
   /// 供所有 RemoteBackend 复用的单例 client，避免切换后端时泄漏连接。
   final http.Client _httpClient = http.Client();
-  Timer? _historyReloadDebounce;
+
+  /// dashboard/history 启动列表查询的共享加载器：并发期间合并为一次查询，
+  /// 完成后释放缓存，后续 reload 重新查询。
+  Future<List<Session>>? _sharedHistoryLoad;
 
   @override
   void initState() {
@@ -120,10 +125,20 @@ class _MainShellState extends State<_MainShell> {
 
   @override
   void dispose() {
-    _historyReloadDebounce?.cancel();
     _ccManager?.dispose();
     _httpClient.close();
     super.dispose();
+  }
+
+  Future<List<Session>> _sharedHistoryLoader() {
+    final pending = _sharedHistoryLoad;
+    if (pending != null) return pending;
+    final store = _sessionStore;
+    if (store == null) return Future.value(const []);
+    final future = store.listRecent(limit: 500);
+    _sharedHistoryLoad = future;
+    future.whenComplete(() => _sharedHistoryLoad = null);
+    return future;
   }
 
   Future<void> _initOrchestrator() async {
@@ -221,20 +236,29 @@ class _MainShellState extends State<_MainShell> {
       backend: backend,
     );
 
-    try {
-      final db = await dbFuture;
-      if (db != null) _sessionStore = SessionStore(db);
-    } catch (_) {
-      // Non-critical; app works without persistence
-    }
-
     // 探活不阻塞 _ready：结果为纯展示性状态，完成后经 setState 刷新面板。
     unawaited(_runConnectionProbes().catchError((_) {}));
 
     _currentSoftware = _defaultSoftwareFor(_currentDomain);
     _lastSoftwarePerDomain[_currentDomain] = _currentSoftware;
 
+    // P3 两阶段：插件/路由/locale 就绪即开放聊天；SQLCipher 开库不阻塞首屏，
+    // 完成后把 sessionStore 补交给 dashboard/history 并加载历史。
     if (mounted) setState(() => _ready = true);
+    unawaited(_openSessionStore(dbFuture));
+  }
+
+  /// P3 第二阶段：开库完成后注入 store 并补载历史列表。
+  Future<void> _openSessionStore(Future<Database?> dbFuture) async {
+    try {
+      final db = await dbFuture;
+      if (db == null || !mounted) return;
+      setState(() => _sessionStore = SessionStore(db));
+      _dashboardKey.currentState?.reloadHistory();
+      _historyKey.currentState?.reload();
+    } catch (_) {
+      // Non-critical; app works without persistence
+    }
   }
 
   Future<void> _loadModelRouting(ModelRouter modelRouter) async {
@@ -258,6 +282,8 @@ class _MainShellState extends State<_MainShell> {
   }
 
   /// Probe CLI availability for every plugin and publish connection status.
+  /// 分批并发（每批 6 个）而不是一次性 18 个：探测是进程启动类 IO，
+  /// 全并发会拖慢启动期的进程调度。
   Future<void> _runConnectionProbes() async {
     for (final p in _pluginManager.getAll()) {
       _connectionStatus[p.id] = false;
@@ -270,11 +296,18 @@ class _MainShellState extends State<_MainShell> {
         probes[p.id] = executor.checkAvailable(p.id);
       }
     }
-    final results = await Future.wait(probes.values);
+    const batchSize = 6;
+    final ids = probes.keys.toList();
+    final results = <String, bool>{};
+    for (var i = 0; i < ids.length; i += batchSize) {
+      final batch = ids.sublist(i, math.min(i + batchSize, ids.length));
+      final batchResults = await Future.wait(batch.map((id) => probes[id]!));
+      for (var j = 0; j < batch.length; j++) {
+        results[batch[j]] = batchResults[j];
+      }
+    }
     if (mounted) {
-      setState(() => _connectionStatus.addAll(
-        Map<String, bool>.fromIterables(probes.keys, results),
-      ));
+      setState(() => _connectionStatus.addAll(results));
     }
   }
 
@@ -358,14 +391,6 @@ class _MainShellState extends State<_MainShell> {
     return record?.status;
   }
 
-  /// 历史列表刷新防抖：任务连续完成时合并多次 reload 为一次。
-  void _scheduleHistoryReload() {
-    _historyReloadDebounce?.cancel();
-    _historyReloadDebounce = Timer(const Duration(milliseconds: 300), () {
-      _historyKey.currentState?.reload();
-    });
-  }
-
   /// 聊天/重试面板共用的提交入口。聊天面板的停止按钮据此取消在途任务。
   void _cancelActiveChatTask() {
     final id = _activeTaskId;
@@ -410,9 +435,10 @@ class _MainShellState extends State<_MainShell> {
 
     final session = _orchestrator.getCurrentSession(sw);
     if (session != null && _sessionStore != null) {
-      // 写库不阻塞响应：fire-and-forget 静默失败；历史列表短延时防抖刷新。
+      // 写库不阻塞响应：fire-and-forget 静默失败；历史列表增量替换该会话，
+      // 避免每次任务完成后整表重查。
       _sessionStore!.save(session).catchError((_) {});
-      _scheduleHistoryReload();
+      _historyKey.currentState?.updateSession(session);
     }
 
     if (!mounted) return '';
@@ -477,6 +503,8 @@ class _MainShellState extends State<_MainShell> {
           TaskDashboard(
             key: _dashboardKey,
             sessionStore: _sessionStore,
+            // IndexedStack 双视图共享一次启动加载，避免各查一次。
+            loadSessions: _sharedHistoryLoader,
             onCancel: _ready ? _cancelAndPersist : null,
             // 失败任务重试：原样重提任务描述（新 taskId），复用 _onSubmit 链路。
             onRetry: _ready ? _onSubmit : null,
@@ -485,6 +513,7 @@ class _MainShellState extends State<_MainShell> {
           HistoryView(
             key: _historyKey,
             sessionStore: _sessionStore,
+            loadSessions: _sharedHistoryLoader,
             resolveSoftwareName: (id) => _pluginManager.get(id)?.name ?? id,
           ),
           SoftwarePanel(

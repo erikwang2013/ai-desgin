@@ -69,6 +69,11 @@ class PluginManager {
     if (manifest.id.trim().isEmpty) {
       throw ArgumentError.value(manifest.id, 'id', '外部插件清单必须包含非空 id');
     }
+    // 与 zip 导入同一白名单：仅字母/数字/下划线/连字符，
+    // 防止路径拼接（packageDir 含 id）与 id 触发目录穿越。
+    if (!PluginPackageCodec._validId.hasMatch(manifest.id)) {
+      throw ArgumentError.value(manifest.id, 'id', '插件 id 仅允许字母、数字、下划线和连字符');
+    }
     if (_plugins.containsKey(manifest.id)) {
       throw ArgumentError.value(manifest.id, 'id', '插件 id 已被占用');
     }

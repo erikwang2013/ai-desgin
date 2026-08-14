@@ -90,8 +90,16 @@ String buildSessionMarkdown(Session session, {String? softwareDisplayName}) {
 
 class HistoryView extends StatefulWidget {
   final SessionStore? sessionStore;
+  /// 列表数据共享加载器（app.dart 注入，与 TaskDashboard 共享一次查询）；
+  /// 为 null 时回退 sessionStore 自查询。
+  final Future<List<Session>> Function()? loadSessions;
   final String Function(String id)? resolveSoftwareName;
-  const HistoryView({super.key, this.sessionStore, this.resolveSoftwareName});
+  const HistoryView({
+    super.key,
+    this.sessionStore,
+    this.loadSessions,
+    this.resolveSoftwareName,
+  });
 
   @override
   State<HistoryView> createState() => HistoryViewState();
@@ -114,12 +122,30 @@ class HistoryViewState extends State<HistoryView> {
   /// 新会话保存后由外部调用（app.dart 提交任务成功后）刷新列表。
   void reload() => _load();
 
+  /// 增量更新：任务完成后把最新会话直接替换/插入列表，避免整表重查。
+  void updateSession(Session session) {
+    if (!mounted) return;
+    setState(() {
+      final idx = _sessions.indexWhere((s) => s.id == session.id);
+      if (idx >= 0) {
+        _sessions[idx] = session;
+      } else {
+        _sessions.insert(0, session);
+        while (_sessions.length > _maxSessions) {
+          _sessions.removeLast();
+        }
+      }
+      _sessions.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    });
+  }
+
   Future<void> _load() async {
     var result = <Session>[];
+    final loader = widget.loadSessions;
     final store = widget.sessionStore;
-    if (store != null) {
+    if (loader != null || store != null) {
       try {
-        result = await store.listRecent(limit: _maxSessions);
+        result = await (loader ?? () => store!.listRecent(limit: _maxSessions))();
       } catch (_) {
         // History load is non-critical; empty state shown instead
       }
@@ -175,7 +201,15 @@ class HistoryViewState extends State<HistoryView> {
     if (savePath == null || !mounted) return;
 
     try {
-      final sessions = List<Session>.of(_sessions);
+      var sessions = List<Session>.of(_sessions);
+      // 列表投影不含 script/error：导出前取全量，保证导出内容完整。
+      final store = widget.sessionStore;
+      if (store != null) {
+        try {
+          final full = await store.listRecentFull(limit: _maxSessions);
+          if (full.isNotEmpty) sessions = full;
+        } catch (_) {}
+      }
       await File(savePath).writeAsString(SessionStore.exportSessionsToJson(sessions));
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -206,10 +240,19 @@ class HistoryViewState extends State<HistoryView> {
     if (savePath == null || !mounted) return;
 
     try {
+      // 列表投影不含 script/error：导出单个会话前按 id 取全量。
+      var target = s;
+      final store = widget.sessionStore;
+      if (store != null) {
+        try {
+          final full = await store.load(s.id);
+          if (full != null) target = full;
+        } catch (_) {}
+      }
       final software =
-          widget.resolveSoftwareName?.call(s.softwareName) ?? s.softwareName;
+          widget.resolveSoftwareName?.call(target.softwareName) ?? target.softwareName;
       await File(savePath)
-          .writeAsString(buildSessionMarkdown(s, softwareDisplayName: software));
+          .writeAsString(buildSessionMarkdown(target, softwareDisplayName: software));
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(l10n?.saveSuccess ?? 'Saved'),
@@ -481,8 +524,22 @@ class HistoryViewState extends State<HistoryView> {
         '${_formatTime(r.createdAt)}${r.modelUsed != null ? ' · ${r.modelUsed}' : ''}',
         style: const TextStyle(fontSize: 11),
       ),
-      onTap: r.script == null ? null : () => _showScriptDialog(r, l10n),
+      onTap: () => _showRecordScript(r, l10n),
     );
+  }
+
+  /// 列表投影不含 script：点击时按记录懒加载全量；无存储时静默无操作。
+  void _showRecordScript(TaskRecord r, AppLocalizations? l10n) {
+    if (r.script != null) {
+      _showScriptDialog(r, l10n);
+      return;
+    }
+    final store = widget.sessionStore;
+    if (store == null) return;
+    store.loadTaskRecord(r.id).then((full) {
+      if (full?.script == null || !mounted) return;
+      _showScriptDialog(full!, l10n);
+    }).catchError((_) {});
   }
 
   void _showScriptDialog(TaskRecord r, AppLocalizations? l10n) {

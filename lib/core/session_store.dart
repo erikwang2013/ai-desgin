@@ -153,9 +153,28 @@ class SessionStore {
     );
   }
 
+  /// 列表路径投影：只取展示列，跳过 script/error/context_json 大字段，
+  /// 详情/导出按需走 [load]/[loadTaskRecord]/[listRecentFull]。
   Future<List<Session>> listRecent({int limit = 50}) async {
+    final rows = _db.select(
+      'SELECT id, domain, software_name, created_at FROM sessions '
+      'ORDER BY created_at DESC LIMIT ?',
+      [limit],
+    );
+    return _loadSessionRowsProjected(rows);
+  }
+
+  /// 全量列表（含 script/error/context），仅历史导出等低频场景使用。
+  Future<List<Session>> listRecentFull({int limit = 50}) async {
     final rows = _db.select('SELECT * FROM sessions ORDER BY created_at DESC LIMIT ?', [limit]);
     return _loadSessionRowsWithHistory(rows);
+  }
+
+  /// 按记录 id 取全量记录（含 script/error），详情对话框懒加载用。
+  Future<TaskRecord?> loadTaskRecord(String recordId) async {
+    final rows = _db.select('SELECT * FROM task_records WHERE id = ?', [recordId]);
+    if (rows.isEmpty) return null;
+    return _deserializeRecord(rows.first);
   }
 
   Future<List<Session>> listBySoftware(String softwareName) async {
@@ -178,41 +197,72 @@ class SessionStore {
 
   Future<List<Session>> _loadSessionRowsWithHistory(List<Row> rows) async {
     if (rows.isEmpty) return [];
+    final recordsBySession = await _fetchRecordsBySession(
+      rows.map((r) => r['id'] as String).toList(),
+      projected: false,
+    );
+    return _buildSessions(rows, recordsBySession);
+  }
 
-    final sessionIds = rows.map((r) => r['id'] as String).toList();
+  /// 列表投影加载：记录只取展示列（无 script/error），会话不含 context_json。
+  Future<List<Session>> _loadSessionRowsProjected(List<Row> rows) async {
+    if (rows.isEmpty) return [];
+    final recordsBySession = await _fetchRecordsBySession(
+      rows.map((r) => r['id'] as String).toList(),
+      projected: true,
+    );
+    return _buildSessions(rows, recordsBySession);
+  }
+
+  /// 按 session id 批量取记录；projected 时跳过 script/error 大字段。
+  Future<Map<String, List<TaskRecord>>> _fetchRecordsBySession(
+    List<String> sessionIds, {
+    required bool projected,
+  }) async {
     // 分批查询，避开 SQLite 单条 IN 列表 999 个变量的上限。
-    final allRecords = <Row>[];
+    final columns = projected
+        ? 'id, session_id, task, script_language, model_used, status, '
+            'artifacts_json, created_at, completed_at'
+        : '*';
+    final recordsBySession = <String, List<TaskRecord>>{};
     for (var i = 0; i < sessionIds.length; i += 500) {
       final chunk = sessionIds.sublist(i, math.min(i + 500, sessionIds.length));
       final placeholders = List.filled(chunk.length, '?').join(',');
-      allRecords.addAll(_db.select(
-        'SELECT * FROM task_records WHERE session_id IN ($placeholders) ORDER BY created_at ASC',
+      final rows = _db.select(
+        'SELECT $columns FROM task_records WHERE session_id IN ($placeholders) '
+        'ORDER BY created_at ASC',
         chunk,
-      ));
-    }
-
-    final recordsBySession = <String, List<TaskRecord>>{};
-    for (final rec in allRecords) {
-      final sid = rec['session_id'] as String;
-      final record = _deserializeRecord(rec);
-      if (record != null) {
-        recordsBySession.putIfAbsent(sid, () => []).add(record);
+      );
+      for (final rec in rows) {
+        final sid = rec['session_id'] as String;
+        final record = _deserializeRecord(rec, projected: projected);
+        if (record != null) {
+          recordsBySession.putIfAbsent(sid, () => []).add(record);
+        }
       }
     }
+    return recordsBySession;
+  }
 
-    final sessions = <Session>[];
-    for (final r in rows) {
-      final sid = r['id'] as String;
-      sessions.add(Session(
-        id: sid,
-        domain: DesignCategory.values.firstWhere((d) => d.name == r['domain'], orElse: () => DesignCategory.web),
-        softwareName: r['software_name'] as String,
-        createdAt: _parseDate(r['created_at'] as String?),
-        context: _parseContext(r['context_json'] as String?),
-        history: recordsBySession[sid] ?? [],
-      ));
-    }
-    return sessions;
+  List<Session> _buildSessions(
+    List<Row> rows,
+    Map<String, List<TaskRecord>> recordsBySession,
+  ) {
+    return [
+      for (final r in rows)
+        Session(
+          id: r['id'] as String,
+          domain: DesignCategory.values.firstWhere(
+            (d) => d.name == r['domain'],
+            orElse: () => DesignCategory.web,
+          ),
+          softwareName: r['software_name'] as String,
+          createdAt: _parseDate(r['created_at'] as String?),
+          // 投影查询未取 context_json 时为 null，降级为空上下文。
+          context: _parseContext(r['context_json'] as String?),
+          history: recordsBySession[r['id'] as String] ?? [],
+        ),
+    ];
   }
 
   DateTime _parseDate(String? iso) {
@@ -260,17 +310,17 @@ class SessionStore {
     return value.replaceAll('\\', '\\\\').replaceAll('%', '\\%').replaceAll('_', '\\_');
   }
 
-  TaskRecord? _deserializeRecord(Row row) {
+  TaskRecord? _deserializeRecord(Row row, {bool projected = false}) {
     try {
       return TaskRecord(
         id: row['id'] as String,
         sessionId: row['session_id'] as String,
         task: row['task'] as String,
-        script: row['script'] as String?,
+        script: projected ? null : row['script'] as String?,
         scriptLanguage: row['script_language'] as String?,
         modelUsed: row['model_used'] as String?,
         status: TaskStatus.values.firstWhere((s) => s.name == row['status'], orElse: () => TaskStatus.failed),
-        error: row['error'] as String?,
+        error: projected ? null : row['error'] as String?,
         artifacts: List<String>.from(jsonDecode(row['artifacts_json'] as String? ?? '[]')),
         createdAt: DateTime.parse(row['created_at'] as String),
         completedAt: row['completed_at'] != null ? DateTime.parse(row['completed_at'] as String) : null,
