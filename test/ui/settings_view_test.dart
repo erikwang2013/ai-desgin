@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ai_design_studio/core/cc_runner.dart';
 import 'package:ai_design_studio/core/script_executor_configs.dart';
+import 'package:ai_design_studio/ui/settings/model_config_page.dart';
+import 'package:ai_design_studio/ui/settings/proxy_settings_page.dart';
 import 'package:ai_design_studio/ui/settings_view.dart';
 
 void main() {
