@@ -8,6 +8,7 @@ import '../core/locale_provider.dart';
 import '../core/cc_runner.dart';
 import 'agent_backend_view.dart';
 import 'plugin_marketplace.dart';
+import 'settings/backend_credentials_page.dart';
 import 'settings/model_config_page.dart';
 import 'settings/proxy_settings_page.dart';
 import 'settings/script_executor_paths_section.dart';
@@ -18,6 +19,8 @@ class SettingsView extends StatelessWidget {
   final ModelRouter? modelRouter;
   final String? currentBackendId;
   final ValueChanged<String>? onBackendChanged;
+  final void Function(String openaiApiKey, String geminiApiKey)?
+      onCredentialsSaved;
 
   const SettingsView({
     super.key,
@@ -26,6 +29,7 @@ class SettingsView extends StatelessWidget {
     this.modelRouter,
     this.currentBackendId,
     this.onBackendChanged,
+    this.onCredentialsSaved,
   });
 
   @override
@@ -64,6 +68,17 @@ class SettingsView extends StatelessWidget {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => ModelConfigPage(modelRouter: modelRouter)),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.key),
+            title: Text(l10n?.apiKey ?? 'API Key'),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) =>
+                    BackendCredentialsPage(onCredentialsSaved: onCredentialsSaved),
+              ),
             ),
           ),
           ListTile(

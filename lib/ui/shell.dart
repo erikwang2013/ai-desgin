@@ -18,6 +18,8 @@ class AppShell extends StatefulWidget {
   final ModelRouter? modelRouter;
   final String? currentBackendId;
   final ValueChanged<String>? onBackendChanged;
+  final void Function(String openaiApiKey, String geminiApiKey)?
+      onCredentialsSaved;
 
   const AppShell({
     super.key,
@@ -31,6 +33,7 @@ class AppShell extends StatefulWidget {
     this.modelRouter,
     this.currentBackendId,
     this.onBackendChanged,
+    this.onCredentialsSaved,
   });
 
   @override
@@ -115,6 +118,7 @@ class _AppShellState extends State<AppShell> {
                   modelRouter: widget.modelRouter,
                   currentBackendId: widget.currentBackendId,
                   onBackendChanged: widget.onBackendChanged,
+                  onCredentialsSaved: widget.onCredentialsSaved,
                 ),
               ),
             ),

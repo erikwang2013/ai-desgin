@@ -346,6 +346,20 @@ class _MainShellState extends State<_MainShell> {
       prefs.setString('agent_backend', id);
     }).catchError((_) {});
   }
+  /// 设置页保存的 Codex/Gemini API Key：更新启动缓存并重建当前后端，
+  /// 使修改无需重启或切换后端即可生效。空 key 保留 CLI 自身登录凭证。
+  void _onCredentialsSaved(String openaiApiKey, String geminiApiKey) {
+    _openaiKey = openaiApiKey;
+    _geminiKey = geminiApiKey;
+    if (!_ready) return;
+    final backend = _orchestrator.backend;
+    if (backend is CodexBackend) {
+      _orchestrator.backend = CodexBackend(apiKey: _openaiKey);
+    } else if (backend is GeminiBackend) {
+      _orchestrator.backend = GeminiBackend(apiKey: _geminiKey);
+    }
+  }
+
   void _onDomainChanged(DesignCategory domain) {
     final remembered = _lastSoftwarePerDomain[domain];
     final domainPlugins = _pluginManager.getByCategory(domain);
@@ -489,6 +503,7 @@ class _MainShellState extends State<_MainShell> {
       modelRouter: _ready ? _orchestrator.modelRouter : null,
       currentBackendId: _ready ? _orchestrator.backend.id : null,
       onBackendChanged: _ready ? _onBackendChanged : null,
+      onCredentialsSaved: _ready ? _onCredentialsSaved : null,
       child: IndexedStack(
         index: _currentTab,
         children: [
