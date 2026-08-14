@@ -110,17 +110,23 @@ ai-desgin/
 |   |   +-- cli_agent_backend.dart         # OpenCode/OpenClaw/Hermes/Reasonix 后端
 |   |   +-- remote_backend.dart            # 远程 API 端点后端
 |   |   +-- local_script_executor.dart     # 本地 CLI 脚本执行层
+|   |   +-- script_executor_configs.dart   # CLI 执行器注册表（17 款）
+|   |   +-- artifact_verifier.dart         # 创作闭环产物验证
+|   |   +-- text_codec.dart                # 输出缓冲上限（8MB 尾部保留）
 |   |   +-- task_orchestrator.dart         # 任务编排引擎
 |   |   +-- session_store.dart             # SQLCipher 加密会话持久化
 |   |   +-- db_opener.dart                 # SQLCipher 开库与密钥管理
 |   |   +-- locale_provider.dart           # 12 语言切换与持久化
-|   |   +-- builtin_plugins.dart             # 内置插件注册表（单一数据源）
+|   |   +-- builtin_plugins.dart           # 内置插件注册表（单一数据源）
 |   +-- ui/
 |       +-- shell.dart                     # 侧边栏 + 页面布局
 |       +-- chat_view.dart                 # AI 对话面板
 |       +-- task_dashboard.dart            # 任务队列/历史
+|       +-- history_view.dart              # 历史会话/导出
 |       +-- software_panel.dart            # 软件连接/状态
 |       +-- settings_view.dart             # 系统设置
+|       +-- agent_backend_view.dart        # Agent 后端切换
+|       +-- settings/                      # 设置子页面（模型/代理/执行路径）
 |       +-- plugin_marketplace.dart        # 插件市场
 +-- rust/
 |   +-- Cargo.toml                         # Rust workspace 根
@@ -197,7 +203,7 @@ ai-desgin/
 |   +-- build.sh                           # Unix 构建
 |   +-- build_windows.bat                  # Windows 构建
 |   +-- release.sh                         # 发布打包
-+-- test/                                  # Dart 测试 (179 tests)
++-- test/                                  # Dart 测试 (280 tests)
 +-- docs/
     +-- diagrams/                          # 中英文 SVG 图表（架构/流程/功能/生命周期/安全）
     |   +-- architecture-zh.svg            # 系统架构图
@@ -315,7 +321,7 @@ cd rust && cargo clippy       # Rust lint 检查
 | 检查项 | 状态 |
 |--------|------|
 | `flutter analyze` | No issues found |
-| `flutter test` | 179 tests passed |
+| `flutter test` | 280 tests passed |
 | `cargo check` | 40 crates compiled |
 | `cargo clippy` | 0 warnings |
 
@@ -398,8 +404,11 @@ AI 生成脚本后会展示预览，确认无误后点击执行。执行结果�
 ### 系统功能
 
 - **多 Agent 后端**：设置中一键切换 Claude Code（固定 2.1.143）/ Codex / Gemini / OpenCode / OpenClaw / Hermes / Reasonix / 远程 API 端点，切换即时生效并持久化，重启后保持。
+- **创作验证闭环**：生成 → 执行 → 验证产物 → 反馈重新生成，最多 3 轮，验证通过才标记完成。
+- **任务控制与产物**：进行中任务一键停止、失败任务一键重试、产物文件一键打开。
+- **脚本执行路径配置**：Blender/FreeCAD/OpenSCAD 自定义可执行文件路径，自动探测顺序：自定义路径 → PATH → 常见安装目录。
 - **加密历史会话**：会话与任务历史以 SQLCipher 加密存储，密钥随机生成；SQLCipher 不可用时禁用历史功能，绝不降级明文存储。
-- **会话导出**：历史列表一键导出全部会话为 JSON 文件。
+- **会话导出**：历史列表一键导出全部会话为 JSON 或 Markdown 文件。
 - **插件市场**：支持搜索、卸载/重装、本地 ZIP 包导入与导出。
 - **12 种界面语言**：中/英为主，其余语言回退英文。
 
