@@ -54,7 +54,20 @@ class _BackendCredentialsPageState extends State<BackendCredentialsPage> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_openaiKeyKey, openaiKey);
       await prefs.setString(_geminiKeyKey, geminiKey);
-    } catch (_) {}
+    } catch (_) {
+      // 写入失败：不通知上层、不提示成功，内存缓存保持不变。
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                '${AppLocalizations.of(context)?.errorPrefix ?? 'Error'}: Failed to save'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+      return;
+    }
     widget.onCredentialsSaved?.call(openaiKey, geminiKey);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
