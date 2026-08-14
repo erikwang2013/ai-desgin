@@ -29,7 +29,7 @@
 
   <rect x="428" y="150" width="170" height="72" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
   <text x="513" y="182" font-size="15" font-weight="bold" fill="#1d4ed8" text-anchor="middle">Running 进行中</text>
-  <text x="513" y="204" font-size="12" fill="#1e40af" text-anchor="middle">Claude Code 执行任务</text>
+  <text x="513" y="204" font-size="12" fill="#1e40af" text-anchor="middle">Agent 后端执行任务</text>
 
   <line x1="600" y1="186" x2="620" y2="186" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)"/>
 

@@ -16,17 +16,19 @@
 
   <!-- 标题 -->
   <text x="620" y="42" font-size="26" font-weight="bold" fill="#111827" text-anchor="middle">AI Design 系统架构图</text>
-  <text x="620" y="72" font-size="15" fill="#6b7280" text-anchor="middle">Flutter 桌面应用 · Claude Code 多模型调度 · 62 款设计软件插件</text>
+  <text x="620" y="72" font-size="15" fill="#6b7280" text-anchor="middle">Flutter 桌面应用 · 多 Agent 后端调度 · 62 款设计软件插件</text>
 
-  <!-- ============ 左列：AI 引擎 ============ -->
+  <!-- ============ 左列：Agent 后端层 ============ -->
   <rect x="30" y="110" width="250" height="370" rx="12" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2"/>
-  <text x="155" y="148" font-size="16" font-weight="bold" fill="#5b21b6" text-anchor="middle">AI 引擎</text>
-  <text x="155" y="172" font-size="18" font-weight="bold" fill="#312e81" text-anchor="middle">Claude Code CLI</text>
+  <text x="155" y="148" font-size="16" font-weight="bold" fill="#5b21b6" text-anchor="middle">Agent 后端层</text>
+  <text x="155" y="172" font-size="16" font-weight="bold" fill="#312e81" text-anchor="middle">可切换 8 种后端</text>
   <line x1="50" y1="190" x2="260" y2="190" stroke="#c4b5fd" stroke-width="1.5"/>
-  <g font-size="14" fill="#111827" text-anchor="middle">
-    <rect class="chip" x="50" y="215" width="210" height="40" rx="8"/><text x="155" y="240">多模型调度</text>
-    <rect class="chip" x="50" y="270" width="210" height="40" rx="8"/><text x="155" y="295">自动生成控制脚本</text>
-    <rect class="chip" x="50" y="325" width="210" height="40" rx="8"/><text x="155" y="350">Opus · Sonnet · Haiku</text>
+  <g font-size="13" fill="#111827" text-anchor="middle">
+    <rect class="chip" x="50" y="210" width="210" height="38" rx="8"/><text x="155" y="234">Claude Code · Codex · Gemini</text>
+    <rect class="chip" x="50" y="258" width="210" height="38" rx="8"/><text x="155" y="282">OpenCode · OpenClaw · Hermes</text>
+    <rect class="chip" x="50" y="306" width="210" height="38" rx="8"/><text x="155" y="330">Reasonix · 远程 API 端点</text>
+    <rect class="chip" x="50" y="354" width="210" height="38" rx="8"/><text x="155" y="378">自动生成控制脚本</text>
+    <rect class="chip" x="50" y="402" width="210" height="38" rx="8"/><text x="155" y="426">Opus · Sonnet · Haiku</text>
   </g>
 
   <!-- ============ 中列：三层架构 ============ -->
@@ -90,8 +92,8 @@
 
   <!-- SQLite -->
   <rect x="950" y="320" width="260" height="100" rx="12" fill="#ecfeff" stroke="#06b6d4" stroke-width="2"/>
-  <text x="1080" y="352" font-size="16" font-weight="bold" fill="#155e75" text-anchor="middle">SQLite 本地存储</text>
-  <text x="1080" y="378" font-size="13" fill="#0e7490" text-anchor="middle">会话与任务历史持久化</text>
+  <text x="1080" y="352" font-size="16" font-weight="bold" fill="#155e75" text-anchor="middle">SQLCipher 加密存储</text>
+  <text x="1080" y="378" font-size="13" fill="#0e7490" text-anchor="middle">会话与任务历史（本地加密）</text>
   <line x1="920" y1="370" x2="950" y2="370" stroke="#6b7280" stroke-width="2" marker-start="url(#arrowRev)" marker-end="url(#arrow)"/>
   <text class="halo" x="935" y="356" font-size="12" fill="#374151" text-anchor="middle">持久化</text>
 
@@ -124,7 +126,7 @@
     <rect x="240" y="850" width="16" height="16" rx="4" fill="#fffbeb" stroke="#f59e0b"/>
     <text x="264" y="863">插件层</text>
     <rect x="330" y="850" width="16" height="16" rx="4" fill="#f5f3ff" stroke="#8b5cf6"/>
-    <text x="354" y="863">AI / Rust 引擎</text>
+    <text x="354" y="863">Agent / Rust 引擎</text>
     <rect x="455" y="850" width="16" height="16" rx="4" fill="#ecfeff" stroke="#06b6d4"/>
     <text x="479" y="863">持久化</text>
     <rect x="545" y="850" width="16" height="16" rx="4" fill="#fdf2f8" stroke="#ec4899"/>

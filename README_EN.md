@@ -1,12 +1,12 @@
 # AI Design
 
-> Cross-platform AI-powered design automation — Claude Code integration with multi-model orchestration for controlling design software
+> Cross-platform AI-powered design automation — multi-agent backends (Claude Code / Codex / Gemini / OpenCode / OpenClaw / Hermes / Reasonix / remote API) intelligently controlling design software
 
 [中文](README.md)
 
 ## Overview
 
-AI Design is a **Windows** and **macOS** desktop application that wraps Claude Code CLI to enable AI-driven multi-model orchestration. It automatically generates and executes control scripts for various design software across **six design domains**: Web, Advertising, Industrial, 3D, Architecture, and Interior Design.
+AI Design is a **Windows**, **macOS**, and **Linux** desktop application that wraps multiple switchable agent backends (Claude Code, Codex, Gemini, OpenCode, OpenClaw, Hermes, Reasonix, remote API endpoints) to enable AI-driven multi-model orchestration. It automatically generates and executes control scripts for various design software across **six design domains**: Web, Advertising, Industrial, 3D, Architecture, and Interior Design.
 
 ### Core Idea
 
@@ -15,7 +15,7 @@ Designers shouldn't need to learn every software's scripting language. Describe 
 ```
 User: "Change all blue rectangles on the canvas to red"
   ↓
-Claude Code analyzes task → selects optimal model → generates Figma JS script
+Agent backend analyzes task → selects optimal model → generates Figma JS script
   ↓
 Execution layer (LocalScriptExecutor / CLI) → software executes → returns result
   (Software without CLI: script generated with manual-execution hint)
@@ -35,8 +35,8 @@ Execution layer (LocalScriptExecutor / CLI) → software executes → returns re
 | Core Logic | Dart | Task orchestration, model routing, session management |
 | Plugins | Dart (built-in) | Design software script generation, plugin management, marketplace |
 | Config | YAML | Model routing rule configuration |
-| AI Engine | Claude Code CLI | Multi-model orchestration and script generation |
-| Storage | SQLite (sqflite) | Session and task history persistence |
+| Agent Backends | Claude Code / Codex / Gemini / OpenCode / OpenClaw / Hermes / Reasonix / remote API | Multi-model orchestration and script generation |
+| Storage | SQLCipher-encrypted SQLite | Session and task history (local, encrypted) |
 
 ### Task Flow
 
@@ -52,12 +52,12 @@ Dart (interface)  →  PluginManager  →  BuiltInPlugin (script generation)
                           +-------------------------+--------------------------+
                           v                         v                          v
                  LocalScriptExecutor          CLI direct execution       manual-execution hint
-                 (Blender/FreeCAD/           (3 headless plugins)        (software without CLI:
-                  OpenSCAD script runs)                                   generate script to copy)
+                 (17 CLI plugins:            (11 script-executing +      (software without CLI:
+                  11 scripts + 6 slicers)     6 slicers model-direct)    generate script to copy)
 ```
 
-- CLI direct execution (Blender, FreeCAD, OpenSCAD): `LocalScriptExecutor` auto-detects the executable and runs the script directly; the software panel shows an Auto badge with live connection status.
-- Manual execution (Figma, Photoshop, slicers, and 56 more — 59 plugins total): honest fallback — script generated with a manual-execution hint; the software panel shows a Manual badge. Slicer CLIs only accept model files rather than scripts, so they are not listed for automatic execution.
+- CLI direct execution (17 plugins): Blender, FreeCAD, OpenSCAD, AutoCAD, Rhino, Photoshop, Illustrator, Fusion 360, SketchUp, Sketch, and SolidWorks (Windows only) run generated scripts directly via `LocalScriptExecutor`, which auto-detects the executable and shows an Auto badge with live connection status. Cura, PrusaSlicer, OrcaSlicer, ChiTuBox, Lychee, and Simplify3D pass the model file directly for parameterized slicing with GCode output collected automatically.
+- Manual execution (the remaining 45 plugins): honest fallback — script generated with a manual-execution hint; the software panel shows a Manual badge.
 
 ### Model Routing
 
@@ -73,7 +73,7 @@ Routing rules are configured in `config/model-routing.yaml` (including the `keyw
 
 ### Lifecycle
 
-Task, plugin, and session lifecycles at a glance. Sessions idle for more than 300 s are reclaimed by a 60-second periodic sweep, which also cancels their associated Claude processes to prevent process leaks:
+Task, plugin, and session lifecycles at a glance. Sessions idle for more than 300 s are reclaimed by a 60-second periodic sweep, which also cancels their associated agent processes to prevent process leaks:
 
 ![](docs/diagrams/lifecycle-en.svg)
 
@@ -83,7 +83,7 @@ Local-first · Process isolation · Minimal trust boundary:
 
 ![](docs/diagrams/security-en.svg)
 
-Known limitation: the API key is stored in plaintext in local SharedPreferences. Migrating to OS-backed secure storage (macOS Keychain / Windows DPAPI) is recommended.
+Session and task history is stored encrypted with SQLCipher (a random key is generated on first launch and saved to a local auth file; if SQLCipher is unavailable, history is disabled rather than silently downgraded to plaintext). Known limitation: the API key is stored in plaintext in local SharedPreferences. Migrating to OS-backed secure storage (macOS Keychain / Windows DPAPI) is recommended.
 
 ## Project Structure
 
@@ -97,10 +97,16 @@ ai-desgin/
 |   +-- core/                              # Core managers
 |   |   +-- plugin_manager.dart            # Plugin registry
 |   |   +-- model_router.dart              # Model routing engine
-|   |   +-- cc_process_manager.dart        # Claude Code session mgmt
+|   |   +-- cc_process_manager.dart        # Agent subprocess session mgmt
 |   |   +-- cc_runner.dart                 # Claude Code subprocess
+|   |   +-- agent_backend.dart             # AgentBackend unified interface
+|   |   +-- codex_backend.dart             # Codex backend
+|   |   +-- gemini_backend.dart            # Gemini backend
+|   |   +-- cli_agent_backend.dart         # OpenCode/OpenClaw/Hermes/Reasonix backends
+|   |   +-- remote_backend.dart            # Remote API endpoint backend
 |   |   +-- task_orchestrator.dart         # Task orchestration
-|   |   +-- session_store.dart             # SQLite persistence
+|   |   +-- session_store.dart             # SQLCipher-encrypted persistence
+|   |   +-- db_opener.dart                 # SQLCipher open + key management
 |   |   +-- builtin_plugins.dart             # Built-in plugin registry (single source of truth)
 |   +-- ui/                                # UI pages
 +-- rust/
@@ -167,7 +173,7 @@ ai-desgin/
 |       +-- waxjetprint/                   # WaxJetPrint (Python)
 +-- config/model-routing.yaml
 +-- scripts/                               # Build + release scripts
-+-- test/                                  # Dart tests (107 tests)
++-- test/                                  # Dart tests (179 tests)
 +-- docs/
     +-- diagrams/                          # EN/ZH SVG diagrams (architecture/flow/features/lifecycle/security)
     |   +-- architecture-zh.svg            # 系统架构图
@@ -287,7 +293,7 @@ cd rust && cargo clippy           # Rust lint check
 | Check | Status |
 |-------|--------|
 | `flutter analyze` | No issues found |
-| `flutter test` | 107 tests passed |
+| `flutter test` | 179 tests passed |
 | `cargo build` | 40 crates compiled |
 | `cargo clippy` | 0 warnings |
 
@@ -366,6 +372,14 @@ Full support for FDM and resin printing workflows across major slicers and print
 ### AI Model Generation
 
 Text-to-3D and image-to-3D generation via Meshy API, with automatic polygon optimization, texture generation, and multi-format export.
+
+### System Features
+
+- **Multiple agent backends**: switch between Claude Code (pinned 2.1.143) / Codex / Gemini / OpenCode / OpenClaw / Hermes / Reasonix / remote API endpoints from Settings. Switching takes effect immediately, persists across restarts.
+- **Encrypted session history**: sessions and task history are stored encrypted with SQLCipher; the key is randomly generated. When SQLCipher is unavailable, history is disabled — never silently downgraded to plaintext.
+- **Session export**: export all sessions to a JSON file from the History view.
+- **Plugin marketplace**: search, uninstall/reinstall, and import/export ZIP plugin packages.
+- **15 interface languages**: Chinese and English are primary; other locales fall back to English.
 
 ## Supported Software
 

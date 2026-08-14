@@ -30,13 +30,13 @@
   <!-- ③ CCProcessManager -->
   <rect x="230" y="300" width="420" height="64" rx="10" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
   <text x="440" y="328" font-size="16" font-weight="bold" fill="#065f46" text-anchor="middle">③ CCProcessManager 会话管理</text>
-  <text x="440" y="350" font-size="13" fill="#047857" text-anchor="middle">复用 Claude Code 会话 · 最多 3 个进程并行</text>
+  <text x="440" y="350" font-size="13" fill="#047857" text-anchor="middle">Agent 进程会话管理 · 最多 3 个进程并行</text>
   <line x1="440" y1="364" x2="440" y2="398" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)"/>
   <text class="halo" x="452" y="383" font-size="12" fill="#374151">调用 CLI</text>
 
-  <!-- ④ Claude Code CLI -->
+  <!-- ④ Agent Backend -->
   <rect x="230" y="400" width="420" height="64" rx="10" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2"/>
-  <text x="440" y="428" font-size="16" font-weight="bold" fill="#5b21b6" text-anchor="middle">④ Claude Code CLI 智能分析</text>
+  <text x="440" y="428" font-size="16" font-weight="bold" fill="#5b21b6" text-anchor="middle">④ Agent 后端智能分析</text>
   <text x="440" y="450" font-size="13" fill="#6d28d9" text-anchor="middle">理解需求 · 选择最优模型 · 规划操作步骤</text>
   <line x1="440" y1="464" x2="440" y2="498" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)"/>
   <text class="halo" x="452" y="483" font-size="12" fill="#374151">路由决策</text>

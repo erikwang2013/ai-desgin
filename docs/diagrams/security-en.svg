@@ -35,7 +35,7 @@
   <text class="halo" x="632" y="180" font-size="12" fill="#374151" text-anchor="middle">Isolated</text>
 
   <rect x="660" y="160" width="250" height="64" rx="10" fill="#ffffff" stroke="#3b82f6" stroke-width="2"/>
-  <text x="785" y="192" font-size="14" font-weight="bold" fill="#1e3a8a" text-anchor="middle">Claude Code CLI Process</text>
+  <text x="785" y="192" font-size="14" font-weight="bold" fill="#1e3a8a" text-anchor="middle">Agent Backend Process</text>
   <text x="785" y="212" font-size="11.5" fill="#1e40af" text-anchor="middle">Model routing / script gen</text>
 
   <line x1="914" y1="192" x2="961" y2="192" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)"/>
@@ -76,7 +76,7 @@
   <rect x="640" y="460" width="6" height="110" fill="#0d9488"/>
   <rect x="646" y="460" width="574" height="110" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1.2"/>
   <text x="668" y="488" font-size="14.5" font-weight="bold" fill="#0f766e">Data Localization</text>
-  <text x="668" y="518" font-size="12.5" fill="#374151">· Sessions &amp; task history stored in local SQLite</text>
+  <text x="668" y="518" font-size="12.5" fill="#374151">· Sessions &amp; task history stored in local SQLCipher-encrypted DB</text>
   <text x="668" y="542" font-size="12.5" fill="#374151">· Local-first architecture, no cloud backend</text>
 
   <!-- ============ Band 3 Threat Model & Mitigation ============ -->
@@ -103,5 +103,5 @@
 
   <line x1="30" y1="822" x2="1250" y2="822" stroke="#fca5a5" stroke-width="1.5"/>
   <text x="310" y="847" font-size="13" fill="#7f1d1d" text-anchor="middle">Data exfiltration</text>
-  <text x="905" y="847" font-size="13" fill="#374151" text-anchor="middle">Task history stays in local SQLite; no cloud upload</text>
+  <text x="905" y="847" font-size="13" fill="#374151" text-anchor="middle">Task history stays in local SQLCipher DB; no cloud upload</text>
 </svg>

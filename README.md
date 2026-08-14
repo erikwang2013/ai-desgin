@@ -1,12 +1,12 @@
 # AI Design
 
-> 跨平台 AI 驱动设计工具 — 封装 Claude Code，调用多模型智能控制各类设计软件
+> 跨平台 AI 驱动设计工具 — 多 Agent 后端（Claude Code / Codex / Gemini / OpenCode / OpenClaw / Hermes / Reasonix / 远程 API）智能控制各类设计软件
 
 [English](README_EN.md)
 
 ## 项目简介
 
-AI Design是一个支持 **Windows** 和 **macOS** 的桌面应用，通过内置 Claude Code CLI 实现 AI 驱动的多模型调度，自动生成控制脚本并操作各类设计软件。覆盖 **六大设计领域**：Web 设计、广告设计、工业设计、3D 设计、建筑设计、装修设计。
+AI Design 是支持 **Windows**、**macOS** 和 **Linux** 的桌面应用，通过内置多个可切换的 Agent 后端（Claude Code、Codex、Gemini、OpenCode、OpenClaw、Hermes、Reasonix、远程 API 端点）实现 AI 驱动的多模型调度，自动生成控制脚本并操作各类设计软件。覆盖 **六大设计领域**：Web 设计、广告设计、工业设计、3D 设计、建筑设计、装修设计。
 
 ### 核心理念
 
@@ -15,7 +15,7 @@ AI Design是一个支持 **Windows** 和 **macOS** 的桌面应用，通过内�
 ```
 用户: "把画布上所有蓝色矩形改成红色"
   ↓
-Claude Code 分析任务 → 选择最优模型 → 生成 Figma JavaScript 脚本
+Agent 后端分析任务 → 选择最优模型 → 生成 Figma JavaScript 脚本
   ↓
 执行层 (LocalScriptExecutor / CLI) → 设计软件执行 → 返回结果
   （无 CLI 的软件：生成脚本并提示手动执行）
@@ -35,8 +35,8 @@ Claude Code 分析任务 → 选择最优模型 → 生成 Figma JavaScript 脚�
 | 核心逻辑 | Dart | 任务编排、模型路由、会话管理 |
 | 插件 | Dart (内置) | 设计软件脚本生成、插件管理、市场分发 |
 | 配置 | YAML | 模型路由规则配置 |
-| AI 引擎 | Claude Code CLI | 多模型调度与脚本生成 |
-| 持久化 | SQLite (sqflite) | 会话与任务历史 |
+| Agent 后端 | Claude Code / Codex / Gemini / OpenCode / OpenClaw / Hermes / Reasonix / 远程 API | 多模型调度与脚本生成 |
+| 持久化 | SQLCipher 加密 SQLite | 会话与任务历史（本地加密） |
 
 ### 任务流程图
 
@@ -52,12 +52,12 @@ Dart (接口定义)  →  PluginManager  →  BuiltInPlugin (脚本生成)
                           +-------------------------+--------------------------+
                           v                         v                          v
                  LocalScriptExecutor          CLI 直接执行               手动执行提示
-                 (Blender/FreeCAD/           (3 个 headless 插件)        (无 CLI 的软件：
-                  OpenSCAD 脚本执行)                                      生成脚本供复制)
+                 (17 个 CLI 插件:             (11 个脚本型插件 +           (无 CLI 的软件：
+                  11 脚本执行 + 6 切片器)      6 个切片器模型直传)          生成脚本供复制)
 ```
 
-- CLI 直接执行（Blender、FreeCAD、OpenSCAD）：`LocalScriptExecutor` 自动检测可执行文件并直接运行脚本，软件面板显示 Auto 徽标与实时连接状态。
-- 手动执行（Figma、Photoshop、切片器等 59 个）：诚实回退 —— 生成脚本并提示在软件中手动执行，软件面板显示 Manual 徽标。切片器 CLI 只接受模型文件而非脚本，故不列入自动执行。
+- CLI 直接执行（17 个）：Blender、FreeCAD、OpenSCAD、AutoCAD、Rhino、Photoshop、Illustrator、Fusion 360、SketchUp、Sketch、SolidWorks（仅 Windows）由 `LocalScriptExecutor` 自动检测可执行文件并直接运行生成的脚本；Cura、PrusaSlicer、OrcaSlicer、ChiTuBox、Lychee、Simplify3D 直传模型文件参数化切片，GCode 输出自动收集。软件面板显示 Auto 徽标与实时连接状态。
+- 手动执行（其余 45 个）：诚实回退 —— 生成脚本并提示在软件中手动执行，软件面板显示 Manual 徽标。
 
 ### 模型路由
 
@@ -73,7 +73,7 @@ Dart (接口定义)  →  PluginManager  →  BuiltInPlugin (脚本生成)
 
 ### 生命周期
 
-任务、插件、会话三大生命周期一览。会话空闲超过 300 秒即被每 60 秒一次的巡检自动回收，回收时同步终止关联的 Claude 进程，避免进程泄漏：
+任务、插件、会话三大生命周期一览。会话空闲超过 300 秒即被每 60 秒一次的巡检自动回收，回收时同步终止关联的 Agent 进程，避免进程泄漏：
 
 ![](docs/diagrams/lifecycle-zh.svg)
 
@@ -83,7 +83,7 @@ Dart (接口定义)  →  PluginManager  →  BuiltInPlugin (脚本生成)
 
 ![](docs/diagrams/security-zh.svg)
 
-已知限制：API 密钥明文存储于本地 SharedPreferences（未加密），建议后续迁移至系统安全存储（macOS Keychain / Windows DPAPI）。
+会话与任务历史以 SQLCipher 加密存储（首次创建时随机生成密钥并保存至本地 auth 文件，SQLCipher 不可用时禁用历史而非降级明文）。已知限制：API 密钥明文存储于本地 SharedPreferences（未加密），建议后续迁移至系统安全存储（macOS Keychain / Windows DPAPI）。
 
 ## 项目结构
 
@@ -102,12 +102,18 @@ ai-desgin/
 |   +-- core/
 |   |   +-- plugin_manager.dart            # 插件注册/生命周期
 |   |   +-- model_router.dart              # 模型路由引擎
-|   |   +-- cc_process_manager.dart        # Claude Code 会话管理
+|   |   +-- cc_process_manager.dart        # Agent 子进程会话管理
 |   |   +-- cc_runner.dart                 # Claude Code 子进程通信
+|   |   +-- agent_backend.dart             # AgentBackend 统一接口
+|   |   +-- codex_backend.dart             # Codex 后端
+|   |   +-- gemini_backend.dart            # Gemini 后端
+|   |   +-- cli_agent_backend.dart         # OpenCode/OpenClaw/Hermes/Reasonix 后端
+|   |   +-- remote_backend.dart            # 远程 API 端点后端
 |   |   +-- local_script_executor.dart     # 本地 CLI 脚本执行层
 |   |   +-- task_orchestrator.dart         # 任务编排引擎
-|   |   +-- session_store.dart             # SQLite 会话持久化
-|   |   +-- locale_provider.dart           # 12 语言切换与持久化
+|   |   +-- session_store.dart             # SQLCipher 加密会话持久化
+|   |   +-- db_opener.dart                 # SQLCipher 开库与密钥管理
+|   |   +-- locale_provider.dart           # 15 语言切换与持久化
 |   |   +-- builtin_plugins.dart             # 内置插件注册表（单一数据源）
 |   +-- ui/
 |       +-- shell.dart                     # 侧边栏 + 页面布局
@@ -191,7 +197,7 @@ ai-desgin/
 |   +-- build.sh                           # Unix 构建
 |   +-- build_windows.bat                  # Windows 构建
 |   +-- release.sh                         # 发布打包
-+-- test/                                  # Dart 测试 (107 tests)
++-- test/                                  # Dart 测试 (179 tests)
 +-- docs/
     +-- diagrams/                          # 中英文 SVG 图表（架构/流程/功能/生命周期/安全）
     |   +-- architecture-zh.svg            # 系统架构图
@@ -309,7 +315,7 @@ cd rust && cargo clippy       # Rust lint 检查
 | 检查项 | 状态 |
 |--------|------|
 | `flutter analyze` | No issues found |
-| `flutter test` | 107 tests passed |
+| `flutter test` | 179 tests passed |
 | `cargo check` | 40 crates compiled |
 | `cargo clippy` | 0 warnings |
 
@@ -388,6 +394,14 @@ AI 生成脚本后会展示预览，确认无误后点击执行。执行结果�
 ### AI 模型生成
 
 通过 Meshy API 实现文字/图片到 3D 模型的 AI 生成，自动优化面数、生成纹理、导出多格式。
+
+### 系统功能
+
+- **多 Agent 后端**：设置中一键切换 Claude Code（固定 2.1.143）/ Codex / Gemini / OpenCode / OpenClaw / Hermes / Reasonix / 远程 API 端点，切换即时生效并持久化，重启后保持。
+- **加密历史会话**：会话与任务历史以 SQLCipher 加密存储，密钥随机生成；SQLCipher 不可用时禁用历史功能，绝不降级明文存储。
+- **会话导出**：历史列表一键导出全部会话为 JSON 文件。
+- **插件市场**：支持搜索、卸载/重装、本地 ZIP 包导入与导出。
+- **15 种界面语言**：中/英为主，其余语言回退英文。
 
 ## 已支持的软件
 
