@@ -160,7 +160,38 @@ class AppLocalizationsKo extends AppLocalizations {
   String get echoPrefix => 'Echo';
 
   @override
+  String get endpointUrl => 'Endpoint URL';
+
+  @override
+  String get enterExportPath => 'Enter export path (.zip)';
+
+  @override
+  String get enterPluginPackagePath => 'Enter plugin package (.zip) path';
+
+  @override
   String get errorPrefix => '오류';
+
+  @override
+  String get exportAction => 'Export';
+
+  @override
+  String exportPluginFailed(Object error) {
+    return 'Export failed: $error';
+  }
+
+  @override
+  String exportPluginSuccess(Object path) {
+    return 'Exported to $path';
+  }
+
+  @override
+  String get exportHistory => 'Export';
+
+  @override
+  String get exportHistoryFailed => 'Export failed';
+
+  @override
+  String get exportNoSessions => 'No sessions to export';
 
   @override
   String get hintText => '원하는 디자인 작업을 설명하세요...';
@@ -170,6 +201,19 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get historyList => 'History';
+
+  @override
+  String get importAction => 'Import';
+
+  @override
+  String importFailed(Object error) {
+    return 'Import failed: $error';
+  }
+
+  @override
+  String importSuccess(Object name, Object count) {
+    return 'Imported \"$name\" with $count scripts';
+  }
 
   @override
   String get inProgress => '진행 중';
@@ -198,6 +242,24 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get installingClaude => 'Installing...';
+
+  @override
+  String get invalidEndpointUrl =>
+      'Invalid endpoint URL (e.g. https://api.example.com/v1)';
+
+  @override
+  String get invalidModelName =>
+      'Invalid model name (letters, digits, dot, dash, underscore only)';
+
+  @override
+  String get invalidProxyHostPath =>
+      'Invalid proxy host (host name only, no path)';
+
+  @override
+  String get invalidProxyHostSpaces => 'Invalid proxy host (no spaces allowed)';
+
+  @override
+  String get invalidProxyPort => 'Invalid proxy port (1-65535)';
 
   @override
   String get language => '언어';
@@ -237,6 +299,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get noOutput => '(출력 없음)';
 
   @override
+  String get noPluginsToExport => 'No installed plugins to export';
+
+  @override
   String get noTasks => '작업 없음';
 
   @override
@@ -255,6 +320,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get proxyHost => '프록시 호스트';
 
   @override
+  String get proxyHostRequired => 'Proxy host is required when a port is set';
+
+  @override
   String get proxyPort => '프록시 포트';
 
   @override
@@ -262,6 +330,15 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get proxySettingsDesc => '네트워크 프록시 구성';
+
+  @override
+  String get remoteConfigSaveFailed => 'Failed to save remote endpoint config';
+
+  @override
+  String get remoteConfigSaved => 'Remote endpoint config saved';
+
+  @override
+  String get remoteEndpoint => 'Remote Endpoint';
 
   @override
   String get retry => 'Retry';
@@ -274,6 +351,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get searchPlugins => '플러그인 검색...';
+
+  @override
+  String get selectPluginToExport => 'Select plugin to export';
 
   @override
   String get settings => '설정';

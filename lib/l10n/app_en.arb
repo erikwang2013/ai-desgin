@@ -25,6 +25,75 @@
   "@copy": {
     "description": "Localized label for copy"
   },
+  "@endpointUrl": {
+    "description": "Localized label for endpointUrl"
+  },
+  "@enterExportPath": {
+    "description": "Localized label for enterExportPath"
+  },
+  "@enterPluginPackagePath": {
+    "description": "Localized label for enterPluginPackagePath"
+  },
+  "@exportAction": {
+    "description": "Localized label for exportAction"
+  },
+  "@exportPluginFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "@exportPluginSuccess": {
+    "placeholders": {
+      "path": {}
+    }
+  },
+  "@importAction": {
+    "description": "Localized label for importAction"
+  },
+  "@importFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "@importSuccess": {
+    "placeholders": {
+      "name": {},
+      "count": {}
+    }
+  },
+  "@invalidEndpointUrl": {
+    "description": "Localized label for invalidEndpointUrl"
+  },
+  "@invalidModelName": {
+    "description": "Localized label for invalidModelName"
+  },
+  "@invalidProxyHostPath": {
+    "description": "Localized label for invalidProxyHostPath"
+  },
+  "@invalidProxyHostSpaces": {
+    "description": "Localized label for invalidProxyHostSpaces"
+  },
+  "@invalidProxyPort": {
+    "description": "Localized label for invalidProxyPort"
+  },
+  "@noPluginsToExport": {
+    "description": "Localized label for noPluginsToExport"
+  },
+  "@proxyHostRequired": {
+    "description": "Localized label for proxyHostRequired"
+  },
+  "@remoteConfigSaveFailed": {
+    "description": "Localized label for remoteConfigSaveFailed"
+  },
+  "@remoteConfigSaved": {
+    "description": "Localized label for remoteConfigSaved"
+  },
+  "@remoteEndpoint": {
+    "description": "Localized label for remoteEndpoint"
+  },
+  "@selectPluginToExport": {
+    "description": "Localized label for selectPluginToExport"
+  },
   "@installSuccess": {
     "placeholders": {
       "name": {}
@@ -111,10 +180,31 @@
   "disconnected": "Disconnected",
   "done": "Done",
   "echoPrefix": "Echo",
+  "endpointUrl": "Endpoint URL",
+  "enterExportPath": "Enter export path (.zip)",
+  "enterPluginPackagePath": "Enter plugin package (.zip) path",
   "errorPrefix": "Error",
+  "exportAction": "Export",
+  "exportPluginFailed": "Export failed: {error}",
+  "exportPluginSuccess": "Exported to {path}",
+  "@exportHistory": {
+    "description": "Label of the export history button"
+  },
+  "exportHistory": "Export",
+  "@exportHistoryFailed": {
+    "description": "Message shown when exporting session history fails"
+  },
+  "exportHistoryFailed": "Export failed",
+  "@exportNoSessions": {
+    "description": "Message shown when there are no sessions to export"
+  },
+  "exportNoSessions": "No sessions to export",
   "hintText": "Describe the design operation you want...",
   "history": "History",
   "historyList": "History",
+  "importAction": "Import",
+  "importFailed": "Import failed: {error}",
+  "importSuccess": "Imported \"{name}\" with {count} scripts",
   "inProgress": "In Progress",
   "install": "Install",
   "installClaude": "Install Claude Code 2.1.143",
@@ -123,6 +213,11 @@
   "installed": "Installed ({count})",
   "installedPlugins": "Installed Plugins",
   "installingClaude": "Installing...",
+  "invalidEndpointUrl": "Invalid endpoint URL (e.g. https://api.example.com/v1)",
+  "invalidModelName": "Invalid model name (letters, digits, dot, dash, underscore only)",
+  "invalidProxyHostPath": "Invalid proxy host (host name only, no path)",
+  "invalidProxyHostSpaces": "Invalid proxy host (no spaces allowed)",
+  "invalidProxyPort": "Invalid proxy port (1-65535)",
   "language": "Language",
   "languageInstruction": "Please respond in English.",
   "manage": "Manage",
@@ -141,19 +236,25 @@
   "noHistory": "No history",
   "noHistoryHint": "Completed sessions will appear here",
   "noOutput": "(no output)",
+  "noPluginsToExport": "No installed plugins to export",
   "noTasks": "No Tasks",
   "noTasksHint": "Enter your design requirements in the chat panel; tasks will appear here.",
   "ok": "OK",
   "pluginMarket": "Plugin Marketplace",
   "pluginMarketDesc": "Browse and install plugins",
   "proxyHost": "Proxy Host",
+  "proxyHostRequired": "Proxy host is required when a port is set",
   "proxyPort": "Proxy Port",
   "proxySettings": "Proxy Settings",
   "proxySettingsDesc": "Configure network proxy",
+  "remoteConfigSaveFailed": "Failed to save remote endpoint config",
+  "remoteConfigSaved": "Remote endpoint config saved",
+  "remoteEndpoint": "Remote Endpoint",
   "retry": "Retry",
   "save": "Save",
   "saveSuccess": "Saved successfully",
   "searchPlugins": "Search plugins...",
+  "selectPluginToExport": "Select plugin to export",
   "settings": "Settings",
   "tabChat": "Chat",
   "tabHistory": "History",

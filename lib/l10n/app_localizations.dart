@@ -400,11 +400,65 @@ abstract class AppLocalizations {
   /// **'Echo'**
   String get echoPrefix;
 
+  /// Localized label for endpointUrl
+  ///
+  /// In en, this message translates to:
+  /// **'Endpoint URL'**
+  String get endpointUrl;
+
+  /// Localized label for enterExportPath
+  ///
+  /// In en, this message translates to:
+  /// **'Enter export path (.zip)'**
+  String get enterExportPath;
+
+  /// Localized label for enterPluginPackagePath
+  ///
+  /// In en, this message translates to:
+  /// **'Enter plugin package (.zip) path'**
+  String get enterPluginPackagePath;
+
   /// No description provided for @errorPrefix.
   ///
   /// In en, this message translates to:
   /// **'Error'**
   String get errorPrefix;
+
+  /// Localized label for exportAction
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get exportAction;
+
+  /// No description provided for @exportPluginFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Export failed: {error}'**
+  String exportPluginFailed(Object error);
+
+  /// No description provided for @exportPluginSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Exported to {path}'**
+  String exportPluginSuccess(Object path);
+
+  /// Label of the export history button
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get exportHistory;
+
+  /// Message shown when exporting session history fails
+  ///
+  /// In en, this message translates to:
+  /// **'Export failed'**
+  String get exportHistoryFailed;
+
+  /// Message shown when there are no sessions to export
+  ///
+  /// In en, this message translates to:
+  /// **'No sessions to export'**
+  String get exportNoSessions;
 
   /// No description provided for @hintText.
   ///
@@ -423,6 +477,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'History'**
   String get historyList;
+
+  /// Localized label for importAction
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get importAction;
+
+  /// No description provided for @importFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Import failed: {error}'**
+  String importFailed(Object error);
+
+  /// No description provided for @importSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported \"{name}\" with {count} scripts'**
+  String importSuccess(Object name, Object count);
 
   /// No description provided for @inProgress.
   ///
@@ -471,6 +543,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Installing...'**
   String get installingClaude;
+
+  /// Localized label for invalidEndpointUrl
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid endpoint URL (e.g. https://api.example.com/v1)'**
+  String get invalidEndpointUrl;
+
+  /// Localized label for invalidModelName
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid model name (letters, digits, dot, dash, underscore only)'**
+  String get invalidModelName;
+
+  /// Localized label for invalidProxyHostPath
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid proxy host (host name only, no path)'**
+  String get invalidProxyHostPath;
+
+  /// Localized label for invalidProxyHostSpaces
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid proxy host (no spaces allowed)'**
+  String get invalidProxyHostSpaces;
+
+  /// Localized label for invalidProxyPort
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid proxy port (1-65535)'**
+  String get invalidProxyPort;
 
   /// No description provided for @language.
   ///
@@ -544,6 +646,12 @@ abstract class AppLocalizations {
   /// **'(no output)'**
   String get noOutput;
 
+  /// Localized label for noPluginsToExport
+  ///
+  /// In en, this message translates to:
+  /// **'No installed plugins to export'**
+  String get noPluginsToExport;
+
   /// No description provided for @noTasks.
   ///
   /// In en, this message translates to:
@@ -580,6 +688,12 @@ abstract class AppLocalizations {
   /// **'Proxy Host'**
   String get proxyHost;
 
+  /// Localized label for proxyHostRequired
+  ///
+  /// In en, this message translates to:
+  /// **'Proxy host is required when a port is set'**
+  String get proxyHostRequired;
+
   /// No description provided for @proxyPort.
   ///
   /// In en, this message translates to:
@@ -597,6 +711,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Configure network proxy'**
   String get proxySettingsDesc;
+
+  /// Localized label for remoteConfigSaveFailed
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to save remote endpoint config'**
+  String get remoteConfigSaveFailed;
+
+  /// Localized label for remoteConfigSaved
+  ///
+  /// In en, this message translates to:
+  /// **'Remote endpoint config saved'**
+  String get remoteConfigSaved;
+
+  /// Localized label for remoteEndpoint
+  ///
+  /// In en, this message translates to:
+  /// **'Remote Endpoint'**
+  String get remoteEndpoint;
 
   /// No description provided for @retry.
   ///
@@ -621,6 +753,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search plugins...'**
   String get searchPlugins;
+
+  /// Localized label for selectPluginToExport
+  ///
+  /// In en, this message translates to:
+  /// **'Select plugin to export'**
+  String get selectPluginToExport;
 
   /// No description provided for @settings.
   ///

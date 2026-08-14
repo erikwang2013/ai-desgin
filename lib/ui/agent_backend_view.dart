@@ -75,15 +75,17 @@ class _AgentBackendViewState extends State<AgentBackendView> {
       await prefs.setString('remote_endpoint_url', _urlController.text.trim());
       await prefs.setString('remote_endpoint_key', _keyController.text.trim());
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Remote endpoint config saved'),
-        duration: Duration(seconds: 2),
+      final l10n = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(l10n?.remoteConfigSaved ?? 'Remote endpoint config saved'),
+        duration: const Duration(seconds: 2),
       ));
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Failed to save remote endpoint config'),
-        duration: Duration(seconds: 2),
+      final l10n = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(l10n?.remoteConfigSaveFailed ?? 'Failed to save remote endpoint config'),
+        duration: const Duration(seconds: 2),
       ));
     }
   }
@@ -121,7 +123,7 @@ class _AgentBackendViewState extends State<AgentBackendView> {
       'openclaw' => l10n?.backendOpenclaw ?? 'OpenClaw',
       'hermes' => l10n?.backendHermes ?? 'Hermes',
       'reasonix' => l10n?.backendReasonix ?? 'Reasonix',
-      'remote' => 'Remote Endpoint',
+      'remote' => l10n?.remoteEndpoint ?? 'Remote Endpoint',
       _ => l10n?.backendClaude ?? 'Claude Code',
     };
   }
@@ -151,26 +153,26 @@ class _AgentBackendViewState extends State<AgentBackendView> {
           ),
           const Divider(height: 32),
           Text(
-            'Remote Endpoint',
+            l10n?.remoteEndpoint ?? 'Remote Endpoint',
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
           TextField(
             controller: _urlController,
             keyboardType: TextInputType.url,
-            decoration: const InputDecoration(
-              labelText: 'Endpoint URL',
+            decoration: InputDecoration(
+              labelText: l10n?.endpointUrl ?? 'Endpoint URL',
               hintText: 'https://api.example.com/v1',
-              border: OutlineInputBorder(),
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 8),
           TextField(
             controller: _keyController,
             obscureText: true,
-            decoration: const InputDecoration(
-              labelText: 'API Key',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: l10n?.apiKey ?? 'API Key',
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 8),
@@ -178,7 +180,7 @@ class _AgentBackendViewState extends State<AgentBackendView> {
             alignment: Alignment.centerLeft,
             child: FilledButton.tonal(
               onPressed: _saveRemoteConfig,
-              child: const Text('Save'),
+              child: Text(l10n?.save ?? 'Save'),
             ),
           ),
           const Divider(height: 32),

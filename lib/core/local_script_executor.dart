@@ -19,7 +19,10 @@ class LocalScriptExecutor {
 
   final Map<String, ScriptExecutorConfig> _configs;
   final Map<String, bool> _availableCache = {};
-  DateTime? _lastCacheCheck;
+
+  /// 每插件最近一次探测时间：缓存 TTL 按插件独立计算，
+  /// 避免一次探测刷新所有插件的缓存。
+  final Map<String, DateTime> _lastProbe = {};
 
   /// 带 key 的 execute 注册的运行中进程，[cancel] 据此 kill 中断。
   final Map<String, Process> _running = {};
@@ -27,8 +30,13 @@ class LocalScriptExecutor {
   /// 已取消的 key 集合：cancel 先于进程注册或晚于退出时保持语义一致。
   final Set<String> _cancelled = {};
 
-  LocalScriptExecutor({Map<String, ScriptExecutorConfig>? configs})
-      : _configs = configs ?? _cliExecutables;
+  LocalScriptExecutor({
+    Map<String, ScriptExecutorConfig>? configs,
+    this.probeTimeout = _probeTimeout,
+  }) : _configs = configs ?? _cliExecutables;
+
+  /// 探测超时：可注入以便测试覆盖超时 kill 路径。
+  final Duration probeTimeout;
 
   static const _cacheTtl = Duration(seconds: 60);
   static const _probeTimeout = Duration(seconds: 5);
@@ -57,24 +65,30 @@ class LocalScriptExecutor {
       return false;
     }
     final now = DateTime.now();
-    if (_lastCacheCheck != null &&
-        now.difference(_lastCacheCheck!) < _cacheTtl &&
+    final last = _lastProbe[pluginId];
+    if (last != null &&
+        now.difference(last) < _cacheTtl &&
         _availableCache.containsKey(pluginId)) {
       return _availableCache[pluginId]!;
     }
     var available = false;
+    Process? process;
     try {
-      final result = await Process.run(
+      process = await Process.start(
         config.executable,
         config.probeArgs,
         runInShell: false,
-      ).timeout(_probeTimeout);
-      available = result.exitCode == 0;
+      );
+      final exitCode = await process.exitCode.timeout(probeTimeout);
+      available = exitCode == 0;
     } catch (_) {
       available = false;
+    } finally {
+      // Process.run 的 timeout 不会终止子进程：超时后手动 kill，避免孤儿进程。
+      process?.kill();
     }
     _availableCache[pluginId] = available;
-    _lastCacheCheck = now;
+    _lastProbe[pluginId] = now;
     return available;
   }
 
@@ -138,7 +152,7 @@ class LocalScriptExecutor {
       );
     } on ProcessException catch (e) {
       _availableCache[pluginId] = false;
-      _lastCacheCheck = DateTime.now();
+      _lastProbe[pluginId] = DateTime.now();
       return ScriptResult.success(
         output: _fallbackMessage(pluginName, script, detail: e.message),
         manualFallback: true,

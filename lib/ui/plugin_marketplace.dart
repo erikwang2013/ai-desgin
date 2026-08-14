@@ -53,6 +53,18 @@ class _PluginMarketplaceState extends State<PluginMarketplace> {
 
   late final List<PluginInfo> _plugins;
   final Map<String, DesignPlugin> _removedPlugins = {};
+  String _query = '';
+
+  List<PluginInfo> get _visiblePlugins {
+    final q = _query.trim().toLowerCase();
+    if (q.isEmpty) return _plugins;
+    return _plugins
+        .where((p) =>
+            p.name.toLowerCase().contains(q) ||
+            p.id.toLowerCase().contains(q) ||
+            p.description.toLowerCase().contains(q))
+        .toList();
+  }
 
   @override
   void initState() {
@@ -189,34 +201,41 @@ class _PluginMarketplaceState extends State<PluginMarketplace> {
     final controller = TextEditingController();
     return showDialog<String>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(title),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: InputDecoration(hintText: hint),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+      builder: (ctx) {
+        final l10n = AppLocalizations.of(ctx);
+        return AlertDialog(
+          title: Text(title),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            decoration: InputDecoration(hintText: hint),
           ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(l10n?.cancel ?? 'Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+              child: Text(l10n?.ok ?? 'OK'),
+            ),
+          ],
+        );
+      },
     );
   }
 
   Future<void> _importFromLocal() async {
+    final l10n = AppLocalizations.of(context);
     String? path;
     try {
       final file = await openFile(acceptedTypeGroups: const [_zipGroup]);
       path = file?.path;
     } catch (_) {
-      path = await _askForPath('Enter plugin package (.zip) path', hint: '/path/to/plugin.zip');
+      path = await _askForPath(
+        l10n?.enterPluginPackagePath ?? 'Enter plugin package (.zip) path',
+        hint: '/path/to/plugin.zip',
+      );
     }
     if (path == null || path.isEmpty || !mounted) return;
     try {
@@ -225,22 +244,24 @@ class _PluginMarketplaceState extends State<PluginMarketplace> {
       widget.pluginManager.registerExternal(result.manifest, result.packageDir);
       if (!mounted) return;
       setState(() => _plugins = _buildPluginsFromManager());
-      _showSnack('Imported "${result.manifest.name}" with ${result.manifest.scripts.length} scripts');
+      _showSnack(l10n?.importSuccess(result.manifest.name, result.manifest.scripts.length) ??
+          'Imported "${result.manifest.name}" with ${result.manifest.scripts.length} scripts');
     } catch (e) {
-      _showSnack('Import failed: $e');
+      _showSnack(l10n?.importFailed('$e') ?? 'Import failed: $e');
     }
   }
 
   Future<void> _exportPlugin() async {
+    final l10n = AppLocalizations.of(context);
     final installed = _plugins.where((p) => p.installed).toList();
     if (installed.isEmpty) {
-      _showSnack('No installed plugins to export');
+      _showSnack(l10n?.noPluginsToExport ?? 'No installed plugins to export');
       return;
     }
     final selected = await showDialog<PluginInfo>(
       context: context,
       builder: (ctx) => SimpleDialog(
-        title: const Text('Select plugin to export'),
+        title: Text(l10n?.selectPluginToExport ?? 'Select plugin to export'),
         children: [
           for (final p in installed)
             SimpleDialogOption(
@@ -264,7 +285,7 @@ class _PluginMarketplaceState extends State<PluginMarketplace> {
       savePath = loc?.path;
     } catch (_) {
       savePath = await _askForPath(
-        'Enter export path (.zip)',
+        l10n?.enterExportPath ?? 'Enter export path (.zip)',
         hint: '/path/to/${selected.id}.zip',
       );
     }
@@ -278,17 +299,17 @@ class _PluginMarketplaceState extends State<PluginMarketplace> {
         description: selected.description,
         zipPath: savePath,
       );
-      _showSnack('Exported to $savePath');
+      _showSnack(l10n?.exportPluginSuccess(savePath) ?? 'Exported to $savePath');
     } catch (e) {
-      _showSnack('Export failed: $e');
+      _showSnack(l10n?.exportPluginFailed('$e') ?? 'Export failed: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final installed = _plugins.where((p) => p.installed).toList();
-    final available = _plugins.where((p) => !p.installed).toList();
+    final installed = _visiblePlugins.where((p) => p.installed).toList();
+    final available = _visiblePlugins.where((p) => !p.installed).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -297,21 +318,29 @@ class _PluginMarketplaceState extends State<PluginMarketplace> {
           // 用无 ripple 的点击区（TextButton 的 InkSparkle 在无 GPU 测试环境加载失败）。
           GestureDetector(
             onTap: _importFromLocal,
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                children: [Icon(Icons.file_open, size: 18), SizedBox(width: 4), Text('Import')],
+                children: [
+                  const Icon(Icons.file_open, size: 18),
+                  const SizedBox(width: 4),
+                  Text(l10n?.importAction ?? 'Import'),
+                ],
               ),
             ),
           ),
           GestureDetector(
             onTap: _exportPlugin,
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                children: [Icon(Icons.file_download, size: 18), SizedBox(width: 4), Text('Export')],
+                children: [
+                  const Icon(Icons.file_download, size: 18),
+                  const SizedBox(width: 4),
+                  Text(l10n?.exportAction ?? 'Export'),
+                ],
               ),
             ),
           ),
@@ -320,6 +349,20 @@ class _PluginMarketplaceState extends State<PluginMarketplace> {
       ),
       body: ListView(
         children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: TextField(
+              onChanged: (v) => setState(() => _query = v),
+              decoration: InputDecoration(
+                hintText: l10n?.searchPlugins ?? 'Search plugins...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                isDense: true,
+              ),
+            ),
+          ),
           if (installed.isNotEmpty) ...[
             _sectionHeader(l10n?.installed(installed.length) ?? 'Installed (${installed.length})'),
             ...installed.map((p) => _buildPluginTile(p, l10n)),

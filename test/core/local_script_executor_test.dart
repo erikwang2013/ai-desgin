@@ -200,4 +200,60 @@ printf 'ok' > "$outdir/small.png"
       expect(executor.hasCommand('blender'), isTrue);
     });
   }, skip: Platform.isWindows ? 'fake shell CLI 仅 POSIX 可用' : false);
+
+  test('supportsPlatform gates the availability probe', () async {
+    final dir = await _makeFakeCli('exit 0');
+    final cli = '${dir.path}/fake_cli.sh';
+    final executor = LocalScriptExecutor(configs: {
+      'winonly': ScriptExecutorConfig(
+        pluginId: 'winonly',
+        executable: cli,
+        scriptExtension: 'py',
+        platforms: {'windows'},
+        args: (s, p) => ['--version'],
+      ),
+      'linuxok': ScriptExecutorConfig(
+        pluginId: 'linuxok',
+        executable: cli,
+        scriptExtension: 'py',
+        args: (s, p) => ['--version'],
+      ),
+    });
+    // 平台不匹配时不执行 probe，直接不可用。
+    expect(await executor.checkAvailable('winonly'), isFalse);
+    expect(await executor.checkAvailable('linuxok'), isTrue);
+  });
+
+  test('checkAvailable caches probe result per plugin within TTL', () async {
+    final dir = await Directory.systemTemp.createTemp('probe_count_');
+    final countFile = File('${dir.path}/count');
+    final cli = await _makeFakeCli('echo x >> ${countFile.path}');
+    final executor = LocalScriptExecutor(
+      configs: {'blender': _blenderConfig('${cli.path}/fake_cli.sh')},
+    );
+    await executor.checkAvailable('blender');
+    await executor.checkAvailable('blender');
+    final probes = countFile
+        .readAsStringSync()
+        .trim()
+        .split('\n')
+        .where((l) => l.isNotEmpty)
+        .length;
+    expect(probes, 1, reason: 'second call must hit the per-plugin cache');
+  });
+
+  test('probe timeout kills the orphan subprocess', () async {
+    final dir = await Directory.systemTemp.createTemp('probe_kill_');
+    final pidFile = File('${dir.path}/pid');
+    final cli = await _makeFakeCli('echo \$\$ > ${pidFile.path}; exec sleep 30');
+    final executor = LocalScriptExecutor(
+      configs: {'blender': _blenderConfig('${cli.path}/fake_cli.sh')},
+      probeTimeout: const Duration(milliseconds: 300),
+    );
+    await executor.checkAvailable('blender');
+    expect(pidFile.existsSync(), isTrue);
+    final pid = int.parse((await pidFile.readAsString()).trim());
+    final alive = await Process.run('kill', ['-0', '$pid']);
+    expect(alive.exitCode, isNot(0), reason: 'probe subprocess should have been killed');
+  });
 }

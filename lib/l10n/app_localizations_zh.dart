@@ -159,7 +159,38 @@ class AppLocalizationsZh extends AppLocalizations {
   String get echoPrefix => 'Echo';
 
   @override
+  String get endpointUrl => '端点 URL';
+
+  @override
+  String get enterExportPath => '输入导出路径 (.zip)';
+
+  @override
+  String get enterPluginPackagePath => '输入插件包 (.zip) 路径';
+
+  @override
   String get errorPrefix => '错误';
+
+  @override
+  String get exportAction => '导出';
+
+  @override
+  String exportPluginFailed(Object error) {
+    return '导出失败：$error';
+  }
+
+  @override
+  String exportPluginSuccess(Object path) {
+    return '已导出至 $path';
+  }
+
+  @override
+  String get exportHistory => '导出';
+
+  @override
+  String get exportHistoryFailed => '导出失败';
+
+  @override
+  String get exportNoSessions => '暂无会话可导出';
 
   @override
   String get hintText => '描述你想要的设计操作...';
@@ -169,6 +200,19 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get historyList => '历史会话';
+
+  @override
+  String get importAction => '导入';
+
+  @override
+  String importFailed(Object error) {
+    return '导入失败：$error';
+  }
+
+  @override
+  String importSuccess(Object name, Object count) {
+    return '已导入 \"$name\"，共 $count 个脚本';
+  }
 
   @override
   String get inProgress => '进行中';
@@ -197,6 +241,21 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get installingClaude => '正在安装…';
+
+  @override
+  String get invalidEndpointUrl => '无效的端点 URL（例如 https://api.example.com/v1）';
+
+  @override
+  String get invalidModelName => '无效的模型名称（仅限字母、数字、点、短横线、下划线）';
+
+  @override
+  String get invalidProxyHostPath => '无效的代理主机（仅主机名，不含路径）';
+
+  @override
+  String get invalidProxyHostSpaces => '无效的代理主机（不允许空格）';
+
+  @override
+  String get invalidProxyPort => '无效的代理端口（1-65535）';
 
   @override
   String get language => '语言';
@@ -235,6 +294,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get noOutput => '(无输出)';
 
   @override
+  String get noPluginsToExport => '没有已安装的插件可导出';
+
+  @override
   String get noTasks => '暂无任务';
 
   @override
@@ -253,6 +315,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get proxyHost => '代理主机';
 
   @override
+  String get proxyHostRequired => '设置端口时必须填写代理主机';
+
+  @override
   String get proxyPort => '代理端口';
 
   @override
@@ -260,6 +325,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get proxySettingsDesc => '配置网络代理';
+
+  @override
+  String get remoteConfigSaveFailed => '保存远程端点配置失败';
+
+  @override
+  String get remoteConfigSaved => '远程端点配置已保存';
+
+  @override
+  String get remoteEndpoint => '远程端点';
 
   @override
   String get retry => '重试';
@@ -272,6 +346,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get searchPlugins => '搜索插件...';
+
+  @override
+  String get selectPluginToExport => '选择要导出的插件';
 
   @override
   String get settings => '设置';

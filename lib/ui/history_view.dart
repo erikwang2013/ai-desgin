@@ -1,9 +1,14 @@
 // lib/ui/history_view.dart
+import 'dart:io';
+
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../models/session.dart';
 import '../models/task_record.dart';
 import '../core/session_store.dart';
+
+const _jsonGroup = XTypeGroup(label: 'JSON', extensions: ['json']);
 
 class HistoryView extends StatefulWidget {
   final SessionStore? sessionStore;
@@ -68,6 +73,42 @@ class HistoryViewState extends State<HistoryView> {
     setState(() {
       if (!_selectedIds.add(id)) _selectedIds.remove(id);
     });
+  }
+
+  Future<void> _exportAll() async {
+    final l10n = AppLocalizations.of(context);
+    if (_sessions.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(l10n?.exportNoSessions ?? 'No sessions to export'),
+      ));
+      return;
+    }
+
+    String? savePath;
+    try {
+      final loc = await getSaveLocation(
+        suggestedName: 'ai-design-history.json',
+        acceptedTypeGroups: const [_jsonGroup],
+      );
+      savePath = loc?.path;
+    } catch (_) {
+      // 选择器不可用时按取消处理
+    }
+    if (savePath == null || !mounted) return;
+
+    try {
+      final sessions = List<Session>.of(_sessions);
+      await File(savePath).writeAsString(SessionStore.exportSessionsToJson(sessions));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(l10n?.saveSuccess ?? 'Saved'),
+      ));
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(l10n?.exportHistoryFailed ?? 'Export failed'),
+      ));
+    }
   }
 
   Future<void> _confirmDelete(List<Session> targets) async {
@@ -145,6 +186,11 @@ class HistoryViewState extends State<HistoryView> {
               onPressed:
                   _sessions.isEmpty ? null : () => _confirmDelete(List.of(_sessions)),
             ),
+          TextButton.icon(
+            icon: const Icon(Icons.file_download_outlined, size: 18),
+            label: Text(l10n?.exportHistory ?? 'Export'),
+            onPressed: _exportAll,
+          ),
           TextButton(
             onPressed: _sessions.isEmpty
                 ? null

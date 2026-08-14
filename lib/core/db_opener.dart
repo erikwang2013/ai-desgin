@@ -74,8 +74,20 @@ bool _verifyKey(Database db) {
   }
 }
 
+/// SQLCipher 是否可用：PRAGMA cipher_version 在普通 sqlite3 构建上
+/// 抛错或返回空，据此区分，避免明文存储被静默接受。
+bool _sqlcipherAvailable(Database db) {
+  try {
+    final rows = db.select('PRAGMA cipher_version');
+    final version = rows.isEmpty ? '' : rows.first.values.first?.toString() ?? '';
+    return version.isNotEmpty;
+  } catch (_) {
+    return false;
+  }
+}
+
 /// 打开 SQLCipher 加密的会话数据库：首次生成随机密码写入本地 auth 文件。
-/// 加密不可用（例如未启用 SQLCipher 构建）时回退明文打开，保证功能不回归。
+/// 加密不可用时返回 null 禁用历史会话，绝不静默降级明文存储。
 Future<Database?> openEncryptedSessionDb() async {
   try {
     final docDir = await getApplicationDocumentsDirectory();
@@ -91,18 +103,16 @@ Future<Database?> openEncryptedSessionDb() async {
       debugPrint('Session DB key mismatch: auth file kept for recovery');
       return null;
     }
+    if (!_sqlcipherAvailable(db)) {
+      db.close();
+      // SQLCipher 构建缺失时宁可禁用历史会话，也不静默降级明文存储。
+      debugPrint('SQLCipher unavailable: session history disabled');
+      return null;
+    }
     _migrate(db);
     return db;
   } catch (e) {
-    debugPrint('Encrypted session DB open failed, falling back to plain: $e');
-  }
-  try {
-    final docDir = await getApplicationDocumentsDirectory();
-    final db = sqlite3.open('${docDir.path}/$_dbFileName');
-    _migrate(db);
-    return db;
-  } catch (e) {
-    debugPrint('Session DB open failed: $e');
+    debugPrint('Encrypted session DB open failed: $e');
     return null;
   }
 }

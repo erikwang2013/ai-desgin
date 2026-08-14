@@ -25,10 +25,11 @@ pub fn read_lossy<R: Read>(mut reader: R) -> Result<String, String> {
     }
 }
 
-/// Kill the child and, on Unix, its whole process group (the child is spawned
-/// with `process_group(0)` so it leads a fresh group and every descendant is
-/// reaped on timeout). Windows has no portable job-object here, so only the
-/// direct child is killed.
+/// Kill the child and its whole process tree. On Unix the child is spawned
+/// with `process_group(0)` so it leads a fresh group and `killpg` reaps every
+/// descendant on timeout. On Windows `taskkill /T` walks the whole process
+/// tree; if that fails (e.g. access denied or the process already exited) we
+/// fall back to killing only the direct child via TerminateProcess.
 #[cfg(unix)]
 fn kill_process_tree(child: &mut std::process::Child) {
     let pid = child.id() as i32;
@@ -38,7 +39,23 @@ fn kill_process_tree(child: &mut std::process::Child) {
     }
 }
 
-#[cfg(not(unix))]
+#[cfg(windows)]
+fn kill_process_tree(child: &mut std::process::Child) {
+    use std::os::windows::process::CommandExt;
+    let pid = child.id().to_string();
+    let killed_by_tree = Command::new("taskkill")
+        .args(["/F", "/T", "/PID", pid.as_str()])
+        // Avoid flashing a console window when spawned from the GUI app.
+        .creation_flags(0x0800_0000) // CREATE_NO_WINDOW
+        .status()
+        .map(|s| s.success())
+        .unwrap_or(false);
+    if !killed_by_tree {
+        let _ = child.kill();
+    }
+}
+
+#[cfg(not(any(unix, windows)))]
 fn kill_process_tree(child: &mut std::process::Child) {
     let _ = child.kill();
 }
@@ -172,6 +189,36 @@ mod tests {
         cmd.arg("-c").arg("printf '\\000\\001\\002'");
         let res = run_command_with_timeout(&mut cmd, Duration::from_secs(5));
         let err = res.err().expect("binary output must be rejected");
+        assert!(err.contains("binary"), "unexpected error: {err}");
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn timeout_error_mentions_timeout() {
+        let mut cmd = Command::new("sh");
+        cmd.arg("-c").arg("sleep 5");
+        let res = run_command_with_timeout(&mut cmd, Duration::from_millis(200));
+        let err = res.err().expect("must time out");
+        assert!(err.contains("timed out"), "unexpected error: {err}");
+    }
+
+    #[test]
+    fn read_lossy_decodes_utf8() {
+        let bytes = b"hello \xe4\xb8\xad\xe6\x96\x87";
+        assert_eq!(read_lossy(&bytes[..]).unwrap(), "hello 中文");
+    }
+
+    #[test]
+    fn read_lossy_falls_back_to_gbk() {
+        // 0xD6D0 0xCEC4 is "中文" in GBK and invalid UTF-8, so the UTF-8
+        // path must fail and GBK decoding must take over.
+        let bytes = [0xD6u8, 0xD0, 0xCE, 0xC4];
+        assert_eq!(read_lossy(&bytes[..]).unwrap(), "中文");
+    }
+
+    #[test]
+    fn read_lossy_rejects_nul_bytes() {
+        let err = read_lossy(&b"abc\0def"[..]).err().expect("NUL must be rejected");
         assert!(err.contains("binary"), "unexpected error: {err}");
     }
 }

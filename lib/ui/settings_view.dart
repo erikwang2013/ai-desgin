@@ -223,7 +223,7 @@ class _ModelConfigPageState extends State<ModelConfigPage> {
 
     final error = _validate(endpoint: endpoint, model: model);
     if (error != null) {
-      _showError(error);
+      _showError(_localizeError(AppLocalizations.of(context), error));
       return;
     }
 
@@ -317,6 +317,24 @@ class _ModelConfigPageState extends State<ModelConfigPage> {
   }
 }
 
+String _localizeError(AppLocalizations? l10n, String error) {
+  switch (error) {
+    case 'Invalid endpoint URL (e.g. https://api.example.com/v1)':
+      return l10n?.invalidEndpointUrl ?? error;
+    case 'Invalid model name (letters, digits, dot, dash, underscore only)':
+      return l10n?.invalidModelName ?? error;
+    case 'Invalid proxy host (no spaces allowed)':
+      return l10n?.invalidProxyHostSpaces ?? error;
+    case 'Invalid proxy host (host name only, no path)':
+      return l10n?.invalidProxyHostPath ?? error;
+    case 'Invalid proxy port (1-65535)':
+      return l10n?.invalidProxyPort ?? error;
+    case 'Proxy host is required when a port is set':
+      return l10n?.proxyHostRequired ?? error;
+  }
+  return error;
+}
+
 class ProxySettingsPage extends StatefulWidget {
   const ProxySettingsPage({super.key});
 
@@ -365,7 +383,7 @@ class _ProxySettingsPageState extends State<ProxySettingsPage> {
     final normalized = host.replaceFirst(RegExp(r'^https?://'), '');
     final error = _validate(host: normalized, port: port);
     if (error != null) {
-      _showError(error);
+      _showError(_localizeError(AppLocalizations.of(context), error));
       return;
     }
 

@@ -161,7 +161,38 @@ class AppLocalizationsHi extends AppLocalizations {
   String get echoPrefix => 'Echo';
 
   @override
+  String get endpointUrl => 'Endpoint URL';
+
+  @override
+  String get enterExportPath => 'Enter export path (.zip)';
+
+  @override
+  String get enterPluginPackagePath => 'Enter plugin package (.zip) path';
+
+  @override
   String get errorPrefix => 'त्रुटि';
+
+  @override
+  String get exportAction => 'Export';
+
+  @override
+  String exportPluginFailed(Object error) {
+    return 'Export failed: $error';
+  }
+
+  @override
+  String exportPluginSuccess(Object path) {
+    return 'Exported to $path';
+  }
+
+  @override
+  String get exportHistory => 'Export';
+
+  @override
+  String get exportHistoryFailed => 'Export failed';
+
+  @override
+  String get exportNoSessions => 'No sessions to export';
 
   @override
   String get hintText => 'अपनी इच्छित डिज़ाइन कार्रवाई का वर्णन करें...';
@@ -171,6 +202,19 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get historyList => 'History';
+
+  @override
+  String get importAction => 'Import';
+
+  @override
+  String importFailed(Object error) {
+    return 'Import failed: $error';
+  }
+
+  @override
+  String importSuccess(Object name, Object count) {
+    return 'Imported \"$name\" with $count scripts';
+  }
 
   @override
   String get inProgress => 'प्रगति में';
@@ -199,6 +243,24 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get installingClaude => 'Installing...';
+
+  @override
+  String get invalidEndpointUrl =>
+      'Invalid endpoint URL (e.g. https://api.example.com/v1)';
+
+  @override
+  String get invalidModelName =>
+      'Invalid model name (letters, digits, dot, dash, underscore only)';
+
+  @override
+  String get invalidProxyHostPath =>
+      'Invalid proxy host (host name only, no path)';
+
+  @override
+  String get invalidProxyHostSpaces => 'Invalid proxy host (no spaces allowed)';
+
+  @override
+  String get invalidProxyPort => 'Invalid proxy port (1-65535)';
 
   @override
   String get language => 'भाषा';
@@ -238,6 +300,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get noOutput => '(कोई आउटपुट नहीं)';
 
   @override
+  String get noPluginsToExport => 'No installed plugins to export';
+
+  @override
   String get noTasks => 'कोई कार्य नहीं';
 
   @override
@@ -257,6 +322,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get proxyHost => 'प्रॉक्सी होस्ट';
 
   @override
+  String get proxyHostRequired => 'Proxy host is required when a port is set';
+
+  @override
   String get proxyPort => 'प्रॉक्सी पोर्ट';
 
   @override
@@ -264,6 +332,15 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get proxySettingsDesc => 'नेटवर्क प्रॉक्सी कॉन्फ़िगर करें';
+
+  @override
+  String get remoteConfigSaveFailed => 'Failed to save remote endpoint config';
+
+  @override
+  String get remoteConfigSaved => 'Remote endpoint config saved';
+
+  @override
+  String get remoteEndpoint => 'Remote Endpoint';
 
   @override
   String get retry => 'Retry';
@@ -276,6 +353,9 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get searchPlugins => 'प्लगइन खोजें...';
+
+  @override
+  String get selectPluginToExport => 'Select plugin to export';
 
   @override
   String get settings => 'सेटिंग्स';

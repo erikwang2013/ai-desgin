@@ -280,4 +280,44 @@ class SessionStore {
       return null;
     }
   }
+
+  /// 将全部会话（含消息记录）序列化为 JSON 文本，供历史导出使用。
+  /// 纯函数不访问数据库，便于单元测试。
+  static String exportSessionsToJson(List<Session> sessions) => jsonEncode({
+        'app': 'ai-design',
+        'exportedAt': DateTime.now().toIso8601String(),
+        'sessions': [
+          for (final s in sessions)
+            {
+              'id': s.id,
+              'domain': s.domain.name,
+              'softwareName': s.softwareName,
+              'createdAt': s.createdAt.toIso8601String(),
+              'context': {
+                'softwareState': s.context.softwareState,
+                'userPreferences': s.context.userPreferences,
+                'recentActions': s.context.recentActions,
+              },
+              'records': [
+                for (final r in s.history)
+                  {
+                    'id': r.id,
+                    'sessionId': r.sessionId,
+                    'task': r.task,
+                    'script': r.script,
+                    'scriptLanguage': r.scriptLanguage,
+                    'modelUsed': r.modelUsed,
+                    'status': r.status.name,
+                    'error': r.error,
+                    'artifacts': r.artifacts,
+                    'iterations': r.iterations,
+                    'maxIterations': r.maxIterations,
+                    'iterationLog': r.iterationLog,
+                    'createdAt': r.createdAt.toIso8601String(),
+                    'completedAt': r.completedAt?.toIso8601String(),
+                  },
+              ],
+            },
+        ],
+      });
 }

@@ -25,6 +25,75 @@
   "@copy": {
     "description": "Localized label for copy"
   },
+  "@endpointUrl": {
+    "description": "Localized label for endpointUrl"
+  },
+  "@enterExportPath": {
+    "description": "Localized label for enterExportPath"
+  },
+  "@enterPluginPackagePath": {
+    "description": "Localized label for enterPluginPackagePath"
+  },
+  "@exportAction": {
+    "description": "Localized label for exportAction"
+  },
+  "@exportPluginFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "@exportPluginSuccess": {
+    "placeholders": {
+      "path": {}
+    }
+  },
+  "@importAction": {
+    "description": "Localized label for importAction"
+  },
+  "@importFailed": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "@importSuccess": {
+    "placeholders": {
+      "name": {},
+      "count": {}
+    }
+  },
+  "@invalidEndpointUrl": {
+    "description": "Localized label for invalidEndpointUrl"
+  },
+  "@invalidModelName": {
+    "description": "Localized label for invalidModelName"
+  },
+  "@invalidProxyHostPath": {
+    "description": "Localized label for invalidProxyHostPath"
+  },
+  "@invalidProxyHostSpaces": {
+    "description": "Localized label for invalidProxyHostSpaces"
+  },
+  "@invalidProxyPort": {
+    "description": "Localized label for invalidProxyPort"
+  },
+  "@noPluginsToExport": {
+    "description": "Localized label for noPluginsToExport"
+  },
+  "@proxyHostRequired": {
+    "description": "Localized label for proxyHostRequired"
+  },
+  "@remoteConfigSaveFailed": {
+    "description": "Localized label for remoteConfigSaveFailed"
+  },
+  "@remoteConfigSaved": {
+    "description": "Localized label for remoteConfigSaved"
+  },
+  "@remoteEndpoint": {
+    "description": "Localized label for remoteEndpoint"
+  },
+  "@selectPluginToExport": {
+    "description": "Localized label for selectPluginToExport"
+  },
   "@installSuccess": {
     "placeholders": {
       "name": {}
@@ -93,10 +162,22 @@
   "disconnected": "未连接",
   "done": "完成",
   "echoPrefix": "Echo",
+  "endpointUrl": "端点 URL",
+  "enterExportPath": "输入导出路径 (.zip)",
+  "enterPluginPackagePath": "输入插件包 (.zip) 路径",
   "errorPrefix": "错误",
+  "exportAction": "导出",
+  "exportHistory": "导出",
+  "exportHistoryFailed": "导出失败",
+  "exportNoSessions": "暂无会话可导出",
+  "exportPluginFailed": "导出失败：{error}",
+  "exportPluginSuccess": "已导出至 {path}",
   "hintText": "描述你想要的设计操作...",
   "history": "历史",
   "historyList": "历史会话",
+  "importAction": "导入",
+  "importFailed": "导入失败：{error}",
+  "importSuccess": "已导入 \"{name}\"，共 {count} 个脚本",
   "inProgress": "进行中",
   "install": "安装",
   "installClaude": "安装 Claude Code 2.1.143",
@@ -105,6 +186,11 @@
   "installed": "已安装 ({count})",
   "installedPlugins": "已安装插件",
   "installingClaude": "正在安装…",
+  "invalidEndpointUrl": "无效的端点 URL（例如 https://api.example.com/v1）",
+  "invalidModelName": "无效的模型名称（仅限字母、数字、点、短横线、下划线）",
+  "invalidProxyHostPath": "无效的代理主机（仅主机名，不含路径）",
+  "invalidProxyHostSpaces": "无效的代理主机（不允许空格）",
+  "invalidProxyPort": "无效的代理端口（1-65535）",
   "language": "语言",
   "languageInstruction": "请使用中文回复。",
   "manage": "管理",
@@ -117,19 +203,25 @@
   "noHistory": "暂无历史会话",
   "noHistoryHint": "完成任务后会话将显示在这里",
   "noOutput": "(无输出)",
+  "noPluginsToExport": "没有已安装的插件可导出",
   "noTasks": "暂无任务",
   "noTasksHint": "在对话面板中输入设计需求，任务将显示在这里",
   "ok": "确定",
   "pluginMarket": "插件市场",
   "pluginMarketDesc": "浏览和安装插件",
   "proxyHost": "代理主机",
+  "proxyHostRequired": "设置端口时必须填写代理主机",
   "proxyPort": "代理端口",
   "proxySettings": "代理设置",
   "proxySettingsDesc": "配置网络代理",
+  "remoteConfigSaveFailed": "保存远程端点配置失败",
+  "remoteConfigSaved": "远程端点配置已保存",
+  "remoteEndpoint": "远程端点",
   "retry": "重试",
   "save": "保存",
   "saveSuccess": "保存成功",
   "searchPlugins": "搜索插件...",
+  "selectPluginToExport": "选择要导出的插件",
   "settings": "设置",
   "tabChat": "对话",
   "tabHistory": "历史",
