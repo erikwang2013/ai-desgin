@@ -80,6 +80,24 @@ class AppLocalizationsZh extends AppLocalizations {
   String get cancel => '取消';
 
   @override
+  String get categoryAd => '广告设计';
+
+  @override
+  String get categoryArch => '建筑设计';
+
+  @override
+  String get categoryIndustrial => '工业设计';
+
+  @override
+  String get categoryInterior => '装修设计';
+
+  @override
+  String get categoryThreeD => '3D 设计';
+
+  @override
+  String get categoryWeb => 'Web 设计';
+
+  @override
   String get claudeInstallFailed => '安装失败，请检查 npm 环境';
 
   @override
@@ -191,6 +209,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get manualExecute => '手动执行';
+
+  @override
+  String get rustConnected => 'Rust 内核已连接 · 注册表来自 Rust';
+
+  @override
+  String get rustDisconnected => 'Rust 内核未连接 · 使用 Dart 内置注册表';
 
   @override
   String get modelConfig => '模型配置';

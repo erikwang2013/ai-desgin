@@ -484,7 +484,11 @@ void main() {
       await orchestrator.submitTask(domain: DesignCategory.web, softwareName: 'echo', task: 'prune $i');
     }
     orchestrator.pruneTasks(keep: 3);
-    expect(orchestrator.activeTaskCount, greaterThanOrEqualTo(0));
+    final remaining = orchestrator.tasks.map((t) => t.task).toList();
+    expect(remaining, hasLength(3));
+    expect(remaining, isNot(contains('prune 0')));
+    expect(remaining, isNot(contains('prune 1')));
+    expect(remaining, containsAll(['prune 2', 'prune 3', 'prune 4']));
   });
 
   test('onProgress reports generating/executing/verifying stages in order', () async {

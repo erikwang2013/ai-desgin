@@ -1,41 +1,121 @@
 {
   "ar": [
+    "categoryAd",
+    "categoryArch",
+    "categoryIndustrial",
+    "categoryInterior",
+    "categoryThreeD",
+    "categoryWeb",
+    "rustConnected",
+    "rustDisconnected",
     "retry"
   ],
 
   "de": [
+    "categoryAd",
+    "categoryArch",
+    "categoryIndustrial",
+    "categoryInterior",
+    "categoryThreeD",
+    "categoryWeb",
+    "rustConnected",
+    "rustDisconnected",
     "retry"
   ],
 
   "es": [
+    "categoryAd",
+    "categoryArch",
+    "categoryIndustrial",
+    "categoryInterior",
+    "categoryThreeD",
+    "categoryWeb",
+    "rustConnected",
+    "rustDisconnected",
     "retry"
   ],
 
   "fa": [
+    "categoryAd",
+    "categoryArch",
+    "categoryIndustrial",
+    "categoryInterior",
+    "categoryThreeD",
+    "categoryWeb",
+    "rustConnected",
+    "rustDisconnected",
     "retry"
   ],
 
   "fil": [
+    "categoryAd",
+    "categoryArch",
+    "categoryIndustrial",
+    "categoryInterior",
+    "categoryThreeD",
+    "categoryWeb",
+    "rustConnected",
+    "rustDisconnected",
     "retry"
   ],
 
   "fr": [
+    "categoryAd",
+    "categoryArch",
+    "categoryIndustrial",
+    "categoryInterior",
+    "categoryThreeD",
+    "categoryWeb",
+    "rustConnected",
+    "rustDisconnected",
     "retry"
   ],
 
   "hi": [
+    "categoryAd",
+    "categoryArch",
+    "categoryIndustrial",
+    "categoryInterior",
+    "categoryThreeD",
+    "categoryWeb",
+    "rustConnected",
+    "rustDisconnected",
     "retry"
   ],
 
   "ja": [
+    "categoryAd",
+    "categoryArch",
+    "categoryIndustrial",
+    "categoryInterior",
+    "categoryThreeD",
+    "categoryWeb",
+    "rustConnected",
+    "rustDisconnected",
     "retry"
   ],
 
   "ko": [
+    "categoryAd",
+    "categoryArch",
+    "categoryIndustrial",
+    "categoryInterior",
+    "categoryThreeD",
+    "categoryWeb",
+    "rustConnected",
+    "rustDisconnected",
     "retry"
   ],
 
   "ru": [
+    "categoryAd",
+    "categoryArch",
+    "categoryIndustrial",
+    "categoryInterior",
+    "categoryThreeD",
+    "categoryWeb",
+    "rustConnected",
+    "rustDisconnected",
     "retry"
   ]
 }

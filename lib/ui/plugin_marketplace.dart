@@ -8,6 +8,7 @@ import '../core/plugin_manager.dart';
 import '../core/version.dart';
 import '../core/builtin_plugins.dart';
 import '../plugin_sdk/design_plugin.dart';
+import 'category_labels.dart';
 
 class PluginInfo {
   final String id;
@@ -65,7 +66,16 @@ class _PluginMarketplaceState extends State<PluginMarketplace> {
       final prefs = await SharedPreferences.getInstance();
       final ids = prefs.getStringList(_prefsKey) ?? const [];
       for (final id in ids) {
-        final existing = widget.pluginManager.get(id);
+        var existing = widget.pluginManager.get(id);
+        if (existing == null) {
+          // 外部插件重启后包目录仍在磁盘：从清单重建，保证卸载列表与重装可用。
+          final dir = widget.pluginManager.externalPackageDir(id);
+          final manifest =
+              dir == null ? null : PluginManager.readExternalManifest(dir);
+          if (dir != null && manifest != null) {
+            existing = ExternalScriptPlugin(manifest: manifest, packageDir: dir);
+          }
+        }
         if (existing != null) {
           _removedPlugins[id] = existing;
           widget.pluginManager.unregister(id);
@@ -343,7 +353,10 @@ class _PluginMarketplaceState extends State<PluginMarketplace> {
               color: Colors.grey.shade200,
               borderRadius: BorderRadius.circular(4),
             ),
-            child: Text(plugin.category, style: TextStyle(fontSize: 10, color: Colors.grey.shade700)),
+            child: Text(
+              categoryFromString(plugin.category).localizedLabel(l10n),
+              style: TextStyle(fontSize: 10, color: Colors.grey.shade700),
+            ),
           ),
         ],
       ),

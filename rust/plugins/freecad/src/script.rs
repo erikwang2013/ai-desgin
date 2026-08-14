@@ -2,7 +2,7 @@ use ai_design_core::{proc::read_lossy, ScriptResult};
 use std::io::Write;
 use std::process::{Child, Command, ExitStatus, Stdio};
 use std::sync::mpsc;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 const EXEC_TIMEOUT: Duration = Duration::from_secs(120);
 
@@ -22,7 +22,10 @@ fn kill_tree(child: &mut Child) {
     let _ = child.kill();
 }
 
-/// Collect a child's stdout/stderr on a reader thread and wait with a timeout.
+/// Collect a child's stdout/stderr on separate reader threads and wait with a
+/// timeout. The two streams are drained concurrently: sequential reads would
+/// deadlock when the child fills one pipe (e.g. 64KB stderr) while its stdout
+/// pipe stays open, stalling the whole script until a 120s false timeout.
 /// On timeout the child is killed so a hung FreeCAD cannot block forever.
 fn wait_with_timeout(mut child: Child) -> Result<(String, String, ExitStatus), ScriptResult> {
     let stdout = child
@@ -33,28 +36,54 @@ fn wait_with_timeout(mut child: Child) -> Result<(String, String, ExitStatus), S
         .stderr
         .take()
         .ok_or_else(|| ScriptResult::failure("Failed to open FreeCAD stderr".into()))?;
-    let (tx, rx) = mpsc::channel::<(Result<String, String>, Result<String, String>)>();
-    let handle = std::thread::spawn(move || {
-        let out = read_lossy(stdout);
-        let err = read_lossy(stderr);
-        let _ = tx.send((out, err));
-    });
-
-    let (stdout_text, stderr_text) = match rx.recv_timeout(EXEC_TIMEOUT) {
-        Ok((Ok(out), Ok(err))) => (out, err),
-        Ok((Err(e), _)) | Ok((_, Err(e))) => {
-            kill_tree(&mut child);
-            let _ = handle.join();
-            return Err(ScriptResult::failure(e));
-        }
-        Err(_) => {
-            kill_tree(&mut child);
-            let _ = handle.join();
-            return Err(ScriptResult::failure(
-                "FreeCAD 脚本执行超时（120s），已终止进程".into(),
-            ));
-        }
+    let (tx, rx) = mpsc::channel::<(bool, Result<String, String>)>();
+    let out_handle = {
+        let tx = tx.clone();
+        std::thread::spawn(move || {
+            let _ = tx.send((true, read_lossy(stdout)));
+        })
     };
+    let err_handle = {
+        let tx = tx.clone();
+        std::thread::spawn(move || {
+            let _ = tx.send((false, read_lossy(stderr)));
+        })
+    };
+    drop(tx);
+
+    let deadline = Instant::now() + EXEC_TIMEOUT;
+    let mut stdout_text = String::new();
+    let mut stderr_text = String::new();
+    let mut received = 0;
+    while received < 2 {
+        match rx.recv_timeout(deadline.saturating_duration_since(Instant::now())) {
+            Ok((is_stdout, res)) => {
+                let text = match res {
+                    Ok(t) => t,
+                    Err(e) => {
+                        kill_tree(&mut child);
+                        let _ = out_handle.join();
+                        let _ = err_handle.join();
+                        return Err(ScriptResult::failure(e));
+                    }
+                };
+                if is_stdout {
+                    stdout_text = text;
+                } else {
+                    stderr_text = text;
+                }
+                received += 1;
+            }
+            Err(_) => {
+                kill_tree(&mut child);
+                let _ = out_handle.join();
+                let _ = err_handle.join();
+                return Err(ScriptResult::failure(
+                    "FreeCAD 脚本执行超时（120s），已终止进程".into(),
+                ));
+            }
+        }
+    }
     let status = child
         .wait()
         .map_err(|e| ScriptResult::failure(format!("FreeCAD wait error: {e}")))?;

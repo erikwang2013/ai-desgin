@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'l10n/app_localizations.dart';
@@ -145,6 +146,12 @@ class _MainShellState extends State<_MainShell> {
     } catch (_) {
       // No persistence available; all plugins default to installed
     }
+
+    // 外部导入的插件跨重启恢复注册（市场卸载的仍由下方 uninstalled 过滤移除）。
+    try {
+      final supportDir = await getApplicationSupportDirectory();
+      _pluginManager.restoreExternalPlugins(supportDir.path);
+    } catch (_) {}
 
     // create() 已注册 Rust 权威源（或 Dart 回退）的全部插件，这里只做卸载过滤。
     for (final p in _pluginManager.getAll()) {

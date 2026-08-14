@@ -5,6 +5,7 @@ import '../core/plugin_manager.dart';
 import '../core/local_script_executor.dart';
 import '../core/builtin_plugins.dart';
 import '../plugin_sdk/design_plugin.dart';
+import 'category_labels.dart';
 import 'plugin_marketplace.dart';
 
 class SoftwarePanel extends StatefulWidget {
@@ -76,8 +77,8 @@ class _SoftwarePanelState extends State<SoftwarePanel> {
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
           child: Text(
             widget.pluginManager.rustConnected
-                ? 'Rust 内核已连接 · 注册表来自 Rust'
-                : 'Rust 内核未连接 · 使用 Dart 内置注册表',
+                ? (l10n?.rustConnected ?? 'Rust core connected · registry from Rust')
+                : (l10n?.rustDisconnected ?? 'Rust core offline · using built-in Dart registry'),
             style: TextStyle(
               fontSize: 11,
               color: widget.pluginManager.rustConnected
@@ -106,7 +107,7 @@ class _SoftwarePanelState extends State<SoftwarePanel> {
                 Padding(
                   padding: const EdgeInsets.only(top: 12, bottom: 4),
                   child: Text(
-                    '${category.label} (${list.length})',
+                    '${category.localizedLabel(l10n)} (${list.length})',
                     style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.grey),
                   ),
                 ),

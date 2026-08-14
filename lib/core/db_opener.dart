@@ -20,7 +20,16 @@ Future<String> _loadOrCreatePassword(String dir) async {
       final saved = data['password'] as String?;
       if (saved != null && saved.isNotEmpty) return saved;
     } catch (_) {
-      // 损坏的 auth 文件按不存在处理，重新生成。
+      // 损坏的 auth 文件备份为独立文件再重新生成：旧文件可能仍包含原密钥，
+      // 直接覆盖会使旧库永久不可恢复。
+      try {
+        final backup = File(
+            '$dir/$_authFileName.corrupt-${DateTime.now().millisecondsSinceEpoch}');
+        file.renameSync(backup.path);
+        debugPrint('Corrupt auth file backed up to ${backup.path}');
+      } catch (e) {
+        debugPrint('Failed to back up corrupt auth file: $e');
+      }
     }
   }
   final rng = Random.secure();
@@ -54,6 +63,17 @@ void _migrate(Database db) {
   }
 }
 
+/// 用指定 key 打开库后立即校验：SQLCipher 的 PRAGMA key 延迟生效，
+/// 错误密钥要到首次查询才报错，这里显式探测，避免把失败掩盖到后续操作。
+bool _verifyKey(Database db) {
+  try {
+    db.select('SELECT count(*) FROM sqlite_master');
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
 /// 打开 SQLCipher 加密的会话数据库：首次生成随机密码写入本地 auth 文件。
 /// 加密不可用（例如未启用 SQLCipher 构建）时回退明文打开，保证功能不回归。
 Future<Database?> openEncryptedSessionDb() async {
@@ -64,6 +84,13 @@ Future<Database?> openEncryptedSessionDb() async {
     final password = await _loadOrCreatePassword(supportDir.path);
     final db = sqlite3.open('${docDir.path}/$_dbFileName');
     db.execute("PRAGMA key = '$password'");
+    if (!_verifyKey(db)) {
+      db.close();
+      // 密钥不匹配（库可能是明文或旧密钥）：保留 auth 文件供手动恢复，
+      // 不静默覆盖密钥，也不创建空明文库掩盖问题。
+      debugPrint('Session DB key mismatch: auth file kept for recovery');
+      return null;
+    }
     _migrate(db);
     return db;
   } catch (e) {

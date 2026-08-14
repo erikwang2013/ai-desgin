@@ -79,6 +79,44 @@ class PluginManager {
   /// 外部插件包的磁盘目录；内置插件返回 null。
   String? externalPackageDir(String id) => _externalPackageDirs[id];
 
+  /// 启动时扫描外部插件包目录并重新注册，导入的插件跨重启保持可用。
+  /// 目录损坏/清单缺失的包跳过；返回恢复数量。
+  int restoreExternalPlugins(String supportDir) {
+    final root = Directory(supportDir);
+    if (!root.existsSync()) return 0;
+    var restored = 0;
+    for (final entity in root.listSync(followLinks: false)) {
+      if (entity is! Directory) continue;
+      try {
+        final manifest = readExternalManifest(entity.path);
+        if (manifest == null || manifest.id.trim().isEmpty) continue;
+        if (_plugins.containsKey(manifest.id)) continue;
+        registerExternal(manifest, entity.path);
+        restored++;
+      } catch (e) {
+        dev.log('Skip external package ${entity.path}: $e', name: 'PluginManager');
+      }
+    }
+    return restored;
+  }
+
+  /// 从包目录读取外部插件清单；目录缺失或清单损坏返回 null。
+  /// plugin.json 优先，其次 pubspec.yaml。
+  static ExternalPluginManifest? readExternalManifest(String packageDir) {
+    try {
+      final pluginJson = File(p.join(packageDir, 'plugin.json'));
+      if (pluginJson.existsSync()) {
+        return ExternalPluginManifest.fromJson(
+            jsonDecode(pluginJson.readAsStringSync()) as Map<String, dynamic>);
+      }
+      final pubspec = File(p.join(packageDir, 'pubspec.yaml'));
+      if (pubspec.existsSync()) {
+        return ExternalPluginManifest.fromYaml(pubspec.readAsStringSync());
+      }
+    } catch (_) {}
+    return null;
+  }
+
   Future<void> initializeAll(PluginContext ctx) async {
     // 单个插件初始化失败不阻止其余插件（快速失败会让整批停摆）。
     await Future.wait(_plugins.values.map((p) async {

@@ -59,8 +59,10 @@ class GeminiBackend implements AgentBackend {
       state: state,
       scriptLanguage: scriptLanguage ?? 'javascript',
     ));
+    final taskKey = key ?? 'default';
+    Process? process;
     try {
-      final process = await Process.start(
+      process = await Process.start(
         'gemini',
         ['-p', prompt],
         environment: {
@@ -68,7 +70,6 @@ class GeminiBackend implements AgentBackend {
           if (apiKey != null && apiKey!.isNotEmpty) 'GEMINI_API_KEY': apiKey!,
         },
       );
-      final taskKey = key ?? 'default';
       _processes.remove(taskKey)?.kill();
       _processes[taskKey] = process;
 
@@ -80,7 +81,10 @@ class GeminiBackend implements AgentBackend {
 
       final exitCode = await process.exitCode.timeout(timeout);
       final results = await Future.wait([stdoutFuture, stderrFuture]).timeout(timeout);
-      _processes.remove(taskKey);
+      // 同 key 可能已被新任务替换，只移除自己注册的实例。
+      if (identical(_processes[taskKey], process)) {
+        _processes.remove(taskKey);
+      }
       final output = decodeConsoleOutput(results[0]).trim();
       final errors = decodeConsoleOutput(results[1]).trim();
 
@@ -99,7 +103,13 @@ class GeminiBackend implements AgentBackend {
       }
       return CCResult.failure('No script found in Gemini output');
     } catch (e) {
-      _processes.remove(key ?? 'default')?.kill();
+      // 只清理自己注册的实例：同 key 已被替换时不误杀新任务。
+      if (identical(_processes[taskKey], process)) {
+        _processes.remove(taskKey);
+      }
+      if (process != null) {
+        await terminateProcess(process);
+      }
       _log.severe('Gemini execution failed: $e');
       return CCResult.failure('Gemini execution failed: $e');
     }

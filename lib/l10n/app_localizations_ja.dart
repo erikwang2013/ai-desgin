@@ -81,6 +81,24 @@ class AppLocalizationsJa extends AppLocalizations {
   String get cancel => 'キャンセル';
 
   @override
+  String get categoryAd => 'Advertising Design';
+
+  @override
+  String get categoryArch => 'Architecture';
+
+  @override
+  String get categoryIndustrial => 'Industrial Design';
+
+  @override
+  String get categoryInterior => 'Interior Design';
+
+  @override
+  String get categoryThreeD => '3D Design';
+
+  @override
+  String get categoryWeb => 'Web Design';
+
+  @override
   String get claudeInstallFailed => 'Install failed, check npm environment';
 
   @override
@@ -192,6 +210,13 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get manualExecute => '手動';
+
+  @override
+  String get rustConnected => 'Rust core connected · registry from Rust';
+
+  @override
+  String get rustDisconnected =>
+      'Rust core offline · using built-in Dart registry';
 
   @override
   String get modelConfig => 'モデル設定';

@@ -59,25 +59,26 @@ class RemoteBackend implements AgentBackend {
     if (_cancelled[cancelKey] ?? false) {
       return CCResult.failure('Remote endpoint cancelled');
     }
-    final uri = Uri.parse(_chatCompletionsUrl(endpointUrl));
-    if (uri.scheme != 'https' && !_isLoopback(uri.host)) {
-      return CCResult.failure('远程端点要求 HTTPS');
-    }
-    final prompt = buildCodeBlockPrompt(
-      task: task,
-      software: software,
-      capabilities: capabilities,
-      state: state,
-      scriptLanguage: scriptLanguage ?? 'javascript',
-    );
-    final body = {
-      if (model != null && model.isNotEmpty) 'model': model,
-      'messages': [
-        {'role': 'system', 'content': prompt},
-        {'role': 'user', 'content': task},
-      ],
-    };
+    // Uri 解析与 HTTPS 校验放入 try：非法 URL 与其余请求失败统一走 failure 路径。
     try {
+      final uri = Uri.parse(_chatCompletionsUrl(endpointUrl));
+      if (uri.scheme != 'https' && !_isLoopback(uri.host)) {
+        return CCResult.failure('远程端点要求 HTTPS');
+      }
+      final prompt = buildCodeBlockPrompt(
+        task: task,
+        software: software,
+        capabilities: capabilities,
+        state: state,
+        scriptLanguage: scriptLanguage ?? 'javascript',
+      );
+      final body = {
+        if (model != null && model.isNotEmpty) 'model': model,
+        'messages': [
+          {'role': 'system', 'content': prompt},
+          {'role': 'user', 'content': task},
+        ],
+      };
       final response = await _client
           .post(
             uri,
@@ -111,6 +112,9 @@ class RemoteBackend implements AgentBackend {
       );
     } catch (e) {
       return CCResult.failure('Remote endpoint request failed: $e');
+    } finally {
+      // 取消标记只对本次请求生效，请求结束后清除，不影响后续新任务。
+      _cancelled.remove(cancelKey);
     }
   }
 

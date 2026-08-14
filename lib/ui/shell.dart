@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../models/session.dart';
+import 'category_labels.dart';
 import '../core/plugin_manager.dart';
 import '../core/model_router.dart';
 import '../core/locale_provider.dart';
@@ -142,9 +143,10 @@ class _AppShellState extends State<AppShell> {
   Widget _buildDomainTile((DesignCategory, IconData) domain) {
     final (cat, icon) = domain;
     final isSelected = cat == widget.selectedDomain;
+    final l10n = AppLocalizations.of(context);
     return ListTile(
       leading: Icon(icon, size: 20),
-      title: Text(cat.label, style: const TextStyle(fontSize: 14)),
+      title: Text(cat.localizedLabel(l10n), style: const TextStyle(fontSize: 14)),
       selected: isSelected,
       dense: true,
       onTap: () => widget.onDomainChanged?.call(cat),

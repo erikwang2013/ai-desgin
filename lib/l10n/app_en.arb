@@ -68,6 +68,30 @@
   "backendOpencode": "OpenCode",
   "backendReasonix": "Reasonix",
   "cancel": "Cancel",
+  "@categoryAd": {
+    "description": "Label for advertising design category"
+  },
+  "categoryAd": "Advertising Design",
+  "@categoryArch": {
+    "description": "Label for architecture category"
+  },
+  "categoryArch": "Architecture",
+  "@categoryIndustrial": {
+    "description": "Label for industrial design category"
+  },
+  "categoryIndustrial": "Industrial Design",
+  "@categoryInterior": {
+    "description": "Label for interior design category"
+  },
+  "categoryInterior": "Interior Design",
+  "@categoryThreeD": {
+    "description": "Label for 3D design category"
+  },
+  "categoryThreeD": "3D Design",
+  "@categoryWeb": {
+    "description": "Label for web design category"
+  },
+  "categoryWeb": "Web Design",
   "claudeInstallFailed": "Install failed, check npm environment",
   "claudeUpToDate": "Up to date",
   "claudeVersion": "Claude Code Version",
@@ -103,6 +127,14 @@
   "languageInstruction": "Please respond in English.",
   "manage": "Manage",
   "manualExecute": "Manual",
+  "@rustConnected": {
+    "description": "Status line when Rust core registry is connected"
+  },
+  "rustConnected": "Rust core connected · registry from Rust",
+  "@rustDisconnected": {
+    "description": "Status line when Rust core registry is offline"
+  },
+  "rustDisconnected": "Rust core offline · using built-in Dart registry",
   "modelConfig": "Model Config",
   "modelConfigDesc": "Manage API endpoint and keys",
   "navigation": "Navigation",

@@ -42,6 +42,21 @@ class CCResult {
   }
 }
 
+/// 终止进程：kill（SIGTERM）后等待退出；POSIX 下 5 秒未退出升级 SIGKILL。
+/// Windows 的 kill() 本身即 TerminateProcess（强杀），无需升级。
+Future<void> terminateProcess(Process process) async {
+  process.kill();
+  if (Platform.isWindows) {
+    await process.exitCode.catchError((_) => -1);
+    return;
+  }
+  try {
+    await process.exitCode.timeout(const Duration(seconds: 5));
+  } on TimeoutException {
+    process.kill(ProcessSignal.sigkill);
+  }
+}
+
 class CCRunner implements AgentBackend {
   /// 内置 Claude Code 固定版本（npm 安装目标）。
   static const pinnedClaudeVersion = '2.1.143';
@@ -169,8 +184,10 @@ class CCRunner implements AgentBackend {
       scriptLanguage: scriptLanguage ?? 'javascript',
     );
 
+    final taskKey = key ?? 'default';
+    Process? process;
     try {
-      final process = await Process.start(
+      process = await Process.start(
         _cliPath,
         ['--print', '--output-format', 'json'],
         environment: {
@@ -181,7 +198,6 @@ class CCRunner implements AgentBackend {
           ...?proxyEnvironment,
         },
       );
-      final taskKey = key ?? 'default';
       _processes.remove(taskKey)?.kill();
       _processes[taskKey] = process;
 
@@ -200,7 +216,11 @@ class CCRunner implements AgentBackend {
 
       final exitCode = await process.exitCode.timeout(timeout);
       final results = await Future.wait([stdoutFuture, stderrFuture]).timeout(timeout);
-      _processes.remove(taskKey);
+      // 同 key 可能已被新任务替换（replace 语义），只移除自己注册的实例，
+      // 避免旧任务收尾时误删新任务的进程，导致 cancel 失效。
+      if (identical(_processes[taskKey], process)) {
+        _processes.remove(taskKey);
+      }
       final output = decodeConsoleOutput(results[0]);
       final errors = decodeConsoleOutput(results[1]);
 
@@ -248,8 +268,14 @@ class CCRunner implements AgentBackend {
 
       return CCResult.failure('No output from Claude Code');
     } catch (e) {
-      // Kill the subprocess on timeout/error to avoid orphaned Claude CLI processes
-      _processes.remove(key ?? 'default')?.kill();
+      // Kill the subprocess on timeout/error to avoid orphaned Claude CLI processes。
+      // 只清理自己注册的实例：同 key 已被替换时不误杀新任务。
+      if (identical(_processes[taskKey], process)) {
+        _processes.remove(taskKey);
+      }
+      if (process != null) {
+        await terminateProcess(process);
+      }
       _log.severe('Claude Code execution failed: $e');
       return CCResult.failure('Claude Code execution failed: $e');
     }

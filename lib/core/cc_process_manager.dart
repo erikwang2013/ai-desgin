@@ -35,7 +35,10 @@ class CCProcessManager {
   final Map<String, CCSession> _sessions = {};
   final Map<String, List<String>> _taskKeysBySession = {};
   Timer? _evictionTimer;
-  AgentBackend? _runner;
+
+  /// 每个 session 使用的 runner 实例：取消/驱逐时只 cancel 该 session 的 runner，
+  /// 避免多 session 各自换 runner 时只保留了最后一份引用。
+  final Map<String, AgentBackend> _runnersBySession = {};
 
   CCProcessManager({this.maxProcesses = 3, this.idleTimeoutSeconds = 300});
 
@@ -56,13 +59,15 @@ class CCProcessManager {
   void dispose() {
     _evictionTimer?.cancel();
     _evictionTimer = null;
-    for (final keys in _taskKeysBySession.values) {
-      for (final key in keys) {
-        _runner?.cancel(key: key);
+    for (final entry in _taskKeysBySession.entries) {
+      final runner = _runnersBySession[entry.key];
+      for (final key in entry.value) {
+        runner?.cancel(key: key);
       }
     }
     _taskKeysBySession.clear();
     _sessions.clear();
+    _runnersBySession.clear();
   }
 
   CCSession createSession({
@@ -96,6 +101,7 @@ class CCProcessManager {
 
   void closeSession(String sessionId) {
     _taskKeysBySession.remove(sessionId);
+    _runnersBySession.remove(sessionId);
     _sessions.remove(sessionId);
   }
 
@@ -142,7 +148,7 @@ class CCProcessManager {
     }
 
     final effectiveRunner = runner ?? CCRunner();
-    _runner = effectiveRunner;
+    _runnersBySession[sessionId] = effectiveRunner;
     if (taskKey != null) {
       _taskKeysBySession.putIfAbsent(sessionId, () => []).add(taskKey);
     }
@@ -193,9 +199,11 @@ class CCProcessManager {
   /// Remove a session and cancel any Claude processes still tracked for it.
   void _evictSession(String sessionId) {
     _log.info('Evicting session $sessionId (max sessions reached or idle timeout)');
+    final runner = _runnersBySession[sessionId];
     for (final key in _taskKeysBySession.remove(sessionId) ?? const <String>[]) {
-      _runner?.cancel(key: key);
+      runner?.cancel(key: key);
     }
+    _runnersBySession.remove(sessionId);
     _sessions.remove(sessionId);
   }
 }

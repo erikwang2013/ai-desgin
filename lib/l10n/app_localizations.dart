@@ -250,6 +250,42 @@ abstract class AppLocalizations {
   /// **'Cancel'**
   String get cancel;
 
+  /// Label for advertising design category
+  ///
+  /// In en, this message translates to:
+  /// **'Advertising Design'**
+  String get categoryAd;
+
+  /// Label for architecture category
+  ///
+  /// In en, this message translates to:
+  /// **'Architecture'**
+  String get categoryArch;
+
+  /// Label for industrial design category
+  ///
+  /// In en, this message translates to:
+  /// **'Industrial Design'**
+  String get categoryIndustrial;
+
+  /// Label for interior design category
+  ///
+  /// In en, this message translates to:
+  /// **'Interior Design'**
+  String get categoryInterior;
+
+  /// Label for 3D design category
+  ///
+  /// In en, this message translates to:
+  /// **'3D Design'**
+  String get categoryThreeD;
+
+  /// Label for web design category
+  ///
+  /// In en, this message translates to:
+  /// **'Web Design'**
+  String get categoryWeb;
+
   /// No description provided for @claudeInstallFailed.
   ///
   /// In en, this message translates to:
@@ -459,6 +495,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Manual'**
   String get manualExecute;
+
+  /// Status line when Rust core registry is connected
+  ///
+  /// In en, this message translates to:
+  /// **'Rust core connected · registry from Rust'**
+  String get rustConnected;
+
+  /// Status line when Rust core registry is offline
+  ///
+  /// In en, this message translates to:
+  /// **'Rust core offline · using built-in Dart registry'**
+  String get rustDisconnected;
 
   /// No description provided for @modelConfig.
   ///
