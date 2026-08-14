@@ -303,6 +303,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get searchNoResults => 'Нет совпадающих сессий';
 
   @override
+  String get deleteFailed => 'Не удалось удалить';
+
+  @override
+  String get exportMarkdown => 'Экспорт в Markdown';
+
+  @override
+  String get openFailed => 'Не удалось открыть';
+
+  @override
+  String get more => 'Ещё';
+
+  @override
   String get noOutput => '(нет вывода)';
 
   @override

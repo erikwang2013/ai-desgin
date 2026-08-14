@@ -303,6 +303,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get searchNoResults => 'لا توجد جلسات مطابقة';
 
   @override
+  String get deleteFailed => 'فشل الحذف';
+
+  @override
+  String get exportMarkdown => 'تصدير Markdown';
+
+  @override
+  String get openFailed => 'فشل الفتح';
+
+  @override
+  String get more => 'المزيد';
+
+  @override
   String get noOutput => '(لا يوجد مخرجات)';
 
   @override

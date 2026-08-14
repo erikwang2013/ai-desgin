@@ -302,6 +302,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String get searchNoResults => '一致するセッションがありません';
 
   @override
+  String get deleteFailed => '削除に失敗しました';
+
+  @override
+  String get exportMarkdown => 'Markdown でエクスポート';
+
+  @override
+  String get openFailed => '開けませんでした';
+
+  @override
+  String get more => 'その他';
+
+  @override
   String get noOutput => '(出力なし)';
 
   @override

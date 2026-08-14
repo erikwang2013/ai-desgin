@@ -303,6 +303,18 @@ class AppLocalizationsFa extends AppLocalizations {
   String get searchNoResults => 'جلسهای مطابقت ندارد';
 
   @override
+  String get deleteFailed => 'حذف ناموفق بود';
+
+  @override
+  String get exportMarkdown => 'خروجی Markdown';
+
+  @override
+  String get openFailed => 'باز کردن ناموفق بود';
+
+  @override
+  String get more => 'بیشتر';
+
+  @override
   String get noOutput => '(بدون خروجی)';
 
   @override

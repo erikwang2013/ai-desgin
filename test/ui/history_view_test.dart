@@ -260,7 +260,7 @@ void main() {
 
     await tester.tap(find.byIcon(Icons.more_vert));
     await tester.pumpAndSettle();
-    expect(find.text('导出 Markdown'), findsOneWidget);
+    expect(find.text('Export Markdown'), findsOneWidget);
   });
 
   group('buildSessionMarkdown', () {

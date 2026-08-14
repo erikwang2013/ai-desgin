@@ -303,6 +303,18 @@ class AppLocalizationsEs extends AppLocalizations {
   String get searchNoResults => 'Sin sesiones coincidentes';
 
   @override
+  String get deleteFailed => 'Error al eliminar';
+
+  @override
+  String get exportMarkdown => 'Exportar Markdown';
+
+  @override
+  String get openFailed => 'Error al abrir';
+
+  @override
+  String get more => 'Más';
+
+  @override
   String get noOutput => '(sin salida)';
 
   @override

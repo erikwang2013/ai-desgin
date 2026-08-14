@@ -302,6 +302,18 @@ class AppLocalizationsKo extends AppLocalizations {
   String get searchNoResults => '일치하는 세션이 없습니다';
 
   @override
+  String get deleteFailed => '삭제 실패';
+
+  @override
+  String get exportMarkdown => 'Markdown 내보내기';
+
+  @override
+  String get openFailed => '열기 실패';
+
+  @override
+  String get more => '더 보기';
+
+  @override
   String get noOutput => '(출력 없음)';
 
   @override

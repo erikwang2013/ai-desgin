@@ -303,6 +303,18 @@ class AppLocalizationsFil extends AppLocalizations {
   String get searchNoResults => 'Walang tumugmang session';
 
   @override
+  String get deleteFailed => 'Nabigong magtanggal';
+
+  @override
+  String get exportMarkdown => 'I-export ang Markdown';
+
+  @override
+  String get openFailed => 'Nabigong buksan';
+
+  @override
+  String get more => 'Higit pa';
+
+  @override
   String get noOutput => '(walang output)';
 
   @override

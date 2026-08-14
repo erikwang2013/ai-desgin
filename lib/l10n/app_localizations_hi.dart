@@ -303,6 +303,18 @@ class AppLocalizationsHi extends AppLocalizations {
   String get searchNoResults => 'कोई मेल खाता सत्र नहीं';
 
   @override
+  String get deleteFailed => 'हटाना विफल';
+
+  @override
+  String get exportMarkdown => 'Markdown निर्यात करें';
+
+  @override
+  String get openFailed => 'खोलना विफल';
+
+  @override
+  String get more => 'और';
+
+  @override
   String get noOutput => '(कोई आउटपुट नहीं)';
 
   @override

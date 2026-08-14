@@ -297,6 +297,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get searchNoResults => '无匹配会话';
 
   @override
+  String get deleteFailed => '删除失败';
+
+  @override
+  String get exportMarkdown => '导出 Markdown';
+
+  @override
+  String get openFailed => '打开失败';
+
+  @override
+  String get more => '更多';
+
+  @override
   String get noOutput => '(无输出)';
 
   @override

@@ -303,6 +303,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchNoResults => 'No matching sessions';
 
   @override
+  String get deleteFailed => 'Delete failed';
+
+  @override
+  String get exportMarkdown => 'Export Markdown';
+
+  @override
+  String get openFailed => 'Open failed';
+
+  @override
+  String get more => 'More';
+
+  @override
   String get noOutput => '(no output)';
 
   @override

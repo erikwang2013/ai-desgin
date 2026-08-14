@@ -269,8 +269,9 @@ class _ChatViewState extends State<ChatView> {
     }
     if (!mounted) return;
     if (!ok) {
+      final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: const Text('Open failed'),
+        content: Text(l10n?.openFailed ?? 'Open failed'),
         duration: const Duration(seconds: 2),
       ));
     }

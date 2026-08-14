@@ -112,6 +112,8 @@ String invokeMember(AppLocalizations l, String name) {
       return l.deleteAll;
     case 'deleteConfirm':
       return l.deleteConfirm;
+    case 'deleteFailed':
+      return l.deleteFailed;
     case 'designDomains':
       return l.designDomains;
     case 'disconnected':
@@ -134,6 +136,8 @@ String invokeMember(AppLocalizations l, String name) {
       return l.exportHistory;
     case 'exportHistoryFailed':
       return l.exportHistoryFailed;
+    case 'exportMarkdown':
+      return l.exportMarkdown;
     case 'exportNoSessions':
       return l.exportNoSessions;
     case 'hintText':
@@ -180,6 +184,8 @@ String invokeMember(AppLocalizations l, String name) {
       return l.modelConfig;
     case 'modelConfigDesc':
       return l.modelConfigDesc;
+    case 'more':
+      return l.more;
     case 'navigation':
       return l.navigation;
     case 'noHistory':
@@ -196,6 +202,8 @@ String invokeMember(AppLocalizations l, String name) {
       return l.noTasksHint;
     case 'ok':
       return l.ok;
+    case 'openFailed':
+      return l.openFailed;
     case 'pluginMarket':
       return l.pluginMarket;
     case 'pluginMarketDesc':

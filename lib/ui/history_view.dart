@@ -322,7 +322,7 @@ class HistoryViewState extends State<HistoryView> {
     if (!mounted) return;
     if (!deleted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Delete failed'),
+        content: Text(l10n?.deleteFailed ?? 'Delete failed'),
       ));
       return;
     }
@@ -484,12 +484,14 @@ class HistoryViewState extends State<HistoryView> {
                 children: [
                   PopupMenuButton<String>(
                     icon: const Icon(Icons.more_vert, size: 18),
-                    tooltip: 'More',
+                    tooltip: l10n?.more ?? 'More',
                     onSelected: (value) {
                       if (value == 'export_md') _exportSessionMarkdown(s);
                     },
-                    itemBuilder: (_) => const [
-                      PopupMenuItem(value: 'export_md', child: Text('导出 Markdown')),
+                    itemBuilder: (_) => [
+                      PopupMenuItem(
+                          value: 'export_md',
+                          child: Text(l10n?.exportMarkdown ?? 'Export Markdown')),
                     ],
                   ),
                   IconButton(

@@ -652,6 +652,30 @@ abstract class AppLocalizations {
   /// **'No matching sessions'**
   String get searchNoResults;
 
+  /// No description provided for @deleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete failed'**
+  String get deleteFailed;
+
+  /// No description provided for @exportMarkdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Markdown'**
+  String get exportMarkdown;
+
+  /// No description provided for @openFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Open failed'**
+  String get openFailed;
+
+  /// No description provided for @more.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get more;
+
   /// No description provided for @noOutput.
   ///
   /// In en, this message translates to:
