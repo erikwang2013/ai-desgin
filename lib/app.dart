@@ -110,6 +110,9 @@ class _MainShellState extends State<_MainShell> {
   /// 聊天一次只允许一个在途请求（_isLoading 期间输入禁用），单值足够。
   String? _activeTaskId;
 
+  /// 最近一次提交任务的产物路径：聊天面板异步取回渲染。
+  List<String> _lastArtifacts = const [];
+
   /// 供所有 RemoteBackend 复用的单例 client，避免切换后端时泄漏连接。
   final http.Client _httpClient = http.Client();
 
@@ -418,6 +421,7 @@ class _MainShellState extends State<_MainShell> {
     // 预置 pending 占位卡片，让生成/执行阶段的进度回调有归属。
     final taskId = const Uuid().v4();
     _activeTaskId = taskId;
+    _lastArtifacts = const [];
     _dashboardKey.currentState?.addTask(TaskItem(
       id: taskId,
       title: task,
@@ -446,6 +450,7 @@ class _MainShellState extends State<_MainShell> {
       script: result.script,
       artifacts: result.artifacts,
     ));
+    _lastArtifacts = result.artifacts;
 
     final session = _orchestrator.getCurrentSession(sw);
     if (session != null && _sessionStore != null) {
@@ -465,6 +470,9 @@ class _MainShellState extends State<_MainShell> {
     }
     return '❌ ${l10n?.taskFailed ?? 'Task failed'}: ${result.error ?? l10n?.unknownError ?? 'Unknown error'}';
   }
+
+  /// 聊天面板异步取产物：返回最近一次提交任务的路径，无产物时为空列表。
+  Future<List<String>> _lastTaskArtifacts(String task) async => _lastArtifacts;
 
   String _defaultSoftwareFor(DesignCategory domain) {
     return switch (domain) {
@@ -510,6 +518,7 @@ class _MainShellState extends State<_MainShell> {
           ChatView(
             onSubmit: _ready ? _onSubmit : null,
             onCancel: _ready ? _cancelActiveChatTask : null,
+            onArtifacts: _ready ? _lastTaskArtifacts : null,
             softwareOptions: _ready ? _buildSoftwareOptions() : [],
             selectedSoftware: _currentSoftware,
             onSoftwareChanged: _onSoftwareChanged,

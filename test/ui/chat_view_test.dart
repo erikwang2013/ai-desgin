@@ -73,4 +73,52 @@ void main() {
     );
     expect(stopButton.onPressed, isNull);
   });
+
+  testWidgets('assistant message renders image artifact inline', (tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: ChatView(
+        onSubmit: (_) async => 'Task completed',
+        onArtifacts: (_) async => ['/tmp/out/render.png'],
+      ),
+    ));
+    await tester.enterText(find.byType(TextField), 'render scene');
+    await tester.pump();
+    await tester.tap(find.byIcon(Icons.send));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Task completed'), findsOneWidget);
+    expect(find.byType(Image), findsOneWidget);
+  });
+
+  testWidgets('non-image artifact renders as file chip with its name', (tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: ChatView(
+        onSubmit: (_) async => 'Task completed',
+        onArtifacts: (_) async => ['/tmp/out/report.csv'],
+      ),
+    ));
+    await tester.enterText(find.byType(TextField), 'export report');
+    await tester.pump();
+    await tester.tap(find.byIcon(Icons.send));
+    await tester.pumpAndSettle();
+
+    expect(find.text('report.csv'), findsOneWidget);
+    expect(find.byType(Image), findsNothing);
+  });
+
+  testWidgets('onArtifacts failure is swallowed and message still shows', (tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: ChatView(
+        onSubmit: (_) async => 'Task completed',
+        onArtifacts: (_) async => throw Exception('boom'),
+      ),
+    ));
+    await tester.enterText(find.byType(TextField), 'render scene');
+    await tester.pump();
+    await tester.tap(find.byIcon(Icons.send));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Task completed'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }

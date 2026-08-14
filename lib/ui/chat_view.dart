@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../l10n/app_localizations.dart';
@@ -6,6 +8,8 @@ class ChatMessage {
   final String content;
   final bool isUser;
   final DateTime timestamp;
+  /// 任务产物文件路径；响应到达后由 onArtifacts 异步补充。
+  List<String> artifacts = const [];
 
   ChatMessage({required this.content, this.isUser = true}) : timestamp = DateTime.now();
 }
@@ -22,6 +26,8 @@ class ChatView extends StatefulWidget {
   final Future<String> Function(String message)? onSubmit;
   /// 加载中停止按钮的回调：中止在途请求（由外层接到取消链路）。
   final VoidCallback? onCancel;
+  /// 任务完成后取产物路径：异步补充到对应消息，失败静默忽略。
+  final Future<List<String>> Function(String message)? onArtifacts;
   final List<SoftwareOption> softwareOptions;
   final String selectedSoftware;
   final ValueChanged<String>? onSoftwareChanged;
@@ -31,6 +37,7 @@ class ChatView extends StatefulWidget {
     super.key,
     this.onSubmit,
     this.onCancel,
+    this.onArtifacts,
     this.softwareOptions = const [],
     this.selectedSoftware = '',
     this.onSoftwareChanged,
@@ -117,12 +124,21 @@ class _ChatViewState extends State<ChatView> {
       widget.onSubmit!(text).then((response) {
         // 请求在途时会话已切换（epoch 变化）：旧响应丢弃，不得追加进新会话。
         if (!mounted || widget.conversationEpoch != submittedEpoch) return;
+        late ChatMessage msg;
         setState(() {
-          _messages.add(ChatMessage(content: response, isUser: false));
+          msg = ChatMessage(content: response, isUser: false);
+          _messages.add(msg);
           _trimMessages();
           _isLoading = false;
         });
         _scrollToBottom();
+        // 产物路径异步补充：先显示文本，图片/文件随后渲染，失败不影响消息。
+        if (widget.onArtifacts != null) {
+          widget.onArtifacts!(text).then((paths) {
+            if (!mounted || widget.conversationEpoch != submittedEpoch) return;
+            setState(() => msg.artifacts = paths);
+          }).catchError((_) {});
+        }
       }).catchError((error) {
         if (!mounted || widget.conversationEpoch != submittedEpoch) return;
         final l10n = AppLocalizations.of(context);
@@ -204,6 +220,48 @@ class _ChatViewState extends State<ChatView> {
     );
   }
 
+  static const _imageExtensions = {'png', 'jpg', 'jpeg', 'webp', 'gif'};
+
+  bool _isImage(String path) {
+    final dot = path.lastIndexOf('.');
+    if (dot < 0 || dot == path.length - 1) return false;
+    return _imageExtensions.contains(path.substring(dot + 1).toLowerCase());
+  }
+
+  Widget _buildArtifact(String path) {
+    final name = path.split(RegExp(r'[/\\]')).last;
+    if (_isImage(path)) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(6),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 360, maxHeight: 240),
+          child: Image.file(
+            File(path),
+            fit: BoxFit.contain,
+            errorBuilder: (_, _, _) =>
+                _artifactFallback(Icons.broken_image, name),
+          ),
+        ),
+      );
+    }
+    return _artifactFallback(Icons.insert_drive_file, name);
+  }
+
+  Widget _artifactFallback(IconData icon, String name) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: Colors.grey),
+        const SizedBox(width: 4),
+        Flexible(
+          child: Text(name,
+              style: const TextStyle(fontSize: 12),
+              overflow: TextOverflow.ellipsis),
+        ),
+      ],
+    );
+  }
+
   Widget _buildMessage(ChatMessage msg) {
     final bubble = Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -215,7 +273,17 @@ class _ChatViewState extends State<ChatView> {
         borderRadius: BorderRadius.circular(12),
       ),
       constraints: const BoxConstraints(maxWidth: 400),
-      child: SelectableText(msg.content),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SelectableText(msg.content),
+          if (!msg.isUser && msg.artifacts.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            for (final path in msg.artifacts) _buildArtifact(path),
+          ],
+        ],
+      ),
     );
     if (!msg.isUser) {
       return Align(alignment: Alignment.centerLeft, child: bubble);
