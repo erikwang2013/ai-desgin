@@ -82,22 +82,22 @@ class AppLocalizationsAr extends AppLocalizations {
   String get cancel => 'إلغاء';
 
   @override
-  String get categoryAd => 'Advertising Design';
+  String get categoryAd => 'تصميم الإعلانات';
 
   @override
-  String get categoryArch => 'Architecture';
+  String get categoryArch => 'العمارة';
 
   @override
-  String get categoryIndustrial => 'Industrial Design';
+  String get categoryIndustrial => 'التصميم الصناعي';
 
   @override
-  String get categoryInterior => 'Interior Design';
+  String get categoryInterior => 'التصميم الداخلي';
 
   @override
-  String get categoryThreeD => '3D Design';
+  String get categoryThreeD => 'تصميم ثلاثي الأبعاد';
 
   @override
-  String get categoryWeb => 'Web Design';
+  String get categoryWeb => 'تصميم الويب';
 
   @override
   String get claudeInstallFailed => 'Install failed, check npm environment';
@@ -161,10 +161,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get echoPrefix => 'Echo';
 
   @override
-  String get endpointUrl => 'Endpoint URL';
+  String get endpointUrl => 'عنوان نقطة النهاية';
 
   @override
-  String get enterExportPath => 'Enter export path (.zip)';
+  String get enterExportPath => 'أدخل مسار التصدير (.zip)';
 
   @override
   String get enterPluginPackagePath => 'Enter plugin package (.zip) path';

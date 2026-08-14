@@ -1,13 +1,5 @@
 {
   "ar": [
-    "categoryAd",
-    "categoryArch",
-    "categoryIndustrial",
-    "categoryInterior",
-    "categoryThreeD",
-    "categoryWeb",
-    "endpointUrl",
-    "enterExportPath",
     "enterPluginPackagePath",
     "exportAction",
     "exportPluginFailed",
@@ -35,14 +27,6 @@
   ],
 
   "de": [
-    "categoryAd",
-    "categoryArch",
-    "categoryIndustrial",
-    "categoryInterior",
-    "categoryThreeD",
-    "categoryWeb",
-    "endpointUrl",
-    "enterExportPath",
     "enterPluginPackagePath",
     "exportAction",
     "exportPluginFailed",
@@ -70,14 +54,6 @@
   ],
 
   "es": [
-    "categoryAd",
-    "categoryArch",
-    "categoryIndustrial",
-    "categoryInterior",
-    "categoryThreeD",
-    "categoryWeb",
-    "endpointUrl",
-    "enterExportPath",
     "enterPluginPackagePath",
     "exportAction",
     "exportPluginFailed",
@@ -105,14 +81,6 @@
   ],
 
   "fa": [
-    "categoryAd",
-    "categoryArch",
-    "categoryIndustrial",
-    "categoryInterior",
-    "categoryThreeD",
-    "categoryWeb",
-    "endpointUrl",
-    "enterExportPath",
     "enterPluginPackagePath",
     "exportAction",
     "exportPluginFailed",
@@ -140,14 +108,6 @@
   ],
 
   "fil": [
-    "categoryAd",
-    "categoryArch",
-    "categoryIndustrial",
-    "categoryInterior",
-    "categoryThreeD",
-    "categoryWeb",
-    "endpointUrl",
-    "enterExportPath",
     "enterPluginPackagePath",
     "exportAction",
     "exportPluginFailed",
@@ -175,14 +135,6 @@
   ],
 
   "fr": [
-    "categoryAd",
-    "categoryArch",
-    "categoryIndustrial",
-    "categoryInterior",
-    "categoryThreeD",
-    "categoryWeb",
-    "endpointUrl",
-    "enterExportPath",
     "enterPluginPackagePath",
     "exportAction",
     "exportPluginFailed",
@@ -210,14 +162,6 @@
   ],
 
   "hi": [
-    "categoryAd",
-    "categoryArch",
-    "categoryIndustrial",
-    "categoryInterior",
-    "categoryThreeD",
-    "categoryWeb",
-    "endpointUrl",
-    "enterExportPath",
     "enterPluginPackagePath",
     "exportAction",
     "exportPluginFailed",
@@ -245,14 +189,6 @@
   ],
 
   "ja": [
-    "categoryAd",
-    "categoryArch",
-    "categoryIndustrial",
-    "categoryInterior",
-    "categoryThreeD",
-    "categoryWeb",
-    "endpointUrl",
-    "enterExportPath",
     "enterPluginPackagePath",
     "exportAction",
     "exportPluginFailed",
@@ -280,14 +216,6 @@
   ],
 
   "ko": [
-    "categoryAd",
-    "categoryArch",
-    "categoryIndustrial",
-    "categoryInterior",
-    "categoryThreeD",
-    "categoryWeb",
-    "endpointUrl",
-    "enterExportPath",
     "enterPluginPackagePath",
     "exportAction",
     "exportPluginFailed",
@@ -315,14 +243,6 @@
   ],
 
   "ru": [
-    "categoryAd",
-    "categoryArch",
-    "categoryIndustrial",
-    "categoryInterior",
-    "categoryThreeD",
-    "categoryWeb",
-    "endpointUrl",
-    "enterExportPath",
     "enterPluginPackagePath",
     "exportAction",
     "exportPluginFailed",

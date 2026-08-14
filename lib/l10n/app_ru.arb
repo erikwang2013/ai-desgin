@@ -134,4 +134,13 @@
   "uninstall": "Удалить",
   "uninstallSuccess": "{name} удалён",
   "unknownError": "Неизвестная ошибка"
+,
+  "categoryAd": "Рекламный дизайн",
+  "categoryArch": "Архитектура",
+  "categoryIndustrial": "Промышленный дизайн",
+  "categoryInterior": "Дизайн интерьера",
+  "categoryThreeD": "3D-дизайн",
+  "categoryWeb": "Веб-дизайн",
+  "endpointUrl": "URL конечной точки",
+  "enterExportPath": "Введите путь экспорта (.zip)"
 }

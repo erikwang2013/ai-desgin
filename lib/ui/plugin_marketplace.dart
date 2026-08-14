@@ -3,7 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:path_provider/path_provider.dart';
 import '../l10n/app_localizations.dart';
-import '../models/session.dart';
 import '../core/plugin_manager.dart';
 import '../core/version.dart';
 import '../core/builtin_plugins.dart';
@@ -118,7 +117,7 @@ class _PluginMarketplaceState extends State<PluginMarketplace> {
           ? p.manifest.description
           : (softwareDescriptions[p.id] ?? '${p.name} 插件'),
       icon: softwareIcons[p.id] ?? '🔌',
-      category: p.category.label,
+      category: p.category.name,
       installed: installed,
       version: p.version,
     );

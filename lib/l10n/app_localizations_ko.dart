@@ -81,22 +81,22 @@ class AppLocalizationsKo extends AppLocalizations {
   String get cancel => '취소';
 
   @override
-  String get categoryAd => 'Advertising Design';
+  String get categoryAd => '광고 디자인';
 
   @override
-  String get categoryArch => 'Architecture';
+  String get categoryArch => '건축';
 
   @override
-  String get categoryIndustrial => 'Industrial Design';
+  String get categoryIndustrial => '산업 디자인';
 
   @override
-  String get categoryInterior => 'Interior Design';
+  String get categoryInterior => '인테리어 디자인';
 
   @override
-  String get categoryThreeD => '3D Design';
+  String get categoryThreeD => '3D 디자인';
 
   @override
-  String get categoryWeb => 'Web Design';
+  String get categoryWeb => '웹 디자인';
 
   @override
   String get claudeInstallFailed => 'Install failed, check npm environment';
@@ -160,10 +160,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get echoPrefix => 'Echo';
 
   @override
-  String get endpointUrl => 'Endpoint URL';
+  String get endpointUrl => '엔드포인트 URL';
 
   @override
-  String get enterExportPath => 'Enter export path (.zip)';
+  String get enterExportPath => '내보내기 경로 입력 (.zip)';
 
   @override
   String get enterPluginPackagePath => 'Enter plugin package (.zip) path';

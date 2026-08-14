@@ -134,4 +134,13 @@
   "uninstall": "Deinstallieren",
   "uninstallSuccess": "{name} deinstalliert",
   "unknownError": "Unbekannter Fehler"
+,
+  "categoryAd": "Werbung",
+  "categoryArch": "Architektur",
+  "categoryIndustrial": "Industriedesign",
+  "categoryInterior": "Innenarchitektur",
+  "categoryThreeD": "3D-Design",
+  "categoryWeb": "Webdesign",
+  "endpointUrl": "Endpunkt-URL",
+  "enterExportPath": "Exportpfad eingeben (.zip)"
 }

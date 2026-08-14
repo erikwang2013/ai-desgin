@@ -134,4 +134,13 @@
   "uninstall": "إلغاء التثبيت",
   "uninstallSuccess": "تم إلغاء تثبيت {name}",
   "unknownError": "خطأ غير معروف"
+,
+  "categoryAd": "تصميم الإعلانات",
+  "categoryArch": "العمارة",
+  "categoryIndustrial": "التصميم الصناعي",
+  "categoryInterior": "التصميم الداخلي",
+  "categoryThreeD": "تصميم ثلاثي الأبعاد",
+  "categoryWeb": "تصميم الويب",
+  "endpointUrl": "عنوان نقطة النهاية",
+  "enterExportPath": "أدخل مسار التصدير (.zip)"
 }

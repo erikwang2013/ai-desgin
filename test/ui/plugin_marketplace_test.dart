@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ai_design_studio/core/plugin_manager.dart';
 import 'package:ai_design_studio/core/builtin_plugins.dart';
+import 'package:ai_design_studio/l10n/app_localizations.dart';
 import 'package:ai_design_studio/ui/plugin_marketplace.dart';
 
 PluginManager _createTestPluginManager() {
@@ -84,5 +85,31 @@ void main() {
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(find.text('Installed (62)'), -300, scrollable: scrollable);
     expect(find.text('Installed (62)'), findsOneWidget);
+  });
+
+  testWidgets('Category badge uses plugin category id, not localized label', (tester) async {
+    // 英文 UI 下各分类徽标按插件真实分类显示（修复前所有插件都落到
+    // categoryFromString 的 default 分支而显示 Web Design）。
+    await tester.pumpWidget(MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: const Locale('en'),
+      home: PluginMarketplace(pluginManager: pm),
+    ));
+
+    expect(
+      find.descendant(
+        of: find.widgetWithText(ListTile, 'Photoshop'),
+        matching: find.text('Advertising Design'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.widgetWithText(ListTile, 'Blender'),
+        matching: find.text('3D Design'),
+      ),
+      findsOneWidget,
+    );
   });
 }

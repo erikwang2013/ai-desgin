@@ -113,7 +113,7 @@ ai-desgin/
 |   |   +-- task_orchestrator.dart         # 任务编排引擎
 |   |   +-- session_store.dart             # SQLCipher 加密会话持久化
 |   |   +-- db_opener.dart                 # SQLCipher 开库与密钥管理
-|   |   +-- locale_provider.dart           # 15 语言切换与持久化
+|   |   +-- locale_provider.dart           # 12 语言切换与持久化
 |   |   +-- builtin_plugins.dart             # 内置插件注册表（单一数据源）
 |   +-- ui/
 |       +-- shell.dart                     # 侧边栏 + 页面布局
@@ -401,7 +401,7 @@ AI 生成脚本后会展示预览，确认无误后点击执行。执行结果�
 - **加密历史会话**：会话与任务历史以 SQLCipher 加密存储，密钥随机生成；SQLCipher 不可用时禁用历史功能，绝不降级明文存储。
 - **会话导出**：历史列表一键导出全部会话为 JSON 文件。
 - **插件市场**：支持搜索、卸载/重装、本地 ZIP 包导入与导出。
-- **15 种界面语言**：中/英为主，其余语言回退英文。
+- **12 种界面语言**：中/英为主，其余语言回退英文。
 
 ## 已支持的软件
 

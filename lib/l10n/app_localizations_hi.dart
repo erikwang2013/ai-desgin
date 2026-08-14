@@ -82,22 +82,22 @@ class AppLocalizationsHi extends AppLocalizations {
   String get cancel => 'रद्द करें';
 
   @override
-  String get categoryAd => 'Advertising Design';
+  String get categoryAd => 'विज्ञापन डिज़ाइन';
 
   @override
-  String get categoryArch => 'Architecture';
+  String get categoryArch => 'वास्तुकला';
 
   @override
-  String get categoryIndustrial => 'Industrial Design';
+  String get categoryIndustrial => 'औद्योगिक डिज़ाइन';
 
   @override
-  String get categoryInterior => 'Interior Design';
+  String get categoryInterior => 'आंतरिक डिज़ाइन';
 
   @override
-  String get categoryThreeD => '3D Design';
+  String get categoryThreeD => '3D डिज़ाइन';
 
   @override
-  String get categoryWeb => 'Web Design';
+  String get categoryWeb => 'वेब डिज़ाइन';
 
   @override
   String get claudeInstallFailed => 'Install failed, check npm environment';
@@ -161,10 +161,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get echoPrefix => 'Echo';
 
   @override
-  String get endpointUrl => 'Endpoint URL';
+  String get endpointUrl => 'एंडपॉइंट URL';
 
   @override
-  String get enterExportPath => 'Enter export path (.zip)';
+  String get enterExportPath => 'निर्यात पथ दर्ज करें (.zip)';
 
   @override
   String get enterPluginPackagePath => 'Enter plugin package (.zip) path';

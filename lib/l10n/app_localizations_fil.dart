@@ -82,22 +82,22 @@ class AppLocalizationsFil extends AppLocalizations {
   String get cancel => 'Kanselahin';
 
   @override
-  String get categoryAd => 'Advertising Design';
+  String get categoryAd => 'Disenyong Pang-ad';
 
   @override
-  String get categoryArch => 'Architecture';
+  String get categoryArch => 'Arkitektura';
 
   @override
-  String get categoryIndustrial => 'Industrial Design';
+  String get categoryIndustrial => 'Disenyong Industriyal';
 
   @override
-  String get categoryInterior => 'Interior Design';
+  String get categoryInterior => 'Disenyong Panloob';
 
   @override
-  String get categoryThreeD => '3D Design';
+  String get categoryThreeD => 'Disenyong 3D';
 
   @override
-  String get categoryWeb => 'Web Design';
+  String get categoryWeb => 'Disenyong Web';
 
   @override
   String get claudeInstallFailed => 'Install failed, check npm environment';
@@ -161,10 +161,10 @@ class AppLocalizationsFil extends AppLocalizations {
   String get echoPrefix => 'Echo';
 
   @override
-  String get endpointUrl => 'Endpoint URL';
+  String get endpointUrl => 'URL ng Endpoint';
 
   @override
-  String get enterExportPath => 'Enter export path (.zip)';
+  String get enterExportPath => 'Ilagay ang path ng export (.zip)';
 
   @override
   String get enterPluginPackagePath => 'Enter plugin package (.zip) path';

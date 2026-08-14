@@ -134,4 +134,13 @@
   "uninstall": "アンインストール",
   "uninstallSuccess": "{name} アンインストール済み",
   "unknownError": "不明なエラー"
+,
+  "categoryAd": "広告デザイン",
+  "categoryArch": "建築",
+  "categoryIndustrial": "インダストリアルデザイン",
+  "categoryInterior": "インテリアデザイン",
+  "categoryThreeD": "3Dデザイン",
+  "categoryWeb": "ウェブデザイン",
+  "endpointUrl": "エンドポイントURL",
+  "enterExportPath": "エクスポート先パスを入力 (.zip)"
 }

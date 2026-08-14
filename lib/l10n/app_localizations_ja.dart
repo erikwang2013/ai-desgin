@@ -81,22 +81,22 @@ class AppLocalizationsJa extends AppLocalizations {
   String get cancel => 'キャンセル';
 
   @override
-  String get categoryAd => 'Advertising Design';
+  String get categoryAd => '広告デザイン';
 
   @override
-  String get categoryArch => 'Architecture';
+  String get categoryArch => '建築';
 
   @override
-  String get categoryIndustrial => 'Industrial Design';
+  String get categoryIndustrial => 'インダストリアルデザイン';
 
   @override
-  String get categoryInterior => 'Interior Design';
+  String get categoryInterior => 'インテリアデザイン';
 
   @override
-  String get categoryThreeD => '3D Design';
+  String get categoryThreeD => '3Dデザイン';
 
   @override
-  String get categoryWeb => 'Web Design';
+  String get categoryWeb => 'ウェブデザイン';
 
   @override
   String get claudeInstallFailed => 'Install failed, check npm environment';
@@ -160,10 +160,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get echoPrefix => 'Echo';
 
   @override
-  String get endpointUrl => 'Endpoint URL';
+  String get endpointUrl => 'エンドポイントURL';
 
   @override
-  String get enterExportPath => 'Enter export path (.zip)';
+  String get enterExportPath => 'エクスポート先パスを入力 (.zip)';
 
   @override
   String get enterPluginPackagePath => 'Enter plugin package (.zip) path';

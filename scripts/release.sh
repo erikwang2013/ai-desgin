@@ -17,9 +17,13 @@ cd ..
 if [[ "$OSTYPE" == "darwin"* ]]; then
     echo "--- Creating macOS .app bundle ---"
     flutter build macos --release
-    # TODO(真机验证): 将 libai_design_core.dylib 拷入 .app/Contents/Frameworks 并 codesign；
-    # 本机无 macOS 环境无法验证 rpath/签名。
-    cp -R build/macos/Build/Products/Release/ai_design_studio.app "$RELEASE_DIR/Ai Desgin.app"
+    # 与 CI build.yml mac 分支一致：嵌入 FFI 动态库、修正 rpath、重新签名
+    APP=build/macos/Build/Products/Release/ai_design_studio.app
+    mkdir -p "$APP/Contents/Frameworks"
+    cp rust/target/release/libai_design_core.dylib "$APP/Contents/Frameworks/"
+    install_name_tool -id @rpath/libai_design_core.dylib "$APP/Contents/Frameworks/libai_design_core.dylib"
+    codesign --force --deep --sign - "$APP"
+    cp -R "$APP" "$RELEASE_DIR/Ai Desgin.app"
     cd "$RELEASE_DIR"
     zip -r "Ai Desgin-$VERSION-macos.zip" "Ai Desgin.app"
     echo "macOS package: $RELEASE_DIR/Ai Desgin-$VERSION-macos.zip"

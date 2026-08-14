@@ -379,7 +379,7 @@ Text-to-3D and image-to-3D generation via Meshy API, with automatic polygon opti
 - **Encrypted session history**: sessions and task history are stored encrypted with SQLCipher; the key is randomly generated. When SQLCipher is unavailable, history is disabled — never silently downgraded to plaintext.
 - **Session export**: export all sessions to a JSON file from the History view.
 - **Plugin marketplace**: search, uninstall/reinstall, and import/export ZIP plugin packages.
-- **15 interface languages**: Chinese and English are primary; other locales fall back to English.
+- **12 interface languages**: Chinese and English are primary; other locales fall back to English.
 
 ## Supported Software
 

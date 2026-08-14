@@ -134,4 +134,13 @@
   "uninstall": "अनइंस्टॉल करें",
   "uninstallSuccess": "{name} अनइंस्टॉल किया गया",
   "unknownError": "अज्ञात त्रुटि"
+,
+  "categoryAd": "विज्ञापन डिज़ाइन",
+  "categoryArch": "वास्तुकला",
+  "categoryIndustrial": "औद्योगिक डिज़ाइन",
+  "categoryInterior": "आंतरिक डिज़ाइन",
+  "categoryThreeD": "3D डिज़ाइन",
+  "categoryWeb": "वेब डिज़ाइन",
+  "endpointUrl": "एंडपॉइंट URL",
+  "enterExportPath": "निर्यात पथ दर्ज करें (.zip)"
 }

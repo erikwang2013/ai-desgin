@@ -82,22 +82,22 @@ class AppLocalizationsRu extends AppLocalizations {
   String get cancel => 'Отмена';
 
   @override
-  String get categoryAd => 'Advertising Design';
+  String get categoryAd => 'Рекламный дизайн';
 
   @override
-  String get categoryArch => 'Architecture';
+  String get categoryArch => 'Архитектура';
 
   @override
-  String get categoryIndustrial => 'Industrial Design';
+  String get categoryIndustrial => 'Промышленный дизайн';
 
   @override
-  String get categoryInterior => 'Interior Design';
+  String get categoryInterior => 'Дизайн интерьера';
 
   @override
-  String get categoryThreeD => '3D Design';
+  String get categoryThreeD => '3D-дизайн';
 
   @override
-  String get categoryWeb => 'Web Design';
+  String get categoryWeb => 'Веб-дизайн';
 
   @override
   String get claudeInstallFailed => 'Install failed, check npm environment';
@@ -161,10 +161,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get echoPrefix => 'Echo';
 
   @override
-  String get endpointUrl => 'Endpoint URL';
+  String get endpointUrl => 'URL конечной точки';
 
   @override
-  String get enterExportPath => 'Enter export path (.zip)';
+  String get enterExportPath => 'Введите путь экспорта (.zip)';
 
   @override
   String get enterPluginPackagePath => 'Enter plugin package (.zip) path';

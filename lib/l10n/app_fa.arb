@@ -134,4 +134,13 @@
   "uninstall": "حذف",
   "uninstallSuccess": "{name} حذف شد",
   "unknownError": "خطای ناشناخته"
+,
+  "categoryAd": "طراحی تبلیغات",
+  "categoryArch": "معماری",
+  "categoryIndustrial": "طراحی صنعتی",
+  "categoryInterior": "طراحی داخلی",
+  "categoryThreeD": "طراحی سهبعدی",
+  "categoryWeb": "طراحی وب",
+  "endpointUrl": "آدرس نقطه پایانی",
+  "enterExportPath": "مسیر خروجی را وارد کنید (.zip)"
 }

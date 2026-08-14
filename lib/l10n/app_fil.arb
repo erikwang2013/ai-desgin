@@ -134,4 +134,13 @@
   "uninstall": "I-uninstall",
   "uninstallSuccess": "Na-uninstall ang {name}",
   "unknownError": "Hindi kilalang error"
+,
+  "categoryAd": "Disenyong Pang-ad",
+  "categoryArch": "Arkitektura",
+  "categoryIndustrial": "Disenyong Industriyal",
+  "categoryInterior": "Disenyong Panloob",
+  "categoryThreeD": "Disenyong 3D",
+  "categoryWeb": "Disenyong Web",
+  "endpointUrl": "URL ng Endpoint",
+  "enterExportPath": "Ilagay ang path ng export (.zip)"
 }

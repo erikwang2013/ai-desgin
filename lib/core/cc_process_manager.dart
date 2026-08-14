@@ -153,32 +153,36 @@ class CCProcessManager {
       _taskKeysBySession.putIfAbsent(sessionId, () => []).add(taskKey);
     }
 
-    final result = await effectiveRunner.execute(
-      task: task,
-      software: session.software,
-      capabilities: session.capabilities.toJson(),
-      state: session.state.toJson(),
-      model: model,
-      scriptLanguage: scriptLanguage,
-      key: taskKey,
-    );
+    try {
+      final result = await effectiveRunner.execute(
+        task: task,
+        software: session.software,
+        capabilities: session.capabilities.toJson(),
+        state: session.state.toJson(),
+        model: model,
+        scriptLanguage: scriptLanguage,
+        key: taskKey,
+      );
 
-    _taskKeysBySession[sessionId]?.remove(taskKey);
-    session.lastActivity = DateTime.now();
-
-    if (result.success) {
-      return {
-        'success': true,
-        'script': result.script,
-        'scriptLanguage': result.scriptLanguage,
-        'explanation': result.explanation,
-        'modelUsed': result.modelUsed ?? model,
-      };
-    } else {
-      return {
-        'success': false,
-        'error': result.error,
-      };
+      if (result.success) {
+        return {
+          'success': true,
+          'script': result.script,
+          'scriptLanguage': result.scriptLanguage,
+          'explanation': result.explanation,
+          'modelUsed': result.modelUsed ?? model,
+        };
+      } else {
+        return {
+          'success': false,
+          'error': result.error,
+        };
+      }
+    } finally {
+      // execute 抛异常时也要清理 taskKey，否则会话被误认为"正在执行"
+      // 而永远不会被驱逐；lastActivity 同步刷新为执行结束时间。
+      _taskKeysBySession[sessionId]?.remove(taskKey);
+      session.lastActivity = DateTime.now();
     }
   }
 
