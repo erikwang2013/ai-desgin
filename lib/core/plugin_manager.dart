@@ -131,7 +131,12 @@ class PluginManager {
   Future<void> disposeAll() async {
     final plugins = List<DesignPlugin>.from(_plugins.values);
     for (final plugin in plugins) {
-      await plugin.dispose();
+      // 单个插件 dispose 失败不得中断其余插件的清理。
+      try {
+        await plugin.dispose();
+      } catch (e) {
+        dev.log('Plugin "${plugin.id}" dispose failed: $e', name: 'PluginManager');
+      }
     }
     _plugins.clear();
     _externalPackageDirs.clear();

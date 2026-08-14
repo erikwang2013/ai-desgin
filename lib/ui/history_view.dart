@@ -140,6 +140,7 @@ class HistoryViewState extends State<HistoryView> {
 
     final ids = targets.map((s) => s.id).toList();
     final store = widget.sessionStore;
+    var deleted = true;
     try {
       if (store != null) {
         if (single) {
@@ -149,9 +150,17 @@ class HistoryViewState extends State<HistoryView> {
         }
       }
     } catch (_) {
-      // Non-critical; item simply stays in the list
+      // 删除失败时保留列表项：数据库仍持有该会话，
+      // 从 UI 移除会造成刷新后"复活"的假删除。
+      deleted = false;
     }
     if (!mounted) return;
+    if (!deleted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Delete failed'),
+      ));
+      return;
+    }
     setState(() {
       _sessions.removeWhere((s) => ids.contains(s.id));
       _selectedIds.removeAll(ids);

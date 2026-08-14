@@ -94,6 +94,25 @@ void main() {
     expect(await store.load('s1'), isNotNull);
   });
 
+  testWidgets('failed delete keeps the session in the list and shows an error', (tester) async {
+    await saveSessions(tester, [makeSession('s1', 'create button')]);
+    // 删除抛错的 store：DB 仍持有会话，UI 不应假删除。
+    final failing = _FailingDeleteStore(db);
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(body: HistoryView(sessionStore: failing)),
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.delete_outline));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('create button'), findsOneWidget);
+    expect(find.text('Delete failed'), findsOneWidget);
+    expect(await store.load('s1'), isNotNull);
+  });
+
   testWidgets('cancelling single delete keeps the session', (tester) async {
     await saveSessions(tester, [makeSession('s1', 'create button')]);
     await pumpHistory(tester);
@@ -190,4 +209,13 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(AlertDialog), findsNothing);
   });
+}
+
+class _FailingDeleteStore extends SessionStore {
+  _FailingDeleteStore(super.db);
+
+  @override
+  Future<void> delete(String sessionId) async {
+    throw Exception('db locked');
+  }
 }

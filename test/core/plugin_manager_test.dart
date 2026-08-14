@@ -91,6 +91,18 @@ void main() {
     expect(manager.get('c'), isNull);
   });
 
+  test('disposeAll continues when a plugin dispose throws', () async {
+    final manager = PluginManager();
+    final disposed = <String>[];
+    manager.register(_ThrowingDisposePlugin('bad'));
+    manager.register(_RecordingDisposePlugin('good', disposed));
+    await manager.disposeAll();
+
+    // 坏插件的异常被吞掉，其余插件照常清理。
+    expect(disposed, ['good']);
+    expect(manager.getAll().length, 0);
+  });
+
   test('registerExternal registers script-file plugin with package dir', () {
     final manager = PluginManager();
     final manifest = ExternalPluginManifest(
@@ -282,5 +294,14 @@ class _RecordingDisposePlugin extends StubPlugin {
   @override
   Future<void> dispose() async {
     disposed.add(id);
+  }
+}
+
+class _ThrowingDisposePlugin extends StubPlugin {
+  _ThrowingDisposePlugin(super.id);
+
+  @override
+  Future<void> dispose() async {
+    throw Exception('dispose failed');
   }
 }

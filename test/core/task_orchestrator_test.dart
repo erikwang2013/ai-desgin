@@ -120,6 +120,12 @@ class CountingEchoPlugin extends EchoPlugin {
   }
 }
 
+/// Second software for multi-session tests.
+class OtherEchoPlugin extends EchoPlugin {
+  @override
+  String get id => 'other';
+}
+
 /// Gated plugin that records cancel() calls — exercises the cancel wire-up.
 class CancellingGatedPlugin extends GatedEchoPlugin {
   int cancelCalls = 0;
@@ -299,6 +305,83 @@ void main() {
     expect(tight.getTask(pending.id)?.status, TaskStatus.cancelled);
     // 队列不再执行被取消的任务，且无幽灵记录
     expect(tight.tasks.where((t) => t.task == 'second'), hasLength(1));
+
+    release.complete();
+    await t1;
+  });
+
+  test('re-submitting a cancelled task id returns the cancelled record without running', () async {
+    final release = Completer<void>();
+    final gated = GatedEchoPlugin(release: release);
+    final counting = CountingEchoPlugin();
+    pluginManager.register(gated);
+    pluginManager.register(counting);
+    final tight = TaskOrchestrator(
+      pluginManager: pluginManager,
+      ccManager: ccManager,
+      modelRouter: modelRouter,
+      backend: FakeCCRunner(),
+      maxConcurrent: 1,
+    );
+    // 占住唯一并发位，让第二个任务进队列。
+    final t1 = tight.submitTask(domain: DesignCategory.web, softwareName: 'gated', task: 'first');
+    final t2 = tight.submitTask(domain: DesignCategory.web, softwareName: 'echo', task: 'second', taskId: 'X');
+
+    final pending = tight.tasks.firstWhere((t) => t.task == 'second');
+    expect(pending.status, TaskStatus.pending);
+
+    tight.cancelTask(pending.id);
+    expect(tight.getTask(pending.id)?.status, TaskStatus.cancelled);
+
+    // 同 id 重新提交：入口必须直接返回取消结果，不得让任务复活照跑。
+    final r3 = await tight.submitTask(
+      domain: DesignCategory.web, softwareName: 'echo', task: 'third', taskId: pending.id);
+    expect(r3.status, TaskStatus.cancelled);
+    expect(r3.task, 'second');
+    expect(counting.executeCalls, 0);
+
+    release.complete();
+    await t1;
+    final r2 = await t2;
+    expect(r2.status, TaskStatus.cancelled);
+  });
+
+  test('pruneTasks evicts least-recently-active idle sessions beyond the cap', () async {
+    pluginManager.register(OtherEchoPlugin());
+    final orch = TaskOrchestrator(
+      pluginManager: pluginManager,
+      ccManager: ccManager,
+      modelRouter: modelRouter,
+      backend: FakeCCRunner(),
+      maxConcurrent: 2,
+    );
+    await orch.submitTask(domain: DesignCategory.web, softwareName: 'echo', task: 'old');
+    await Future<void>.delayed(const Duration(milliseconds: 5));
+    await orch.submitTask(domain: DesignCategory.web, softwareName: 'other', task: 'new');
+
+    orch.pruneTasks(keepSessions: 1);
+    expect(orch.getCurrentSession('echo'), isNull);
+    expect(orch.getCurrentSession('other'), isNotNull);
+  });
+
+  test('pruneTasks never evicts a session with a running task', () async {
+    final release = Completer<void>();
+    final gated = GatedEchoPlugin(release: release);
+    pluginManager.register(gated);
+    pluginManager.register(OtherEchoPlugin());
+    final orch = TaskOrchestrator(
+      pluginManager: pluginManager,
+      ccManager: ccManager,
+      modelRouter: modelRouter,
+      backend: FakeCCRunner(),
+      maxConcurrent: 2,
+    );
+    final t1 = orch.submitTask(domain: DesignCategory.web, softwareName: 'gated', task: 'block');
+    await orch.submitTask(domain: DesignCategory.web, softwareName: 'other', task: 'idle');
+
+    orch.pruneTasks(keepSessions: 1);
+    expect(orch.getCurrentSession('gated'), isNotNull);
+    expect(orch.getCurrentSession('other'), isNull);
 
     release.complete();
     await t1;

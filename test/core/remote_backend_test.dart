@@ -68,6 +68,62 @@ void main() {
     expect(result.script, 'plain text script');
   });
 
+  test('appends /chat/completions to the path, preserving query params', () async {
+    final client = MockClient((request) async {
+      // query 不能拼进 path（旧行为会变成 ?x=1/chat/completions）。
+      expect(request.url.toString(),
+          'https://api.example.com/v1/chat/completions?api-version=2024');
+      return http.Response(
+        jsonEncode({
+          'choices': [
+            {'message': {'content': 'query();'}}
+          ]
+        }),
+        200,
+      );
+    });
+    final backend = RemoteBackend(
+      endpointUrl: 'https://api.example.com/v1?api-version=2024',
+      apiKey: '',
+      client: client,
+    );
+    final result = await backend.execute(
+      task: 't',
+      software: 'figma',
+      capabilities: caps,
+      state: state,
+    );
+    expect(result.success, isTrue);
+    expect(result.script, 'query();');
+  });
+
+  test('does not double-append when base ends with a trailing slash after chat/completions', () async {
+    final client = MockClient((request) async {
+      expect(request.url.toString(), 'https://api.example.com/v1/chat/completions');
+      return http.Response(
+        jsonEncode({
+          'choices': [
+            {'message': {'content': 'ok();'}}
+          ]
+        }),
+        200,
+      );
+    });
+    final backend = RemoteBackend(
+      endpointUrl: 'https://api.example.com/v1/chat/completions/',
+      apiKey: '',
+      client: client,
+    );
+    final result = await backend.execute(
+      task: 't',
+      software: 'figma',
+      capabilities: caps,
+      state: state,
+    );
+    expect(result.success, isTrue);
+    expect(result.script, 'ok();');
+  });
+
   test('fails on HTTP error status', () async {
     final client = MockClient((request) async {
       return http.Response('{"error": {"message": "invalid api key"}}', 401);

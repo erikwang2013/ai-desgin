@@ -185,6 +185,9 @@ class _MainShellState extends State<_MainShell> {
       // Saved settings are optional; defaults apply otherwise
     }
     await routingFuture;
+    // 启动时先等已保存语言加载完成再取指令：responseLanguage 与 UI 语言
+    // 同源，否则 saved locale 为英文时提示语仍按默认中文下发。
+    await widget.localeProvider.loadSavedLocale();
     CCRunner.responseLanguage = widget.localeProvider.languageInstruction;
     String backendId = 'claude';
     try {

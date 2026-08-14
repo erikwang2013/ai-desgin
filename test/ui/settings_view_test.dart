@@ -110,6 +110,39 @@ void main() {
       expect(prefs.getString('proxy_host'), '127.0.0.1');
       expect(prefs.getString('proxy_port'), '7890');
     });
+
+    testWidgets('rejects a port embedded in the host alongside a port field', (tester) async {
+      await tester.pumpWidget(const MaterialApp(home: ProxySettingsPage()));
+
+      await tester.enterText(find.byType(TextField).at(0), '127.0.0.1:7890');
+      await tester.enterText(find.byType(TextField).at(1), '7890');
+      await tapSave(tester);
+
+      expect(find.textContaining('put the port in the port field'), findsOneWidget);
+      expect(CCRunner.proxyEnvironment, isNull);
+    });
+
+    testWidgets('restores saved scheme into the host field and keeps it on re-save', (tester) async {
+      SharedPreferences.setMockInitialValues({
+        'proxy_scheme': 'https',
+        'proxy_host': 'proxy.example.com',
+        'proxy_port': '8443',
+      });
+      await tester.pumpWidget(const MaterialApp(home: ProxySettingsPage()));
+      await tester.pumpAndSettle();
+
+      // 回显带 scheme 前缀，再次保存不会降级成 http。
+      expect(
+        tester.widget<TextField>(find.byType(TextField).at(0)).controller?.text,
+        'https://proxy.example.com',
+      );
+
+      await tapSave(tester);
+      expect(CCRunner.proxyEnvironment,
+          {'HTTP_PROXY': 'https://proxy.example.com:8443', 'HTTPS_PROXY': 'https://proxy.example.com:8443'});
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('proxy_scheme'), 'https');
+    });
   });
 
   group('About dialog links', () {

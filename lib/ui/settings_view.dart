@@ -367,7 +367,11 @@ class _ProxySettingsPageState extends State<ProxySettingsPage> {
     try {
       final prefs = await SharedPreferences.getInstance();
       if (!mounted) return;
-      _hostCtrl.text = prefs.getString(_hostKey) ?? '';
+      // 重建 scheme 前缀：只存裸 host，若回显时不还原，再次保存会因
+      // 正则匹配不到 scheme 而静默降级成 http（HTTPS 代理变明文）。
+      final scheme = prefs.getString(_schemeKey) ?? '';
+      final host = prefs.getString(_hostKey) ?? '';
+      _hostCtrl.text = scheme.isNotEmpty && host.isNotEmpty ? '$scheme://$host' : host;
       _portCtrl.text = prefs.getString(_portKey) ?? '';
     } catch (_) {}
   }
@@ -419,6 +423,10 @@ class _ProxySettingsPageState extends State<ProxySettingsPage> {
     }
     if (host.contains('/')) {
       return 'Invalid proxy host (host name only, no path)';
+    }
+    // host 里已带端口（如 127.0.0.1:7890）再填端口会拼出非法 URL。
+    if (port.isNotEmpty && host.contains(':')) {
+      return 'Invalid proxy host (put the port in the port field only)';
     }
     if (port.isNotEmpty) {
       final value = int.tryParse(port);

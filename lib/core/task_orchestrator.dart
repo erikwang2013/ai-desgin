@@ -81,6 +81,12 @@ class TaskOrchestrator {
       return record;
     }
 
+    // 取消防复活：_processQueue 出队重入或调用方复用 taskId 时，若该 id
+    // 已被 cancelTask 标记为 cancelled，直接返回取消结果；用新的 running
+    // 记录覆盖 cancelled 会让已取消的任务照跑。
+    final existing = taskId == null ? null : _tasks[taskId];
+    if (existing?.status == TaskStatus.cancelled) return existing!;
+
     if (_activeCount >= maxConcurrent) {
       if (_taskQueue.length >= maxQueueSize) {
         final record = TaskRecord(sessionId: softwareName, task: task,
@@ -410,18 +416,44 @@ class TaskOrchestrator {
 
   /// Evict old finished task records to prevent unbounded memory growth.
   /// Running/pending tasks are never pruned.
-  void pruneTasks({int keep = 200}) {
-    if (_tasks.length <= keep) return;
-    final terminal = _tasks.entries
-        .where((e) => e.value.status != TaskStatus.running &&
-            e.value.status != TaskStatus.pending)
+  void pruneTasks({int keep = 200, int keepSessions = 50}) {
+    if (_tasks.length > keep) {
+      final terminal = _tasks.entries
+          .where((e) => e.value.status != TaskStatus.running &&
+              e.value.status != TaskStatus.pending)
+          .toList()
+        ..sort((a, b) => a.value.createdAt.compareTo(b.value.createdAt));
+      var excess = _tasks.length - keep;
+      for (final entry in terminal) {
+        if (excess <= 0) break;
+        _tasks.remove(entry.key);
+        excess--;
+      }
+    }
+    _pruneSessions(keepSessions);
+  }
+
+  /// 会话（含历史）同样受保留上限约束：只驱逐最久无活动的、且当前无
+  /// running/pending 任务引用的会话，避免长驻内存无限累积。
+  void _pruneSessions(int keep) {
+    if (_sessions.length <= keep) return;
+    final activeSoftware = _tasks.values
+        .where((t) => t.status == TaskStatus.running ||
+            t.status == TaskStatus.pending)
+        .map((t) => t.sessionId)
+        .toSet();
+    final idle = _sessions.entries
+        .where((e) => !activeSoftware.contains(e.key))
         .toList()
-      ..sort((a, b) => a.value.createdAt.compareTo(b.value.createdAt));
-    var excess = _tasks.length - keep;
-    for (final entry in terminal) {
+      ..sort((a, b) => _lastActivity(a.value).compareTo(_lastActivity(b.value)));
+    var excess = _sessions.length - keep;
+    for (final entry in idle) {
       if (excess <= 0) break;
-      _tasks.remove(entry.key);
+      _sessions.remove(entry.key);
       excess--;
     }
   }
+
+  DateTime _lastActivity(Session s) =>
+      s.history.isEmpty ? s.createdAt : s.history.last.createdAt;
 }

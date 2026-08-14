@@ -118,11 +118,20 @@ class RemoteBackend implements AgentBackend {
     }
   }
 
-  /// 以 /chat/completions 结尾的 URL 原样使用，否则追加。
+  /// 以 /chat/completions 结尾的 URL 原样使用，否则在 path 末尾追加。
+  /// 用 Uri 组装：query/fragment 拼进 path（?x=1/chat/completions）或
+  /// 尾斜杠 URL 重复追加（/chat/completions/chat/completions）都会打错端点。
   String _chatCompletionsUrl(String base) {
     final trimmed = base.trim();
     if (trimmed.endsWith('/chat/completions')) return trimmed;
-    return '${trimmed.replaceAll(RegExp(r'/+$'), '')}/chat/completions';
+    final uri = Uri.tryParse(trimmed);
+    if (uri == null) return '$trimmed/chat/completions';
+    final basePath = uri.path.isEmpty ? '' : uri.path.replaceAll(RegExp(r'/+$'), '');
+    if (basePath.endsWith('/chat/completions')) {
+      return uri.replace(path: basePath).toString();
+    }
+    final newPath = basePath.isEmpty ? '/chat/completions' : '$basePath/chat/completions';
+    return uri.replace(path: newPath).toString();
   }
 
   /// 本地回环地址允许明文 http，其余端点强制 https。

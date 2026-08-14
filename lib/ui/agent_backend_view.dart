@@ -70,9 +70,28 @@ class _AgentBackendViewState extends State<AgentBackendView> {
   }
 
   Future<void> _saveRemoteConfig() async {
+    // 与 ModelConfigPage 同规则：非空 URL 必须是合法 http(s) 端点，
+    // 否则运行期才在 execute 里失败，且 http 非回环地址会被强制拒绝。
+    final url = _urlController.text.trim();
+    if (url.isNotEmpty) {
+      final uri = Uri.tryParse(url);
+      if (uri == null ||
+          !(uri.isScheme('http') || uri.isScheme('https')) ||
+          uri.host.isEmpty) {
+        if (!mounted) return;
+        final l10n = AppLocalizations.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(l10n?.invalidEndpointUrl ??
+              'Invalid endpoint URL (e.g. https://api.example.com/v1)'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+          duration: const Duration(seconds: 3),
+        ));
+        return;
+      }
+    }
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('remote_endpoint_url', _urlController.text.trim());
+      await prefs.setString('remote_endpoint_url', url);
       await prefs.setString('remote_endpoint_key', _keyController.text.trim());
       if (!mounted) return;
       final l10n = AppLocalizations.of(context);
@@ -91,7 +110,12 @@ class _AgentBackendViewState extends State<AgentBackendView> {
   }
 
   Future<void> _checkVersion() async {
-    final version = await CCRunner.installedVersion();
+    String? version;
+    try {
+      version = await CCRunner.installedVersion();
+    } catch (_) {
+      version = null;
+    }
     if (mounted) {
       setState(() {
         _installedVersion = version;

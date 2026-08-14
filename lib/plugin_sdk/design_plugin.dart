@@ -67,14 +67,18 @@ class BuiltInPlugin implements DesignPlugin {
       _ => DesignCategory.web,
     };
     final caps = json['capabilities'] as Map<String, dynamic>? ?? const {};
+    // whereType + toList 是急切转换：cast<String> 惰性抛错会逃出调用方
+    // try/catch（PluginManager.create），等 UI 首次访问时才炸。坏字段跳过。
+    List<String> stringList(Object? raw) =>
+        raw is List ? raw.whereType<String>().toList() : const [];
     return BuiltInPlugin(
       id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? '',
       category: category,
       scriptLanguage: json['script_language'] as String? ?? '',
       capabilities: SoftwareCapabilities(
-        actions: (caps['actions'] as List?)?.cast<String>() ?? const [],
-        fileFormats: (caps['file_formats'] as List?)?.cast<String>() ?? const [],
+        actions: stringList(caps['actions']),
+        fileFormats: stringList(caps['file_formats']),
       ),
     );
   }

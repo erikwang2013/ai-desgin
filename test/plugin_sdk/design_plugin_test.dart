@@ -70,6 +70,23 @@ void main() {
     expect(plugin.scriptLanguage, 'javascript');
   });
 
+  test('fromRustJson tolerates malformed capability entries', () {
+    final plugin = BuiltInPlugin.fromRustJson({
+      'id': 'bad',
+      'name': 'Bad',
+      'category': 'web',
+      'script_language': 'javascript',
+      'capabilities': {
+        // 非 List 字段与非字符串元素都应跳过，而不是抛错或逃逸惰性 cast。
+        'actions': 'not-a-list',
+        'file_formats': ['ok', 123, null],
+      },
+    });
+    expect(plugin.id, 'bad');
+    expect(plugin.capabilities.actions, isEmpty);
+    expect(plugin.capabilities.fileFormats, ['ok']);
+  });
+
   test('initialize sets up plugin', () async {
     final result =
         await plugin.initialize(const PluginContext(pluginPath: '/tmp/plugin'));

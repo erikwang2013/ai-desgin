@@ -188,7 +188,7 @@ mod tests {
         let mut cmd = Command::new("sh");
         cmd.arg("-c").arg("printf '\\000\\001\\002'");
         let res = run_command_with_timeout(&mut cmd, Duration::from_secs(5));
-        let err = res.err().expect("binary output must be rejected");
+        let err = res.expect_err("binary output must be rejected");
         assert!(err.contains("binary"), "unexpected error: {err}");
     }
 
@@ -198,7 +198,7 @@ mod tests {
         let mut cmd = Command::new("sh");
         cmd.arg("-c").arg("sleep 5");
         let res = run_command_with_timeout(&mut cmd, Duration::from_millis(200));
-        let err = res.err().expect("must time out");
+        let err = res.expect_err("must time out");
         assert!(err.contains("timed out"), "unexpected error: {err}");
     }
 
@@ -218,7 +218,7 @@ mod tests {
 
     #[test]
     fn read_lossy_rejects_nul_bytes() {
-        let err = read_lossy(&b"abc\0def"[..]).err().expect("NUL must be rejected");
+        let err = read_lossy(&b"abc\0def"[..]).expect_err("NUL must be rejected");
         assert!(err.contains("binary"), "unexpected error: {err}");
     }
 }
